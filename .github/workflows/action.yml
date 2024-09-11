@@ -35,6 +35,10 @@ jobs:
       - name: Print Circom version
         run: circom --version
 
+      - name: Install Yarn
+        run: |
+          corepack prepare yarn@3.2.3 --activate
+
       - name: Install Yarn dependencies
         working-directory: ./packages/circuits
         run: yarn install --immutable
@@ -54,6 +58,10 @@ jobs:
         with:
           node-version: 18
       
+      - name: Install Yarn
+        run: |
+          corepack prepare yarn@3.2.3 --activate
+
       - name: Install Yarn dependencies
         working-directory: ./packages/helpers
         run: yarn install --immutable
