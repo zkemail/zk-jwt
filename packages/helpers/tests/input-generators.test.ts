@@ -33,6 +33,9 @@ describe("Generate JWT Verifier Inputs", () => {
         expect(inputs.messageLength).toBeDefined();
         expect(inputs.pubkey).toBeInstanceOf(Array);
         expect(inputs.signature).toBeInstanceOf(Array);
+        expect(inputs.periodIndex).toBeDefined();
+        expect(inputs.jwtTypStartIndex).toBeDefined();
+        expect(inputs.jwtAlgStartIndex).toBeDefined();
     });
 
     it("should throw an error for an invalid JWT", async () => {
