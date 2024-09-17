@@ -35,8 +35,9 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
 
     signal input periodIndex; // Index of the period in the JWT message
 
-    signal input jwtTypStartIndex; // Index of the "typ" in the JWT message
-    signal input jwtAlgStartIndex; // Index of the "alg" in the JWT message
+    signal input jwtTypStartIndex; // Index of the "typ" in the JWT header
+    signal input jwtAlgStartIndex; // Index of the "alg" in the JWT header
+    signal input commandStartIndex; // Index of the key `command` in the JWT payload
 
     assert(maxMessageLength % 64 == 0);
     assert(n * k > 2048); // to support 2048 bit RSA
@@ -119,5 +120,13 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
     signal algMatch[algLength] <== RevealSubstring(maxHeaderLength, algLength, 0)(header, jwtAlgStartIndex, algLength);
     for (var i = 0; i < algLength; i++) {
         algMatch[i] === alg[i];
+    }
+
+    // Verify if `command` key exists in the payload
+    var commandLength = COMMAND_LENGTH();
+    var command[commandLength] = COMMAND();
+    signal commandMatch[commandLength] <== RevealSubstring(maxPayloadLength, commandLength, 1)(payload, commandStartIndex, commandLength);
+    for (var i = 0; i < commandLength; i++) {
+        commandMatch[i] === command[i];
     }
 }
