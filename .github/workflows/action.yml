@@ -1,4 +1,4 @@
-name: ZK Email tests
+name: ZK JWT tests
 on: [push]
 jobs:
   run_circuit_tests:
