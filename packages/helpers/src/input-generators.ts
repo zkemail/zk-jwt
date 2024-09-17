@@ -33,7 +33,13 @@ export async function generateJWTVerifierInputs(
     messageLength: string; // Length of the JWT message
     pubkey: string[]; // RSA public key
     signature: string[]; // RSA signature
+    periodIndex: string; // Index of the period in the JWT message
+    jwtTypStartIndex: string; // Index of the "typ" in the JWT message
+    jwtAlgStartIndex: string; // Index of the "alg" in the JWT message
 }> {
+    // Find the index of the period in the JWT message
+    const periodIndex = rawJWT.indexOf(".");
+
     // Split the JWT token into its components
     const [headerString, payloadString, signatureString] = splitJWT(rawJWT);
 
@@ -50,10 +56,20 @@ export async function generateJWTVerifierInputs(
         params.maxMessageLength || MAX_JWT_PADDED_BYTES
     );
 
+    // Decode header and payload
+    const header = Buffer.from(headerString, "base64").toString("utf-8");
+
+    // Find the starting indices of the required substrings
+    const jwtTypStartIndex = header.indexOf('"typ":"JWT"');
+    const jwtAlgStartIndex = header.indexOf('"alg":"RS256"');
+
     return {
         message: Uint8ArrayToCharArray(messagePadded),
         messageLength: messagePaddedLen.toString(),
         pubkey: toCircomBigIntBytes(base64ToBigInt(publicKey.n)),
         signature: toCircomBigIntBytes(base64ToBigInt(signatureString)),
+        periodIndex: periodIndex.toString(),
+        jwtTypStartIndex: jwtTypStartIndex.toString(),
+        jwtAlgStartIndex: jwtAlgStartIndex.toString(),
     };
 }
