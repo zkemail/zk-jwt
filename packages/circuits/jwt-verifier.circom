@@ -4,6 +4,11 @@ include "circomlib/circuits/bitify.circom";
 include "@zk-email/circuits/utils/array.circom";
 include "@zk-email/circuits/lib/sha.circom";
 include "@zk-email/circuits/lib/rsa.circom";
+include "@zk-email/circuits/lib/base64.circom";
+include "@zk-email/circuits/helpers/reveal-substring.circom";
+include "./utils/array.circom";
+include "./utils/bytes.circom";
+include "./utils/constants.circom";
 
 /**
  * @title JWTVerifier
@@ -22,15 +27,25 @@ include "@zk-email/circuits/lib/rsa.circom";
  *
  * @output sha[256] The SHA256 hash of the JWT message, computed for signature verification.
  */ 
-template JWTVerifier(n, k, maxMessageLength) {
+template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLength) {
     signal input message[maxMessageLength]; // JWT message (header + payload)
     signal input messageLength; // Length of the message signed in the JWT
     signal input pubkey[k]; // RSA public key split into k chunks
     signal input signature[k]; // RSA signature split into k chunks
 
+    signal input periodIndex; // Index of the period in the JWT message
+
+    signal input jwtTypStartIndex; // Index of the "typ" in the JWT message
+    signal input jwtAlgStartIndex; // Index of the "alg" in the JWT message
+
     assert(maxMessageLength % 64 == 0);
     assert(n * k > 2048); // to support 2048 bit RSA
     assert(n < (255 \ 2)); // for multiplication to fit in the field (255 bits)
+
+    // Ensure maxB64HeaderLength and maxB64PayloadLength are multiples of 4
+    // Base64 encoding always produces output in multiples of 4 characters
+    assert(maxB64HeaderLength % 4 == 0); 
+    assert(maxB64PayloadLength % 4 == 0); 
 
     // Assert message length fits in ceil(log2(maxMessageLength))
     component n2bMessageLength = Num2Bits(log2Ceil(maxMessageLength));
@@ -40,7 +55,7 @@ template JWTVerifier(n, k, maxMessageLength) {
     AssertZeroPadding(maxMessageLength)(message, messageLength);
 
     // Calculate SHA256 hash of the JWT message
-    signal output sha[256] <== Sha256Bytes(maxMessageLength)(message, messageLength);
+    signal sha[256] <== Sha256Bytes(maxMessageLength)(message, messageLength);
 
     // Pack SHA output bytes to int[] for RSA input message
     var rsaMessageSize = (256 + n) \ n; // Adjust based on RSA chunk size
@@ -65,6 +80,44 @@ template JWTVerifier(n, k, maxMessageLength) {
     }
     rsaVerifier.modulus <== pubkey;
     rsaVerifier.signature <== signature;
+
+    // Assert that period exists at periodIndex
+    // TODO: Do we need to prove that it is the only period in the message?
+    signal period <== ItemAtIndex(maxMessageLength)(message, periodIndex);
+    period === 46;
+
+    // Find the real message length
+    signal realMessageLength <== FindRealMessageLength(maxMessageLength)(message);
+
+    // Calculate the length of the Base64 encoded header and payload
+    signal b64HeaderLength <== periodIndex;
+    signal b64PayloadLength <== realMessageLength - b64HeaderLength - 1;
+
+    // Extract the Base64 encoded header and payload from the message
+    signal b64Header[maxB64HeaderLength] <== SelectSubArrayBase64(maxMessageLength, maxB64HeaderLength)(message, 0, b64HeaderLength);
+    signal b64Payload[maxB64PayloadLength] <== SelectSubArrayBase64(maxMessageLength, maxB64PayloadLength)(message, b64HeaderLength + 1, b64PayloadLength);
+
+    // Calculate the maximum length of the decoded header and payload
+    var maxHeaderLength = (maxB64HeaderLength * 3) \ 4;
+    var maxPayloadLength = (maxB64PayloadLength * 3) \ 4;
+
+    // Decode the Base64 encoded header and payload
+    signal header[maxHeaderLength] <== Base64Decode(maxHeaderLength)(b64Header);
+    signal payload[maxPayloadLength] <== Base64Decode(maxPayloadLength)(b64Payload);
+
+    // Verify if the typ in the header is "JWT"
+    var typLength = JWT_TYP_LENGTH();
+    var typ[typLength] = JWT_TYP();
+    signal typMatch[typLength] <== RevealSubstring(maxHeaderLength, typLength, 0)(header, jwtTypStartIndex, typLength);
+    for (var i = 0; i < typLength; i++) {
+        typMatch[i] === typ[i];
+    }
+
+    // Verify if the alg in the header is "RS256"
+    var algLength = JWT_ALG_LENGTH();
+    var alg[algLength] = JWT_ALG();
+    signal algMatch[algLength] <== RevealSubstring(maxHeaderLength, algLength, 0)(header, jwtAlgStartIndex, algLength);
+    for (var i = 0; i < algLength; i++) {
+        algMatch[i] === alg[i];
+    }
 }
-
-

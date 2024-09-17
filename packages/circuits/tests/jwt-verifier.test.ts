@@ -17,7 +17,7 @@ describe("JWT Verifier Circuit", () => {
         circuit = await wasm_tester(
             path.join(__dirname, "./test-circuits/jwt-verifier-test.circom"),
             {
-                recompile: false,
+                recompile: true,
                 include: path.join(__dirname, "../../../node_modules"),
                 output: path.join(__dirname, "./compiled-test-circuits"),
             }
@@ -42,10 +42,16 @@ describe("JWT Verifier Circuit", () => {
     });
 
     it("should verify a valid JWT", async () => {
-        const jwtVerifierInputs = await generateJWTVerifierInputs(rawJWT, {
-            n: publicKey.n,
-            e: publicKey.e,
-        });
+        const jwtVerifierInputs = await generateJWTVerifierInputs(
+            rawJWT,
+            {
+                n: publicKey.n,
+                e: publicKey.e,
+            },
+            {
+                maxMessageLength: 256,
+            }
+        );
 
         const witness = await circuit.calculateWitness(jwtVerifierInputs);
         await circuit.checkConstraints(witness);

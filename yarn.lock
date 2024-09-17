@@ -2656,13 +2656,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zk-email/circuits@npm:^6.1.5":
-  version: 6.1.5
-  resolution: "@zk-email/circuits@npm:6.1.5"
+"@zk-email/circuits@npm:6.1.5-nightly.2024-09-16":
+  version: 6.1.5-nightly.2024-09-16
+  resolution: "@zk-email/circuits@npm:6.1.5-nightly.2024-09-16"
   dependencies:
     "@zk-email/zk-regex-circom": ^2.1.0
     circomlib: ^2.0.5
-  checksum: d0e09bc48aca8195265b405b1800a0251ae0dc3596bcd12ce8b9ed9770589abf326f8a8882c8a454e3af97e7bea619e5020a6d2cdf910535ac660c568471714e
+  checksum: 742a891b278d8faf6975d4fd077b54f1eeb69ce8a2831dbb9c0e67de0a4f5ee5778fe1acd6fc5cafc6e5fdd9745737ad45ee15bce959493cacc4cd6f97907d93
   languageName: node
   linkType: hard
 
@@ -2700,7 +2700,7 @@ __metadata:
     "@babel/core": ^7.22.5
     "@babel/preset-env": ^7.22.2
     "@babel/preset-typescript": ^7.21.5
-    "@zk-email/circuits": ^6.1.5
+    "@zk-email/circuits": 6.1.5-nightly.2024-09-16
     babel-jest: ^29.5.0
     babel-preset-jest: ^29.5.0
     circom_tester: ^0.0.20
