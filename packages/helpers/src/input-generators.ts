@@ -34,8 +34,9 @@ export async function generateJWTVerifierInputs(
     pubkey: string[]; // RSA public key
     signature: string[]; // RSA signature
     periodIndex: string; // Index of the period in the JWT message
-    jwtTypStartIndex: string; // Index of the "typ" in the JWT message
-    jwtAlgStartIndex: string; // Index of the "alg" in the JWT message
+    jwtTypStartIndex: string; // Index of the "typ" in the JWT header
+    jwtAlgStartIndex: string; // Index of the "alg" in the JWT header
+    commandStartIndex: string; // Index of the "command" in the JWT payload
 }> {
     // Find the index of the period in the JWT message
     const periodIndex = rawJWT.indexOf(".");
@@ -58,10 +59,12 @@ export async function generateJWTVerifierInputs(
 
     // Decode header and payload
     const header = Buffer.from(headerString, "base64").toString("utf-8");
+    const payload = Buffer.from(payloadString, "base64").toString("utf-8");
 
     // Find the starting indices of the required substrings
     const jwtTypStartIndex = header.indexOf('"typ":"JWT"');
     const jwtAlgStartIndex = header.indexOf('"alg":"RS256"');
+    const commandStartIndex = payload.indexOf('"command":');
 
     return {
         message: Uint8ArrayToCharArray(messagePadded),
@@ -71,5 +74,6 @@ export async function generateJWTVerifierInputs(
         periodIndex: periodIndex.toString(),
         jwtTypStartIndex: jwtTypStartIndex.toString(),
         jwtAlgStartIndex: jwtAlgStartIndex.toString(),
+        commandStartIndex: commandStartIndex.toString(),
     };
 }

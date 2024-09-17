@@ -28,7 +28,7 @@ describe("JWT Verifier Circuit", () => {
             typ: "JWT",
         };
         const payload = {
-            sub: "1234567890",
+            command: "register",
             name: "John Doe",
             iat: Math.floor(Date.now() / 1000),
         };
