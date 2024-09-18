@@ -6,7 +6,8 @@
         "test": "jest"
     },
     "workspaces": [
-        "packages/*"
+        "packages/*",
+        "frontend"
     ],
     "packageManager": "yarn@3.2.3",
     "engines": {
