@@ -28,9 +28,9 @@ describe("JWT Verifier Circuit", () => {
             typ: "JWT",
         };
         const payload = {
-            command: "register",
             name: "John Doe",
             iat: Math.floor(Date.now() / 1000),
+            azp: "demo-client-id",
         };
 
         const { rawJWT: jwt, publicKey: key } = generateJWT(header, payload);
@@ -50,6 +50,7 @@ describe("JWT Verifier Circuit", () => {
             },
             {
                 maxMessageLength: 256,
+                azp: "demo-client-id",
             }
         );
 

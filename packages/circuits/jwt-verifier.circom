@@ -27,7 +27,7 @@ include "./utils/constants.circom";
  *
  * @output sha[256] The SHA256 hash of the JWT message, computed for signature verification.
  */ 
-template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLength) {
+template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLength, azpLength) {
     signal input message[maxMessageLength]; // JWT message (header + payload)
     signal input messageLength; // Length of the message signed in the JWT
     signal input pubkey[k]; // RSA public key split into k chunks
@@ -37,7 +37,9 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
 
     signal input jwtTypStartIndex; // Index of the "typ" in the JWT header
     signal input jwtAlgStartIndex; // Index of the "alg" in the JWT header
-    signal input commandStartIndex; // Index of the key `command` in the JWT payload
+
+    signal input azpKeyStartIndex; // Index of the "azp" (Authorized party) key in the JWT payload
+    signal input azp[azpLength]; // "azp" (Authorized party) in the JWT payload
 
     assert(maxMessageLength % 64 == 0);
     assert(n * k > 2048); // to support 2048 bit RSA
@@ -122,11 +124,18 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
         algMatch[i] === alg[i];
     }
 
-    // Verify if `command` key exists in the payload
-    var commandLength = COMMAND_LENGTH();
-    var command[commandLength] = COMMAND();
-    signal commandMatch[commandLength] <== RevealSubstring(maxPayloadLength, commandLength, 1)(payload, commandStartIndex, commandLength);
-    for (var i = 0; i < commandLength; i++) {
-        commandMatch[i] === command[i];
+    // Verify if the key `azp` in the payload is unique
+    var azpKeyLength = AZP_KEY_LENGTH();
+    var azpKey[azpKeyLength] = AZP_KEY();
+    signal azpKeyMatch[azpKeyLength] <== RevealSubstring(maxPayloadLength, azpKeyLength, 1)(payload, azpKeyStartIndex, azpKeyLength);
+    for (var i = 0; i < azpKeyLength; i++) {
+        azpKeyMatch[i] === azpKey[i];
+    }
+
+    // Verify if azp is correct
+    signal azpStartIndex <== azpKeyStartIndex + azpKeyLength + 1;
+    signal azpMatch[azpLength] <== RevealSubstring(maxPayloadLength, azpLength, 0)(payload, azpStartIndex, azpLength);
+    for (var i = 0; i < azpLength; i++) {
+        azpMatch[i] === azp[i];
     }
 }
