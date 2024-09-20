@@ -14,6 +14,7 @@ export interface RSAPublicKey {
 
 type JWTInputGenerationArgs = {
     maxMessageLength?: number; // Max length of the JWT message including padding
+    azp?: string; // "azp" (Authorized party) in the JWT payload
 };
 
 /**
@@ -36,7 +37,8 @@ export async function generateJWTVerifierInputs(
     periodIndex: string; // Index of the period in the JWT message
     jwtTypStartIndex: string; // Index of the "typ" in the JWT header
     jwtAlgStartIndex: string; // Index of the "alg" in the JWT header
-    commandStartIndex: string; // Index of the "command" in the JWT payload
+    azpKeyStartIndex: string; // Index of the "azp" in the JWT payload
+    azp: string[]; // "azp" in the JWT payload
 }> {
     // Find the index of the period in the JWT message
     const periodIndex = rawJWT.indexOf(".");
@@ -64,7 +66,7 @@ export async function generateJWTVerifierInputs(
     // Find the starting indices of the required substrings
     const jwtTypStartIndex = header.indexOf('"typ":"JWT"');
     const jwtAlgStartIndex = header.indexOf('"alg":"RS256"');
-    const commandStartIndex = payload.indexOf('"command":');
+    const azpKeyStartIndex = payload.indexOf('"azp":');
 
     return {
         message: Uint8ArrayToCharArray(messagePadded),
@@ -74,6 +76,7 @@ export async function generateJWTVerifierInputs(
         periodIndex: periodIndex.toString(),
         jwtTypStartIndex: jwtTypStartIndex.toString(),
         jwtAlgStartIndex: jwtAlgStartIndex.toString(),
-        commandStartIndex: commandStartIndex.toString(),
+        azpKeyStartIndex: azpKeyStartIndex.toString(),
+        azp: Uint8ArrayToCharArray(Buffer.from(params.azp || "", "utf-8")),
     };
 }
