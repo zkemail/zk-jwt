@@ -39,6 +39,8 @@ export async function generateJWTVerifierInputs(
     jwtAlgStartIndex: string; // Index of the "alg" in the JWT header
     azpKeyStartIndex: string; // Index of the "azp" in the JWT payload
     azp: string[]; // "azp" in the JWT payload
+    nonceKeyStartIndex: string; // Index of the "nonce" key in the JWT payload
+    commandLength: string; // Length of the "command" in the "nonce" key in the JWT payload
 }> {
     // Find the index of the period in the JWT message
     const periodIndex = rawJWT.indexOf(".");
@@ -67,6 +69,9 @@ export async function generateJWTVerifierInputs(
     const jwtTypStartIndex = header.indexOf('"typ":"JWT"');
     const jwtAlgStartIndex = header.indexOf('"alg":"RS256"');
     const azpKeyStartIndex = payload.indexOf('"azp":');
+    const nonceKeyStartIndex = payload.indexOf('"nonce":');
+
+    const commandLength = JSON.parse(payload).nonce.length;
 
     return {
         message: Uint8ArrayToCharArray(messagePadded),
@@ -78,5 +83,7 @@ export async function generateJWTVerifierInputs(
         jwtAlgStartIndex: jwtAlgStartIndex.toString(),
         azpKeyStartIndex: azpKeyStartIndex.toString(),
         azp: Uint8ArrayToCharArray(Buffer.from(params.azp || "", "utf-8")),
+        nonceKeyStartIndex: nonceKeyStartIndex.toString(),
+        commandLength: commandLength.toString(),
     };
 }

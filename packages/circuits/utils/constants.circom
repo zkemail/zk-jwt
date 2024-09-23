@@ -15,9 +15,9 @@ function AZP_KEY_LENGTH() {
     return 6;
 }
 
-function COMMAND_LENGTH() {
-    // len("command":)
-    return 10;
+function NONCE_LENGTH() {
+    // len("nonce":)
+    return 8;
 }
 
 function JWT_TYP() {
@@ -35,7 +35,7 @@ function AZP_KEY() {
     return [34, 97, 122, 112, 34, 58];
 }
 
-function COMMAND() {
-    // "command":
-    return [34, 99, 111, 109, 109, 97, 110, 100, 34, 58];
+function NONCE() {
+    // "nonce":
+    return [34, 110, 111, 110, 99, 101, 34, 58];
 }
