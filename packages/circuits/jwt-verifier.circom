@@ -6,6 +6,9 @@ include "@zk-email/circuits/lib/sha.circom";
 include "@zk-email/circuits/lib/rsa.circom";
 include "@zk-email/circuits/lib/base64.circom";
 include "@zk-email/circuits/helpers/reveal-substring.circom";
+include "@zk-email/ether-email-auth-circom/src/utils/bytes2ints.circom";
+include "@zk-email/ether-email-auth-circom/src/regexes/invitation_code_with_prefix_regex.circom";
+include "@zk-email/zk-regex-circom/circuits/common/email_addr_regex.circom";
 include "./utils/array.circom";
 include "./utils/bytes.circom";
 include "./utils/constants.circom";
@@ -19,6 +22,10 @@ include "./utils/constants.circom";
  * @param n Number of bits per chunk the RSA key is split into. 
  * @param k Number of chunks the RSA key is split into. 
  * @param maxMessageLength Maximum length of the JWT message (header + payload).
+ * @param maxB64HeaderLength Maximum length of the Base64 encoded header.
+ * @param maxB64PayloadLength Maximum length of the Base64 encoded payload.
+ * @param azpLength Length of the "azp" value in the JWT payload.
+ * @param maxCommandLength Maximum length of the command in the nonce.
  *
  * @input message[maxMessageLength] The JWT message to be verified, which includes the header and payload.
  * @input messageLength The length of the JWT message that is signed.
@@ -27,7 +34,7 @@ include "./utils/constants.circom";
  *
  * @output sha[256] The SHA256 hash of the JWT message, computed for signature verification.
  */ 
-template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLength, azpLength) {
+template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLength, azpLength, maxCommandLength) {
     signal input message[maxMessageLength]; // JWT message (header + payload)
     signal input messageLength; // Length of the message signed in the JWT
     signal input pubkey[k]; // RSA public key split into k chunks
@@ -40,6 +47,9 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
 
     signal input azpKeyStartIndex; // Index of the "azp" (Authorized party) key in the JWT payload
     signal input azp[azpLength]; // "azp" (Authorized party) in the JWT payload
+
+    signal input nonceKeyStartIndex; // Index of the "nonce" key in the JWT payload
+    signal input commandLength; // Length of the "command" in the "nonce" key in the JWT payload
 
     assert(maxMessageLength % 64 == 0);
     assert(n * k > 2048); // to support 2048 bit RSA
@@ -132,10 +142,48 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
         azpKeyMatch[i] === azpKey[i];
     }
 
-    // Verify if azp is correct
+    // Verify if azp is correct 
     signal azpStartIndex <== azpKeyStartIndex + azpKeyLength + 1;
     signal azpMatch[azpLength] <== RevealSubstring(maxPayloadLength, azpLength, 0)(payload, azpStartIndex, azpLength);
     for (var i = 0; i < azpLength; i++) {
         azpMatch[i] === azp[i];
     }
+
+    // Verify if the key `nonce` in the payload is unique
+    var nonceKeyLength = NONCE_LENGTH();
+    var nonceKey[nonceKeyLength] = NONCE();
+    signal nonceKeyMatch[nonceKeyLength] <== RevealSubstring(maxPayloadLength, nonceKeyLength, 1)(payload, nonceKeyStartIndex, nonceKeyLength);
+    for (var i = 0; i < nonceKeyLength; i++) {
+        nonceKeyMatch[i] === nonceKey[i];
+    }
+
+    // Reveal the command in the nonce
+    signal commandStartIndex <== nonceKeyStartIndex + nonceKeyLength + 1;
+    signal command[maxCommandLength] <== RevealSubstring(maxPayloadLength, maxCommandLength, 0)(payload, commandStartIndex, commandLength);
+
+    // Check if the command in the nonce has a valid invitation code and remove the prefix if it exists
+    signal prefixedCodeRegexOut, prefixedCodeRegexReveal[maxCommandLength];
+    (prefixedCodeRegexOut, prefixedCodeRegexReveal) <== InvitationCodeWithPrefixRegex(maxCommandLength)(command);
+    signal output isCodeExist <== IsZero()(prefixedCodeRegexOut-1);
+    signal removedCode[maxCommandLength];
+    for(var i = 0; i < maxCommandLength; i++) {
+        removedCode[i] <== isCodeExist * prefixedCodeRegexReveal[i];
+    }
+
+    // Check if the command in the nonce has a valid email address and remove the email address if it exists
+    signal emailAddrRegexOut, emailAddrRegexReveal[maxCommandLength];
+    (emailAddrRegexOut, emailAddrRegexReveal) <== EmailAddrRegex(maxCommandLength)(command);
+    signal isEmailAddrExist <== IsZero()(emailAddrRegexOut-1);
+    signal removedEmailAddr[maxCommandLength];
+    for(var i = 0; i < maxCommandLength; i++) {
+        removedEmailAddr[i] <== isEmailAddrExist * emailAddrRegexReveal[i];
+    }
+
+    // Mask the command with the code and email address
+    signal maskedCommandBytes[maxCommandLength];
+    for(var i = 0; i < maxCommandLength; i++) {
+        maskedCommandBytes[i] <== command[i] - removedCode[i] - removedEmailAddr[i];
+    }
+    var commandFieldLength = compute_ints_size(maxCommandLength);
+    signal output maskedCommand[commandFieldLength] <== Bytes2Ints(maxCommandLength)(maskedCommandBytes);
 }

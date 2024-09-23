@@ -31,6 +31,7 @@ describe("JWT Verifier Circuit", () => {
             name: "John Doe",
             iat: Math.floor(Date.now() / 1000),
             azp: "demo-client-id",
+            nonce: "Send 0.12 ETH to alice@gmail.com code 01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76",
         };
 
         const { rawJWT: jwt, publicKey: key } = generateJWT(header, payload);
@@ -49,7 +50,7 @@ describe("JWT Verifier Circuit", () => {
                 e: publicKey.e,
             },
             {
-                maxMessageLength: 256,
+                maxMessageLength: 384,
                 azp: "demo-client-id",
             }
         );

@@ -13,7 +13,7 @@ describe("Generate JWT Verifier Inputs", () => {
             typ: "JWT",
         };
         const payload = {
-            command: "register",
+            nonce: "register",
             name: "John Doe",
             iat: Math.floor(Date.now() / 1000),
         };
@@ -38,6 +38,8 @@ describe("Generate JWT Verifier Inputs", () => {
         expect(inputs.jwtAlgStartIndex).toBeDefined();
         expect(inputs.azpKeyStartIndex).toBeDefined();
         expect(inputs.azp).toBeInstanceOf(Array);
+        expect(inputs.nonceKeyStartIndex).toBeDefined();
+        expect(inputs.commandLength).toBeDefined();
     });
 
     it("should throw an error for an invalid JWT", async () => {
