@@ -60,6 +60,11 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
     assert(maxB64HeaderLength % 4 == 0); 
     assert(maxB64PayloadLength % 4 == 0); 
 
+    var commandFieldLength = compute_ints_size(maxCommandLength);
+
+    signal output isCodeExist; // Whether the code exists in the command
+    signal output maskedCommand[commandFieldLength]; // The masked command
+
     // Assert message length fits in ceil(log2(maxMessageLength))
     component n2bMessageLength = Num2Bits(log2Ceil(maxMessageLength));
     n2bMessageLength.in <== messageLength;
@@ -164,7 +169,7 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
     // Check if the command in the nonce has a valid invitation code and remove the prefix if it exists
     signal prefixedCodeRegexOut, prefixedCodeRegexReveal[maxCommandLength];
     (prefixedCodeRegexOut, prefixedCodeRegexReveal) <== InvitationCodeWithPrefixRegex(maxCommandLength)(command);
-    signal output isCodeExist <== IsZero()(prefixedCodeRegexOut-1);
+    isCodeExist <== IsZero()(prefixedCodeRegexOut-1);
     signal removedCode[maxCommandLength];
     for(var i = 0; i < maxCommandLength; i++) {
         removedCode[i] <== isCodeExist * prefixedCodeRegexReveal[i];
@@ -184,6 +189,5 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
     for(var i = 0; i < maxCommandLength; i++) {
         maskedCommandBytes[i] <== command[i] - removedCode[i] - removedEmailAddr[i];
     }
-    var commandFieldLength = compute_ints_size(maxCommandLength);
-    signal output maskedCommand[commandFieldLength] <== Bytes2Ints(maxCommandLength)(maskedCommandBytes);
+    maskedCommand <== Bytes2Ints(maxCommandLength)(maskedCommandBytes);
 }
