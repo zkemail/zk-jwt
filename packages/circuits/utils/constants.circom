@@ -20,6 +20,29 @@ function NONCE_LENGTH() {
     return 8;
 }
 
+function ISS_KEY_LENGTH() {
+    // len("iss":)
+    return 6;
+}
+
+// TODO: Assign a proper value to this
+function ISSUER_MAX_BYTES() {
+    return 32;
+}
+
+function IAT_KEY_LENGTH() {
+    // len("iat":)
+    return 6;
+}
+
+function TIMESTAMP_LENGTH() {
+    return 10;
+}
+
+function INVITATION_CODE_LENGTH() {
+    return 64;
+}
+
 function JWT_TYP() {
     // "typ":"JWT"
     return [34, 116, 121, 112, 34, 58, 34, 74, 87, 84, 34];
@@ -38,4 +61,14 @@ function AZP_KEY() {
 function NONCE() {
     // "nonce":
     return [34, 110, 111, 110, 99, 101, 34, 58];
+}
+
+function ISS_KEY() {
+    // "iss":
+    return [34, 105, 115, 115, 34, 58];
+}
+
+function IAT_KEY() {
+    // "iat":
+    return [34, 105, 97, 116, 34, 58];
 }
