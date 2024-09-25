@@ -74,5 +74,19 @@ export async function verifyJWT(
 
     const dataToVerify = `${headerString}.${payloadString}`;
 
-    return key.verify(dataToVerify, signatureString, "utf8", "base64");
+    try {
+        const isValidSignature = key.verify(
+            Buffer.from(dataToVerify),
+            Buffer.from(signatureString, "base64"),
+            "utf8",
+            "buffer"
+        );
+
+        const isValidBase64 = /^[A-Za-z0-9+/]*={0,2}$/.test(signatureString);
+
+        return isValidSignature && isValidBase64;
+    } catch (error) {
+        console.error("JWT verification error:", error);
+        return false;
+    }
 }

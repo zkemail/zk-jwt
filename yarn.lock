@@ -2772,6 +2772,7 @@ __metadata:
     "@babel/preset-typescript": ^7.21.5
     "@zk-email/circuits": 6.1.5-nightly.2024-09-16
     "@zk-email/ether-email-auth-circom": ^0.0.2-preview
+    "@zk-email/relayer-utils": =0.3.7
     "@zk-email/zk-regex-circom": ^2.1.1
     babel-jest: ^29.5.0
     babel-preset-jest: ^29.5.0

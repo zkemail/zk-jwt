@@ -11,7 +11,6 @@ include "@zk-email/circuits/lib/base64.circom";
 include "@zk-email/circuits/helpers/reveal-substring.circom";
 include "@zk-email/ether-email-auth-circom/src/utils/bytes2ints.circom";
 include "@zk-email/ether-email-auth-circom/src/utils/digit2int.circom";
-include "@zk-email/ether-email-auth-circom/src/utils/hex2int.circom";
 include "@zk-email/ether-email-auth-circom/src/utils/hash_sign.circom";
 include "@zk-email/ether-email-auth-circom/src/utils/account_salt.circom";
 include "@zk-email/ether-email-auth-circom/src/regexes/invitation_code_with_prefix_regex.circom";
@@ -19,6 +18,7 @@ include "@zk-email/zk-regex-circom/circuits/common/email_addr_regex.circom";
 include "./utils/array.circom";
 include "./utils/bytes.circom";
 include "./utils/constants.circom";
+include "./utils/hex2int.circom";
 
 /**
  * @title JWTVerifier
@@ -41,22 +41,39 @@ include "./utils/constants.circom";
  *
  * @output sha[256] The SHA256 hash of the JWT message, computed for signature verification.
  */ 
-template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLength, maxAzpLength, maxCommandLength, recipientEnabled) {
+template JWTVerifier(
+        n,
+        k, 
+        maxMessageLength, 
+        maxB64HeaderLength, 
+        maxB64PayloadLength, 
+        maxAzpLength, 
+        maxCommandLength
+    ) {
+ 
     signal input message[maxMessageLength]; // JWT message (header + payload)
     signal input messageLength; // Length of the message signed in the JWT
     signal input pubkey[k]; // RSA public key split into k chunks
     signal input signature[k]; // RSA signature split into k chunks
+
     signal input accountCode;
+    signal input codeIndex; // Index of the "invitation code" in the "command"
+
     signal input periodIndex; // Index of the period in the JWT message
+
     signal input jwtTypStartIndex; // Index of the "typ" in the JWT header
     signal input jwtAlgStartIndex; // Index of the "alg" in the JWT header
+    signal input jwtKidStartIndex; // Index of the "kid" in the JWT header
+
     signal input issKeyStartIndex; // Index of the "iss" key in the JWT payload
     signal input issLength; // Length of the "iss" in the JWT payload
+    signal input iatKeyStartIndex; // Index of the "iat" key in the JWT payload
     signal input azpKeyStartIndex; // Index of the "azp" (Authorized party) key in the JWT payload
     signal input azpLength; // Length of the "azp" (Authorized party) in the JWT payload
+    signal input emailKeyStartIndex; // Index of the "email" key in the JWT payload
+    signal input emailLength; // Length of the "email" in the JWT payload
     signal input nonceKeyStartIndex; // Index of the "nonce" key in the JWT payload
     signal input commandLength; // Length of the "command" in the "nonce" key in the JWT payload
-    signal input codeIndex; // Index of the "invitation code" in the "command"
 
     assert(maxMessageLength % 64 == 0);
     assert(n * k > 2048); // to support 2048 bit RSA
@@ -72,14 +89,15 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
     var issLen = ISSUER_MAX_BYTES();
     var issFieldLength = compute_ints_size(issLen);
 
-    signal output isCodeExist; // Whether the code exists in the command
-    signal output maskedCommand[commandFieldLength]; // The masked command
-    signal output azp[azpFieldLength];
+    signal output kid;
     signal output iss[issFieldLength];
     signal output publicKeyHash;
     signal output jwtNullifier;
     signal output timestamp;
+    signal output maskedCommand[commandFieldLength];
     signal output accountSalt;
+    signal output azp[azpFieldLength];
+    signal output isCodeExist;
 
     // Assert message length fits in ceil(log2(maxMessageLength))
     component n2bMessageLength = Num2Bits(log2Ceil(maxMessageLength));
@@ -129,9 +147,12 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
     jwtNullifier <== Poseidon(1)([signHash]);
 
     // Assert that period exists at periodIndex
-    // TODO: Do we need to prove that it is the only period in the message?
     signal period <== ItemAtIndex(maxMessageLength)(message, periodIndex);
     period === 46;
+
+    // Assert that period is unique
+    signal periodCount <== CountCharOccurrences(maxMessageLength)(message, 46);
+    periodCount === 1;
 
     // Find the real message length
     signal realMessageLength <== FindRealMessageLength(maxMessageLength)(message);
@@ -167,6 +188,20 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
     for (var i = 0; i < algLength; i++) {
         algMatch[i] === alg[i];
     }
+
+    // Verify if the key `kid` in the header is unique
+    var kidKeyLength = JWT_KID_KEY_LENGTH();
+    var kidKey[kidKeyLength] = JWT_KID_KEY();
+    signal kidKeyMatch[kidKeyLength] <== RevealSubstring(maxHeaderLength, kidKeyLength, 1)(header, jwtKidStartIndex, kidKeyLength);
+    for (var i = 0; i < kidKeyLength; i++) {
+        kidKeyMatch[i] === kidKey[i];
+    }
+
+    // Reveal the kid in the header
+    signal kidStartIndex <== jwtKidStartIndex + kidKeyLength + 1;
+    var kidLength = JWT_KID_LENGTH();
+    signal kidBytes[kidLength] <== RevealSubstring(maxHeaderLength, kidLength, 0)(header, kidStartIndex, kidLength);
+    kid <== Hex2FieldModular(kidLength)(kidBytes);
 
     // Verify if the key `iss` in the payload is unique
     var issKeyLength = ISS_KEY_LENGTH();
@@ -208,6 +243,24 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
     signal azpMatch[maxAzpLength] <== RevealSubstring(maxPayloadLength, maxAzpLength, 0)(payload, azpStartIndex, azpLength);
     azp <== Bytes2Ints(maxAzpLength)(azpMatch);
 
+    // Verify if the key `email` in the payload is unique
+    var emailKeyLength = EMAIL_KEY_LENGTH();
+    var emailKey[emailKeyLength] = EMAIL_KEY();
+    signal emailKeyMatch[emailKeyLength] <== RevealSubstring(maxPayloadLength, emailKeyLength, 1)(payload, emailKeyStartIndex, emailKeyLength);
+    for (var i = 0; i < emailKeyLength; i++) {
+        emailKeyMatch[i] === emailKey[i];
+    }
+
+    // Reveal the email in the payload
+    var maxEmailLength = EMAIL_ADDR_MAX_BYTES();
+    signal emailStartIndex <== emailKeyStartIndex + emailKeyLength + 1;
+    signal email[maxEmailLength] <== RevealSubstring(maxPayloadLength, maxEmailLength, 0)(payload, emailStartIndex, emailLength);
+
+    // Calculate account salt using email
+    var numEmailInts = compute_ints_size(maxEmailLength);
+    signal emailInts[numEmailInts] <== Bytes2Ints(maxEmailLength)(email);
+    accountSalt <== AccountSalt(numEmailInts)(emailInts, accountCode);
+
     // Verify if the key `nonce` in the payload is unique
     var nonceKeyLength = NONCE_LENGTH();
     var nonceKey[nonceKeyLength] = NONCE();
@@ -247,19 +300,14 @@ template JWTVerifier(n, k, maxMessageLength, maxB64HeaderLength, maxB64PayloadLe
 
     // Extract the invitation code from the command
     var invitationCodeLen = INVITATION_CODE_LENGTH();
-    signal invitationCodeHex[invitationCodeLen] <== RevealSubstring(maxCommandLength, invitationCodeLen, 0)(command, codeIndex, invitationCodeLen);
+    assert(invitationCodeLen < maxCommandLength);
+    signal revealedCode[invitationCodeLen] <== RevealSubstring(maxCommandLength, invitationCodeLen, 0)(command, codeIndex, invitationCodeLen);
+    signal invitationCodeHex[invitationCodeLen];
+    for (var i = 0; i < invitationCodeLen; i++) {
+        invitationCodeHex[i] <== isCodeExist * revealedCode[i] + (1 - isCodeExist) * 48;
+    }
 
     // Verify the invitation code is equal to the account code
-    signal embeddedAccountCode <== Hex2Field()(invitationCodeHex);
+    signal embeddedAccountCode <== Hex2FieldModular(invitationCodeLen)(invitationCodeHex);
     isCodeExist * (embeddedAccountCode - accountCode) === 0;
-
-    // Calculate account salt using iss
-    var numIssInts = compute_ints_size(issLen);
-    signal issInts[numIssInts] <== Bytes2Ints(issLen)(issMatch);
-    accountSalt <== AccountSalt(numIssInts)(issInts, accountCode);
-
-    // TODO
-    if (recipientEnabled) {
-
-    }
 }

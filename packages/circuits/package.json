@@ -16,6 +16,7 @@
         "@babel/core": "^7.22.5",
         "@babel/preset-env": "^7.22.2",
         "@babel/preset-typescript": "^7.21.5",
+        "@zk-email/relayer-utils": "=0.3.7",
         "babel-jest": "^29.5.0",
         "babel-preset-jest": "^29.5.0",
         "circom_tester": "^0.0.20",
