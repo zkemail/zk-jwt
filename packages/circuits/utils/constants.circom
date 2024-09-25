@@ -10,6 +10,16 @@ function JWT_ALG_LENGTH() {
     return 13;
 }
 
+function JWT_KID_KEY_LENGTH() {
+    // len("kid":)
+    return 6;
+}
+
+// KID is 20 bytes long
+function JWT_KID_LENGTH() {
+    return 40;
+}
+
 function AZP_KEY_LENGTH() {
     // len("azp":)
     return 6;
@@ -35,6 +45,11 @@ function IAT_KEY_LENGTH() {
     return 6;
 }
 
+function EMAIL_KEY_LENGTH() {
+    // len("email":)
+    return 8;
+}
+
 function TIMESTAMP_LENGTH() {
     return 10;
 }
@@ -51,6 +66,11 @@ function JWT_TYP() {
 function JWT_ALG() {
     // "alg":"RS256"
     return [34, 97, 108, 103, 34, 58, 34, 82, 83, 50, 53, 54, 34];
+}
+
+function JWT_KID_KEY() {
+    // "kid":
+    return [34, 107, 105, 100, 34, 58];
 }
 
 function AZP_KEY() {
@@ -71,4 +91,9 @@ function ISS_KEY() {
 function IAT_KEY() {
     // "iat":
     return [34, 105, 97, 116, 34, 58];
+}
+
+function EMAIL_KEY() {
+    // "email":
+    return [34, 101, 109, 97, 105, 108, 34, 58];
 }
