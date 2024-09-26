@@ -25,7 +25,7 @@ describe("JWT Verifier Circuit", () => {
         circuit = await wasm_tester(
             path.join(__dirname, "./test-circuits/jwt-verifier-test.circom"),
             {
-                recompile: false,
+                recompile: true,
                 include: path.join(__dirname, "../../../node_modules"),
                 output: path.join(__dirname, "./compiled-test-circuits"),
             }
