@@ -32,7 +32,7 @@ export function generateJWT(header: object, payload: object): JWTComponents {
     );
 
     const signature = key.sign(
-        `${headerString}.${payloadString}`,
+        Buffer.from(`${headerString}.${payloadString}`),
         "base64",
         "utf8"
     );
@@ -43,7 +43,16 @@ export function generateJWT(header: object, payload: object): JWTComponents {
         e: key.exportKey("components").e,
     };
 
-    return { rawJWT, publicKey };
+    return {
+        rawJWT,
+        publicKey: {
+            ...publicKey,
+            e:
+                typeof publicKey.e === "number"
+                    ? publicKey.e
+                    : parseInt(publicKey.e.toString("hex"), 16),
+        },
+    };
 }
 
 /**
@@ -77,9 +86,9 @@ export async function verifyJWT(
     try {
         const isValidSignature = key.verify(
             Buffer.from(dataToVerify),
-            Buffer.from(signatureString, "base64"),
+            signatureString,
             "utf8",
-            "buffer"
+            "base64"
         );
 
         const isValidBase64 = /^[A-Za-z0-9+/]*={0,2}$/.test(signatureString);

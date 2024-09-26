@@ -79,7 +79,7 @@ export async function generateJWTVerifierInputs(
         let isVerified;
         try {
             isVerified = await verifyJWT(rawJWT, publicKey);
-        } catch (error) {
+        } catch (error: any) {
             throw new JWTVerificationError(
                 `JWT verification failed: ${error.message}`
             );
@@ -152,7 +152,7 @@ export async function generateJWTVerifierInputs(
             nonceKeyStartIndex: nonceKeyStartIndex.toString(),
             commandLength: commandLength.toString(),
         };
-    } catch (error) {
+    } catch (error: any) {
         if (
             error instanceof JWTVerificationError ||
             error instanceof InvalidInputError
