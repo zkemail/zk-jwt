@@ -2503,21 +2503,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
+"@types/node-rsa@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "@types/node-rsa@npm:1.1.4"
+  dependencies:
+    "@types/node": "*"
+  checksum: cd607463b7954dd0eda390e0710fa5fdc1a26e716baefd77134f54893ed57bfbf1906f3a354f43f89174aa37ac6f05fa450b708e516a4a8fa643e0d2f8e26106
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:*, @types/node@npm:^22.7.2":
   version: 22.7.2
   resolution: "@types/node@npm:22.7.2"
   dependencies:
     undici-types: ~6.19.2
   checksum: 5e753a4a7195a05133e1234e6e2eb68d9f002c5566499dc560e1d7efdcad102f10815ea11f8e206a04b7626876c666227535c755a7d77bc71d73278864b0a652
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^18.0.6":
-  version: 18.19.53
-  resolution: "@types/node@npm:18.19.53"
-  dependencies:
-    undici-types: ~5.26.4
-  checksum: 53a5a480998967f45e243f35413152f2f67c3bbe517a51e6aaba239fe1ec14be7b302538e9c17bfda4a317fcea41cb09d09764286e0341fcea37a5de5a98d54b
   languageName: node
   linkType: hard
 
@@ -2795,8 +2795,9 @@ __metadata:
     "@types/atob": ^2.1.2
     "@types/jest": ^29.5.12
     "@types/mocha": ^10.0.1
-    "@types/node": ^18.0.6
+    "@types/node": ^22.7.2
     "@types/node-forge": ^1.3.2
+    "@types/node-rsa": ^1.1.4
     "@types/psl": ^1.1.2
     "@typescript-eslint/eslint-plugin": ^7.0.0
     "@typescript-eslint/parser": ^7.0.0
@@ -8780,13 +8781,6 @@ __metadata:
   version: 1.12.1
   resolution: "underscore@npm:1.12.1"
   checksum: ec327603aa112b99fe9d74cd9bf3b3b7451465a9d2610ceab269a532e3f191650ab017903be34dc86fe406a11d04d8905a3b04dd4c129493e51bee09a3f3074c
-  languageName: node
-  linkType: hard
-
-"undici-types@npm:~5.26.4":
-  version: 5.26.5
-  resolution: "undici-types@npm:5.26.5"
-  checksum: 3192ef6f3fd5df652f2dc1cd782b49d6ff14dc98e5dced492aa8a8c65425227da5da6aafe22523c67f035a272c599bb89cfe803c1db6311e44bed3042fc25487
   languageName: node
   linkType: hard
 
