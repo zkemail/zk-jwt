@@ -91,9 +91,7 @@ export async function verifyJWT(
             "base64"
         );
 
-        const isValidBase64 = /^[A-Za-z0-9+/]*={0,2}$/.test(signatureString);
-
-        return isValidSignature && isValidBase64;
+        return isValidSignature;
     } catch (error) {
         console.error("JWT verification error:", error);
         return false;

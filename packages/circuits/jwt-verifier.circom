@@ -226,7 +226,7 @@ template JWTVerifier(
 
     // Reveal the iat in the payload
     var iatLength = TIMESTAMP_LENGTH();
-    signal iatStartIndex <== iatKeyStartIndex + iatKeyLength + 1;
+    signal iatStartIndex <== iatKeyStartIndex + iatKeyLength;
     signal iatMatch[iatLength] <== RevealSubstring(maxPayloadLength, iatLength, 0)(payload, iatStartIndex, iatLength);
     timestamp <== Digit2Int(iatLength)(iatMatch);
 
