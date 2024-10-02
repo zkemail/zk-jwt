@@ -13,7 +13,7 @@
         "@zk-email/ether-email-auth-circom": "^0.0.2-preview",
         "@zk-email/zk-regex-circom": "^2.1.1",
         "circomlib": "^2.0.5",
-        "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
+        "snarkjs": "^0.7.4"
     },
     "devDependencies": {
         "@babel/preset-env": "^7.22.20",
