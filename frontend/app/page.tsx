@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import {
     Box,
-    Button,
     Card,
     CardBody,
     Container,
@@ -11,7 +10,15 @@ import {
     Input,
     VStack,
     Text,
+    OrderedList,
+    ListItem,
+    Alert,
+    AlertIcon,
+    AlertTitle,
+    AlertDescription,
+    Flex,
 } from "@chakra-ui/react";
+import styled from "@emotion/styled";
 
 declare global {
     interface Window {
@@ -19,36 +26,28 @@ declare global {
     }
 }
 
+const StyledListItem = styled(ListItem)`
+    font-family: var(--font-geist-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+    color: #4a5568;
+`;
+
+const StyledOrderedList = styled(OrderedList)`
+    padding-left: 1.5rem;
+    margin-bottom: 1.5rem;
+`;
+
+const InstructionStep = styled.span`
+    font-weight: 600;
+    color: #2b6cb0;
+`;
+
 export default function Home() {
     const [command, setCommand] = useState("");
     const [jwt, setJwt] = useState("");
     const [error, setError] = useState("");
-
-    useEffect(() => {
-        const initializeGoogleSignIn = () => {
-            if (window.google) {
-                window.google.accounts.id.initialize({
-                    client_id:
-                        "397234807794-fh6mhl0jppgtt0ak5cgikhlesbe8f7si.apps.googleusercontent.com",
-                    callback: handleCredentialResponse,
-                    nonce: command,
-                });
-                window.google.accounts.id.renderButton(
-                    document.getElementById("googleSignInButton"),
-                    { theme: "outline", size: "large" }
-                );
-                window.google.accounts.id.prompt();
-            }
-        };
-
-        if (document.readyState === "complete") {
-            initializeGoogleSignIn();
-        } else {
-            window.addEventListener("load", initializeGoogleSignIn);
-            return () =>
-                window.removeEventListener("load", initializeGoogleSignIn);
-        }
-    }, [command]);
 
     const handleCredentialResponse = (response: any) => {
         try {
@@ -77,54 +76,137 @@ export default function Home() {
         }
     };
 
-    const handleSignIn = () => {
-        if (command) {
-            try {
-                window.google.accounts.id.prompt((notification: any) => {
-                    if (
-                        notification.isNotDisplayed() ||
-                        notification.isSkippedMoment()
-                    ) {
-                        console.error(
-                            "Google Sign-In prompt failed to display"
-                        );
-                        setError(
-                            "Failed to display Google Sign-In prompt. Please try again."
-                        );
-                    }
+    useEffect(() => {
+        if (window.google) {
+            window.google.accounts.id.initialize({
+                client_id:
+                    "397234807794-fh6mhl0jppgtt0ak5cgikhlesbe8f7si.apps.googleusercontent.com",
+                callback: handleCredentialResponse,
+            });
+            window.google.accounts.id.renderButton(
+                document.getElementById("googleSignInButton"),
+                { theme: "outline", size: "large" }
+            );
+        }
+    }, []);
+
+    useEffect(() => {
+        if (window.google) {
+            window.google.accounts.id.cancel();
+            if (command) {
+                window.google.accounts.id.initialize({
+                    client_id:
+                        "397234807794-fh6mhl0jppgtt0ak5cgikhlesbe8f7si.apps.googleusercontent.com",
+                    callback: handleCredentialResponse,
+                    nonce: command,
                 });
-            } catch (error) {
-                console.error("Error prompting Google Sign-In:", error);
-                setError(
-                    "Failed to initiate Google Sign-In. Please try again."
+                window.google.accounts.id.renderButton(
+                    document.getElementById("googleSignInButton"),
+                    { theme: "outline", size: "large" }
                 );
             }
-        } else {
-            setError("Please enter a command before signing in.");
         }
-    };
+    }, [command]);
 
     return (
-        <Container centerContent>
-            <Box padding={4}>
-                <Heading as="h1" size="xl" textAlign="center" mb={8}>
+        <Container maxW="container.md" centerContent>
+            <Box padding={8} width="100%">
+                <Heading
+                    as="h1"
+                    size="2xl"
+                    textAlign="center"
+                    mb={8}
+                    color="blue.600"
+                    fontFamily="var(--font-geist-sans)"
+                    fontWeight="800"
+                    letterSpacing="-0.05em"
+                >
                     JWT-Wallet
                 </Heading>
                 <Card>
                     <CardBody>
-                        <VStack spacing={4}>
+                        <VStack spacing={6}>
+                            <Text
+                                fontSize="xl"
+                                textAlign="center"
+                                fontFamily="var(--font-geist-sans)"
+                                fontWeight="600"
+                                color="gray.700"
+                            >
+                                Welcome to JWT-Wallet! Follow these steps to get
+                                started:
+                            </Text>
+                            <StyledOrderedList>
+                                <StyledListItem>
+                                    <InstructionStep>
+                                        Enter a command
+                                    </InstructionStep>{" "}
+                                    in the input field below (e.g., "Send 0.12
+                                    ETH to 0x1234...")
+                                </StyledListItem>
+                                <StyledListItem>
+                                    The{" "}
+                                    <InstructionStep>
+                                        Google Sign-In button
+                                    </InstructionStep>{" "}
+                                    will become active once you've entered a
+                                    command
+                                </StyledListItem>
+                                <StyledListItem>
+                                    <InstructionStep>
+                                        Click the Google Sign-In button
+                                    </InstructionStep>{" "}
+                                    to authenticate and generate a JWT
+                                </StyledListItem>
+                                <StyledListItem>
+                                    <InstructionStep>
+                                        Check the console
+                                    </InstructionStep>{" "}
+                                    for the decoded JWT information
+                                </StyledListItem>
+                            </StyledOrderedList>
                             <Input
-                                placeholder="Send 0.12 ETH to <address>"
+                                placeholder="Enter your command here"
                                 value={command}
                                 onChange={(e) => setCommand(e.target.value)}
+                                size="lg"
+                                borderColor="blue.300"
+                                _hover={{ borderColor: "blue.400" }}
+                                _focus={{
+                                    borderColor: "blue.500",
+                                    boxShadow: "0 0 0 1px #3182ce",
+                                }}
+                                fontFamily="var(--font-geist-mono)"
                             />
-                            <div id="googleSignInButton"></div>
-                            {error && <Text color="red.500">{error}</Text>}
-                            {jwt && (
-                                <Text>
-                                    JWT generated and logged to console. Check
-                                    developer tools.
+                            <Box
+                                id="googleSignInButton"
+                                opacity={command ? 1 : 0.5}
+                                pointerEvents={command ? "auto" : "none"}
+                                transition="opacity 0.3s"
+                            />
+                            {error && (
+                                <Text
+                                    color="red.500"
+                                    fontWeight="bold"
+                                    fontFamily="var(--font-geist-sans)"
+                                >
+                                    {error}
                                 </Text>
+                            )}
+                            {jwt && (
+                                <Alert status="success" borderRadius="md">
+                                    <AlertIcon />
+                                    <AlertTitle
+                                        mr={2}
+                                        fontFamily="var(--font-geist-sans)"
+                                    >
+                                        Success!
+                                    </AlertTitle>
+                                    <AlertDescription fontFamily="var(--font-geist-sans)">
+                                        JWT generated and logged to console.
+                                        Check developer tools.
+                                    </AlertDescription>
+                                </Alert>
                             )}
                         </VStack>
                     </CardBody>
