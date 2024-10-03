@@ -12,11 +12,7 @@ import {
     Text,
     OrderedList,
     ListItem,
-    Alert,
-    AlertIcon,
-    AlertTitle,
-    AlertDescription,
-    Flex,
+    useSteps,
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 
@@ -48,6 +44,66 @@ export default function Home() {
     const [command, setCommand] = useState("");
     const [jwt, setJwt] = useState("");
     const [error, setError] = useState("");
+    const [proof, setProof] = useState(null);
+    const [worker, setWorker] = useState<Worker | null>(null);
+    const [currentStep, setCurrentStep] = useState(0);
+    const [status, setStatus] = useState<string | null>(null);
+
+    const steps = [
+        { title: "JWT Generation", description: "Generating JWT" },
+        { title: "Proof Generation", description: "Starting proof generation" },
+        { title: "Proof Complete", description: "Proof generation completed" },
+    ];
+
+    const { activeStep, setActiveStep } = useSteps({
+        index: currentStep,
+        count: steps.length,
+    });
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const w = new Worker(new URL("./proof.worker.ts", import.meta.url));
+            setWorker(w);
+
+            w.onmessage = (event) => {
+                if (event.data.type === "log") {
+                    console.log(event.data.message);
+                } else if (event.data.type === "proof") {
+                    if (event.data.proof.success) {
+                        setProof(event.data.proof);
+                        self.onmessage = async (event) => {
+                            const { jwt } = event.data;
+
+                            // Simulate proof generation (replace with actual circom proof generation)
+                            await new Promise((resolve) =>
+                                setTimeout(resolve, 2000)
+                            );
+                            self.postMessage({
+                                type: "log",
+                                message:
+                                    "Proof Worker: Proof generation complete",
+                            });
+
+                            const proof = {
+                                success: true,
+                                data: "Simulated proof",
+                            };
+
+                            self.postMessage({ type: "proof", proof });
+                        };
+                        setStatus("Proof Generated");
+                    } else {
+                        setStatus("Proof Generation Failed");
+                    }
+                    setTimeout(() => setStatus(null), 3000);
+                }
+            };
+
+            return () => {
+                w.terminate();
+            };
+        }
+    }, []);
 
     const handleCredentialResponse = (response: any) => {
         try {
@@ -68,6 +124,16 @@ export default function Home() {
             console.log("Decoded Payload:", decodedPayload);
             setJwt(response.credential);
             setError("");
+            setStatus("JWT Generated");
+
+            setTimeout(() => {
+                if (worker) {
+                    console.log("Sending JWT to worker");
+                    worker.postMessage({ jwt: response.credential });
+                    console.log("JWT sent to worker");
+                    setStatus("Generating Proof");
+                }
+            }, 2000);
         } catch (error) {
             console.error("Error decoding JWT:", error);
             setError(
@@ -184,29 +250,20 @@ export default function Home() {
                                 pointerEvents={command ? "auto" : "none"}
                                 transition="opacity 0.3s"
                             />
-                            {error && (
-                                <Text
-                                    color="red.500"
-                                    fontWeight="bold"
+                            {status && (
+                                <Box
+                                    position="fixed"
+                                    bottom="0"
+                                    left="0"
+                                    right="0"
+                                    bg="blue.500"
+                                    color="white"
+                                    p={2}
+                                    textAlign="center"
                                     fontFamily="var(--font-geist-sans)"
                                 >
-                                    {error}
-                                </Text>
-                            )}
-                            {jwt && (
-                                <Alert status="success" borderRadius="md">
-                                    <AlertIcon />
-                                    <AlertTitle
-                                        mr={2}
-                                        fontFamily="var(--font-geist-sans)"
-                                    >
-                                        Success!
-                                    </AlertTitle>
-                                    <AlertDescription fontFamily="var(--font-geist-sans)">
-                                        JWT generated and logged to console.
-                                        Check developer tools.
-                                    </AlertDescription>
-                                </Alert>
+                                    {status}
+                                </Box>
                             )}
                         </VStack>
                     </CardBody>
