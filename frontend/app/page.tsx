@@ -13,7 +13,12 @@ import {
     OrderedList,
     ListItem,
     useSteps,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    Icon,
 } from "@chakra-ui/react";
+import { CheckCircleIcon, TimeIcon, WarningIcon } from "@chakra-ui/icons";
 import styled from "@emotion/styled";
 
 declare global {
@@ -46,8 +51,7 @@ export default function Home() {
     const [error, setError] = useState("");
     const [proof, setProof] = useState(null);
     const [worker, setWorker] = useState<Worker | null>(null);
-    const [currentStep, setCurrentStep] = useState(0);
-    const [status, setStatus] = useState<string | null>(null);
+    const [stepStatuses, setStepStatuses] = useState(["idle", "idle", "idle"]);
 
     const steps = [
         { title: "JWT Generation", description: "Generating JWT" },
@@ -56,7 +60,7 @@ export default function Home() {
     ];
 
     const { activeStep, setActiveStep } = useSteps({
-        index: currentStep,
+        index: 0,
         count: steps.length,
     });
 
@@ -71,31 +75,18 @@ export default function Home() {
                 } else if (event.data.type === "proof") {
                     if (event.data.proof.success) {
                         setProof(event.data.proof);
-                        self.onmessage = async (event) => {
-                            const { jwt } = event.data;
-
-                            // Simulate proof generation (replace with actual circom proof generation)
-                            await new Promise((resolve) =>
-                                setTimeout(resolve, 2000)
-                            );
-                            self.postMessage({
-                                type: "log",
-                                message:
-                                    "Proof Worker: Proof generation complete",
-                            });
-
-                            const proof = {
-                                success: true,
-                                data: "Simulated proof",
-                            };
-
-                            self.postMessage({ type: "proof", proof });
-                        };
-                        setStatus("Proof Generated");
+                        setStepStatuses((prev) => [
+                            "success",
+                            "success",
+                            "success",
+                        ]);
                     } else {
-                        setStatus("Proof Generation Failed");
+                        setStepStatuses((prev) => [
+                            "success",
+                            "failed",
+                            "idle",
+                        ]);
                     }
-                    setTimeout(() => setStatus(null), 3000);
                 }
             };
 
@@ -124,14 +115,11 @@ export default function Home() {
             console.log("Decoded Payload:", decodedPayload);
             setJwt(response.credential);
             setError("");
-            setStatus("JWT Generated");
+            setStepStatuses((prev) => ["success", "processing", "idle"]);
 
             setTimeout(() => {
                 if (worker) {
-                    console.log("Sending JWT to worker");
                     worker.postMessage({ jwt: response.credential });
-                    console.log("JWT sent to worker");
-                    setStatus("Generating Proof");
                 }
             }, 2000);
         } catch (error) {
@@ -139,6 +127,7 @@ export default function Home() {
             setError(
                 "Failed to process the sign-in response. Please try again."
             );
+            setStepStatuses((prev) => ["failed", "idle", "idle"]);
         }
     };
 
@@ -173,6 +162,40 @@ export default function Home() {
             }
         }
     }, [command]);
+
+    const renderBreadcrumb = () => (
+        <Breadcrumb spacing="8px" separator=">">
+            {steps.map((step, index) => (
+                <BreadcrumbItem key={index}>
+                    <BreadcrumbLink
+                        color={
+                            stepStatuses[index] === "success"
+                                ? "green.500"
+                                : stepStatuses[index] === "processing"
+                                ? "blue.500"
+                                : stepStatuses[index] === "failed"
+                                ? "red.500"
+                                : "gray.500"
+                        }
+                    >
+                        {stepStatuses[index] === "success" && (
+                            <CheckCircleIcon mr={2} />
+                        )}
+                        {stepStatuses[index] === "processing" && (
+                            <TimeIcon mr={2} />
+                        )}
+                        {stepStatuses[index] === "failed" && (
+                            <WarningIcon mr={2} />
+                        )}
+                        {stepStatuses[index] === "idle" && (
+                            <CheckCircleIcon mr={2} opacity={0.5} />
+                        )}
+                        {step.title}
+                    </BreadcrumbLink>
+                </BreadcrumbItem>
+            ))}
+        </Breadcrumb>
+    );
 
     return (
         <Container maxW="container.md" centerContent>
@@ -250,21 +273,7 @@ export default function Home() {
                                 pointerEvents={command ? "auto" : "none"}
                                 transition="opacity 0.3s"
                             />
-                            {status && (
-                                <Box
-                                    position="fixed"
-                                    bottom="0"
-                                    left="0"
-                                    right="0"
-                                    bg="blue.500"
-                                    color="white"
-                                    p={2}
-                                    textAlign="center"
-                                    fontFamily="var(--font-geist-sans)"
-                                >
-                                    {status}
-                                </Box>
-                            )}
+                            {renderBreadcrumb()}
                         </VStack>
                     </CardBody>
                 </Card>
