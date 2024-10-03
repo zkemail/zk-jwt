@@ -10,7 +10,7 @@ RUN npm install -g n
 RUN n 18
 RUN npm install -g yarn snarkjs
 
-RUN git clone -b feat/refactor https://github.com/zkemail/zk-jwt.git
+RUN git clone -b feat/prover https://github.com/zkemail/zk-jwt.git
 WORKDIR /zk-jwt/packages/prover
 RUN pip install -r requirements.txt
 RUN cp ./circom_proofgen.sh /root
