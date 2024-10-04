@@ -28,9 +28,10 @@ def store_input(circuit_name: str, nonce: str, json_data: dict):
     json_file_path = os.path.join(
         build_dir, "input_" + circuit_name + "_" + nonce + ".json"
     )
+    print(json_file_path)
     logger.info(f"Store user input to {json_file_path}")
     with open(json_file_path, "w") as json_file:
-        json_file.write(json_data)
+        json_file.write(json.dumps(json_data))
 
 
 def load_proof(circuit_name: str, nonce: str) -> dict:
