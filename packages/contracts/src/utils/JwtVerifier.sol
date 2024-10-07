@@ -26,8 +26,8 @@ contract JwtVerifier is OwnableUpgradeable, UUPSUpgradeable {
     uint256 public constant ISS_BYTES = 32;
     uint256 public constant COMMAND_FIELDS = 20;
     uint256 public constant COMMAND_BYTES = 605;
-    uint256 public constant AZP_FIELDS = 1;
-    uint256 public constant AZP_BYTES = 14;
+    uint256 public constant AZP_FIELDS = 3;
+    uint256 public constant AZP_BYTES = 72;
 
     constructor() {}
 
