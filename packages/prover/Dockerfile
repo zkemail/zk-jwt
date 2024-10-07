@@ -24,9 +24,11 @@ RUN ls /root
 # RUN cp /email-wallet/packages/prover/params/email_sender.wasm /root/params
 RUN mkdir params
 WORKDIR /root/params
-RUN gdown "https://drive.google.com/uc?id=1vpXh7w2YRzYK1rNdoKAI4Zu857MFml_R"
-RUN unzip upload-file.zip
-RUN mv upload-file/* /root/params
+# RUN gdown "https://drive.google.com/uc?id=1vpXh7w2YRzYK1rNdoKAI4Zu857MFml_R"
+# RUN unzip upload-file.zip
+# RUN mv upload-file/* /root/params
+RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier.zkey --output ./jwt-verifier.zkey
+RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_js/jwt-verifier.wasm --output ./jwt-verifier.wasm
 WORKDIR /root
 RUN ls params
 # RUN mv build params
