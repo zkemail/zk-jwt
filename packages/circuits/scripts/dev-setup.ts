@@ -148,11 +148,11 @@ async function exec() {
     await downloadPhase1(phase1Path);
     log("✓ Phase 1:", phase1Path);
 
-    const emailAuthR1csPath = path.join(buildDir, "jwt-verifier-test.r1cs");
+    const emailAuthR1csPath = path.join(buildDir, "jwt-verifier.r1cs");
     if (!fs.existsSync(emailAuthR1csPath)) {
       throw new Error(`${emailAuthR1csPath} does not exist.`);
     }
-    await generateKeys(phase1Path, emailAuthR1csPath, path.join(buildDir, "jwt-verifier-test.zkey"), path.join(buildDir, "jwt-verifier-test.vkey"), path.join(buildDir, "Groth16Verifier.sol"));
+    await generateKeys(phase1Path, emailAuthR1csPath, path.join(buildDir, "jwt-verifier.zkey"), path.join(buildDir, "jwt-verifier.vkey"), path.join(buildDir, "JwtGroth16Verifier.sol"));
     log("✓ Keys for email auth circuit generated");
   } else {
     const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_23.ptau");
