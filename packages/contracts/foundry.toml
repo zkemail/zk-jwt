@@ -4,6 +4,9 @@ out = "artifacts"
 libs = ["../../node_modules", "lib"]
 optimizer = true
 optimizer-runs = 20_000
+fs_permissions = [
+    { access = "read", path = "./test/jwt_proofs" },
+]
 
 solc = "0.8.26"
 
