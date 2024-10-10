@@ -2,7 +2,12 @@
 const nextConfig = {
     webpack: (config, { isServer }) => {
         if (!isServer) {
-            config.output.globalObject = "self";
+            config.resolve.fallback = {
+                ...config.resolve.fallback,
+                dns: false,
+                buffer: false,
+                stream: false,
+            };
         }
         return config;
     },

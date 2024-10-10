@@ -20,6 +20,9 @@ import {
 } from "@chakra-ui/react";
 import { CheckCircleIcon, TimeIcon, WarningIcon } from "@chakra-ui/icons";
 import styled from "@emotion/styled";
+import axios from "axios";
+import { generateJWTVerifierInputs } from "../../packages/helpers/dist/input-generators";
+import { genAccountCode } from "@zk-email/relayer-utils";
 
 declare global {
     interface Window {
@@ -50,7 +53,6 @@ export default function Home() {
     const [jwt, setJwt] = useState("");
     const [error, setError] = useState("");
     const [proof, setProof] = useState(null);
-    const [worker, setWorker] = useState<Worker | null>(null);
     const [stepStatuses, setStepStatuses] = useState(["idle", "idle", "idle"]);
 
     const steps = [
@@ -64,41 +66,40 @@ export default function Home() {
         count: steps.length,
     });
 
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-            const w = new Worker(new URL("./proof.worker.ts", import.meta.url));
-            setWorker(w);
-
-            w.onmessage = (event) => {
-                if (event.data.type === "log") {
-                    console.log(event.data.message);
-                } else if (event.data.type === "proof") {
-                    if (event.data.proof.success) {
-                        setProof(event.data.proof);
-                        setStepStatuses((prev) => [
-                            "success",
-                            "success",
-                            "success",
-                        ]);
-                    } else {
-                        setStepStatuses((prev) => [
-                            "success",
-                            "failed",
-                            "idle",
-                        ]);
-                    }
-                }
-            };
-
-            return () => {
-                w.terminate();
-            };
-        }
-    }, []);
-
-    const handleCredentialResponse = (response: any) => {
+    const generateProof = async (jwt: string, pubkey: any) => {
         try {
-            console.log("JWT:", response.credential);
+            setStepStatuses((prev) => ["success", "processing", "idle"]);
+
+            const accountCode = await genAccountCode();
+            const circuitInputs = generateJWTVerifierInputs(
+                jwt,
+                pubkey,
+                accountCode,
+                {
+                    maxMessageLength: 1024,
+                }
+            );
+
+            const response = await axios.post(
+                "https://zkemail--jwt-prover-v0-1-0-flask-app.modal.run/prove/jwt",
+                {
+                    input: circuitInputs,
+                }
+            );
+            console.log("Proof:", response.data.proof);
+            setProof(response.data.proof);
+            setStepStatuses((prev) => ["success", "success", "success"]);
+        } catch (error) {
+            console.error("Error generating proof:", error);
+            setError("Failed to generate proof. Please try again.");
+            setStepStatuses((prev) => ["success", "failed", "idle"]);
+        }
+    };
+
+    const handleCredentialResponse = async (response: any) => {
+        try {
+            const jwt = response.credential;
+            console.log("JWT:", jwt);
             const decodedHeader = JSON.parse(
                 Buffer.from(
                     response.credential.split(".")[0],
@@ -113,15 +114,20 @@ export default function Home() {
             );
             console.log("Decoded Header:", decodedHeader);
             console.log("Decoded Payload:", decodedPayload);
-            setJwt(response.credential);
+            setJwt(jwt);
             setError("");
-            setStepStatuses((prev) => ["success", "processing", "idle"]);
+            setStepStatuses((prev) => ["success", "idle", "idle"]);
+            const pubkeys = await axios.get(
+                "https://www.googleapis.com/oauth2/v3/certs"
+            );
+            const pubkey = pubkeys.data.keys.find(
+                (key: any) => key.kid === decodedHeader.kid
+            );
 
-            setTimeout(() => {
-                if (worker) {
-                    worker.postMessage({ jwt: response.credential });
-                }
-            }, 2000);
+            generateProof(jwt, {
+                n: pubkey.n,
+                e: 65537,
+            });
         } catch (error) {
             console.error("Error decoding JWT:", error);
             setError(
@@ -172,10 +178,10 @@ export default function Home() {
                             stepStatuses[index] === "success"
                                 ? "green.500"
                                 : stepStatuses[index] === "processing"
-                                ? "blue.500"
-                                : stepStatuses[index] === "failed"
-                                ? "red.500"
-                                : "gray.500"
+                                  ? "blue.500"
+                                  : stepStatuses[index] === "failed"
+                                    ? "red.500"
+                                    : "gray.500"
                         }
                     >
                         {stepStatuses[index] === "success" && (
