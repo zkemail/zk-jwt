@@ -4,6 +4,7 @@
     "license": "MIT",
     "main": "dist",
     "scripts": {
+        "install": "build",
         "build": "tsc",
         "test": "jest tests/**/*.test.ts",
         "lint": "eslint .",
