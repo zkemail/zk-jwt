@@ -1,7 +1,7 @@
 // @ts-ignore
 import { program } from 'commander';
-import { generateJWT } from '../../helpers/src/jwt'; // JWTを生成する関数のパスを指定
-import { generateJWTVerifierInputs } from '../../helpers/src/input-generators'; // 入力を生成する関数のパスを指定
+import { generateJWT } from '../../helpers/src/jwt'; // Specify the path to the function that generates JWT
+import { generateJWTVerifierInputs } from '../../helpers/src/input-generators'; // Specify the path to the function that generates inputs
 import { splitJWT } from "../../helpers/src/utils";
 import fs from "fs";
 const snarkjs = require("snarkjs");
