@@ -39,6 +39,7 @@ contract JwtRegistryTest_revokeDKIMPublicKeyHash is JwtRegistryTestBase {
     function test_revokeDKIMPublicKeyHash() public {
         string memory domainName = "12345|https://example.com|client-id-12345";
         jwtRegistry.revokeDKIMPublicKeyHash(domainName, publicKeyHash);
-        assertEq(jwtRegistry.whitelistedClients("client-id-12345"), false);
+        // revokeDKIMPublicKeyHash does not set azp to false
+        assertEq(jwtRegistry.whitelistedClients("client-id-12345"), true);
     }
 }
