@@ -45,7 +45,6 @@ export async function generateJWTVerifierInputs(
     codeIndex: string; // Index of the "invitation code" in the "command"
     periodIndex: string; // Index of the period in the JWT message
     jwtTypStartIndex: string; // Index of the "typ" in the JWT header
-    jwtAlgStartIndex: string; // Index of the "alg" in the JWT header
     jwtKidStartIndex: string; // Index of the "kid" in the JWT header
     issKeyStartIndex: string; // Index of the "iss" in the JWT payload
     issLength: string; // Length of the "iss" in the JWT payload
@@ -104,6 +103,9 @@ export async function generateJWTVerifierInputs(
         const header = Buffer.from(headerString, "base64").toString("utf-8");
         const payload = Buffer.from(payloadString, "base64").toString("utf-8");
 
+        console.log("Header:", header);
+        console.log("Payload:", payload);
+
         // Parse payload
         let parsedPayload;
         try {
@@ -116,7 +118,6 @@ export async function generateJWTVerifierInputs(
 
         // Find the starting indices of the required substrings
         const jwtTypStartIndex = header.indexOf('"typ":"JWT"');
-        const jwtAlgStartIndex = header.indexOf('"alg":"RS256"');
         const jwtKidStartIndex = header.indexOf('"kid":');
         const issKeyStartIndex = payload.indexOf('"iss":');
         const iatKeyStartIndex = payload.indexOf('"iat":');
@@ -140,7 +141,6 @@ export async function generateJWTVerifierInputs(
             codeIndex: codeIndex.toString(),
             periodIndex: periodIndex.toString(),
             jwtTypStartIndex: jwtTypStartIndex.toString(),
-            jwtAlgStartIndex: jwtAlgStartIndex.toString(),
             jwtKidStartIndex: jwtKidStartIndex.toString(),
             issKeyStartIndex: issKeyStartIndex.toString(),
             issLength: issLength.toString(),

@@ -85,7 +85,6 @@ template JWTVerifier(
     signal input periodIndex; // Index of the period in the JWT message
 
     signal input jwtTypStartIndex; // Index of the "typ" in the JWT header
-    signal input jwtAlgStartIndex; // Index of the "alg" in the JWT header
     signal input jwtKidStartIndex; // Index of the "kid" in the JWT header
 
     signal input issKeyStartIndex; // Index of the "iss" key in the JWT payload
@@ -202,15 +201,6 @@ template JWTVerifier(
     signal typMatch[typLength] <== RevealSubstring(maxHeaderLength, typLength, 0)(header, jwtTypStartIndex, typLength);
     for (var i = 0; i < typLength; i++) {
         typMatch[i] === typ[i];
-    }
-
-    // TODO: This may be redundant
-    // Verify if the alg in the header is "RS256"
-    var algLength = JWT_ALG_LENGTH();
-    var alg[algLength] = JWT_ALG();
-    signal algMatch[algLength] <== RevealSubstring(maxHeaderLength, algLength, 0)(header, jwtAlgStartIndex, algLength);
-    for (var i = 0; i < algLength; i++) {
-        algMatch[i] === alg[i];
     }
 
     // Verify if the key `kid` in the header is unique
