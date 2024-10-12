@@ -12,7 +12,8 @@ Here is the sample verified deployed addresses on Sepolia:
 ```
 JWTRegistry: 0x983A7B6a8b5657319078D858a303830C99761108
 DKIMRegistry: 0xf3B70Dc348C7820b3026564500A7eBAc6cC4cC33
-JWTVerifier: 0xac82c745AAdA7489786ed689bcc1138F27833cD7
+JWTVerifier implementation: 0xF462839975B5e1844dD32cb301aFE65D0Dbe66Dd
+JWTVerifier proxy: 0x63E990e29317Bf54a6c4F5Fb26e33342D3DE6Fd3
 ```
 
 ## Errors
