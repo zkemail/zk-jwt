@@ -85,11 +85,17 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
         );
 
         dkimRegistry.revokeDKIMPublicKeyHash(publicKeyHash);
-        // Disable azp
-        string[] memory parts = this.stringToArray(domainName);
-        whitelistedClients[parts[2]] = false;
     }
 
+    /// @notice Disables the azp (authorized party) associated with the given domain name
+    /// @param domainName The domain name containing kis, iss, and azp fields
+    /// @dev This function removes the azp from the whitelisted clients
+    function disableAzp(string memory domainName) public {
+        string[] memory parts = this.stringToArray(domainName);
+        string memory azp = parts[2];
+        whitelistedClients[azp] = false;
+    }
+    
     function stringToArray(string memory _strings) external pure returns (string[] memory) {
         strings.slice memory slicee = _strings.toSlice();
         strings.slice memory delim = "|".toSlice();

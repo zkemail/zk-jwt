@@ -5,19 +5,9 @@ import "../interfaces/IJwtGroth16Verifier.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { strings } from "solidity-stringutils/src/strings.sol";
+import {IVerifier, EmailProof} from "../interfaces/IVerifier.sol";
 
-struct EmailProof {
-    string domainName; // Domain name of the sender's email
-    bytes32 publicKeyHash; // Hash of the DKIM public key used in email/proof
-    uint timestamp; // Timestamp of the email
-    string maskedCommand; // Masked command of the email
-    bytes32 emailNullifier; // Nullifier of the email to prevent its reuse.
-    bytes32 accountSalt; // Create2 salt of the account
-    bool isCodeExist; // Check if the account code is exist
-    bytes proof; // ZK Proof of Email
-}
-
-contract JwtVerifier is OwnableUpgradeable, UUPSUpgradeable {
+contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
     using strings for *;
 
     IJwtGroth16Verifier groth16Verifier;
@@ -26,8 +16,8 @@ contract JwtVerifier is OwnableUpgradeable, UUPSUpgradeable {
     uint256 public constant ISS_BYTES = 32;
     uint256 public constant COMMAND_FIELDS = 20;
     uint256 public constant COMMAND_BYTES = 605;
-    uint256 public constant AZP_FIELDS = 1;
-    uint256 public constant AZP_BYTES = 14;
+    uint256 public constant AZP_FIELDS = 3;
+    uint256 public constant AZP_BYTES = 72;
 
     constructor() {}
 
