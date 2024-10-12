@@ -11,7 +11,7 @@ contract DeployScript is Script {
         address deployer = vm.addr(deployerPrivateKey);
         bytes32 salt = keccak256(abi.encodePacked(vm.envString("DEPLOY_SALT")));
 
-        vm.startBroadcast(deployer);
+        vm.startBroadcast(deployerPrivateKey);
 
         // Deploy the contract using CREATE2
         JwtRegistry jwtRegistry = new JwtRegistry{salt: salt}(deployer);
