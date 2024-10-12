@@ -4,8 +4,8 @@
     "license": "MIT",
     "main": "dist",
     "scripts": {
-        "install": "build",
-        "build": "tsc",
+        "install": "yarn build",
+        "build": "npx tsc",
         "test": "jest tests/**/*.test.ts",
         "lint": "eslint .",
         "prepublish": "yarn lint && yarn build",
