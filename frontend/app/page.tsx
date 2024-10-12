@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { GetServerSideProps } from 'next';
 import {
     Box,
     Card,
@@ -22,9 +21,6 @@ import {
 import { CheckCircleIcon, TimeIcon, WarningIcon } from "@chakra-ui/icons";
 import styled from "@emotion/styled";
 import axios from "axios";
-// import { generateJWTVerifierInputs } from "@zk-jwt/helpers/dist/input-generators";
-// import { genAccountCode } from "@zk-email/relayer-utils";
-
 
 declare global {
     interface Window {
@@ -54,30 +50,6 @@ interface HomeProps {
     data: string;
 }
 
-
-
-// Helper function to generate random BigInt
-// function genAccountCode(): bigint {
-//     // BN254 Scalar Field fr
-//     const fr = BigInt("21888242871839275222246405745257275088548364400416034343698204186575808495617");
-//     const maxBytes = 32;
-//     let randomBytes = new Uint8Array(maxBytes);
-
-//     // Continuously generate random numbers until we get one within the range [0, fr)
-//     while (true) {
-//         // Fill the array with random values
-//         window.crypto.getRandomValues(randomBytes);
-
-//         // Convert random bytes to a BigInt
-//         let randomValue = BigInt('0x' + Array.from(randomBytes).map(byte => byte.toString(16).padStart(2, '0')).join(''));
-
-//         // Return if the randomValue is less than max (fr in this case)
-//         if (randomValue < fr) {
-//             return randomValue;
-//         }
-//     }
-// }
-
 export default function Home() {
     const [command, setCommand] = useState("");
     const [jwt, setJwt] = useState("");
@@ -100,16 +72,11 @@ export default function Home() {
         try {
             setStepStatuses((prev) => ["success", "processing", "idle"]);
 
-            // const accountCode = await genAccountCode();
-            // const circuitInputs = generateJWTVerifierInputs(
-            //     jwt,
-            //     pubkey,
-            //     accountCode,
-            //     {
-            //         maxMessageLength: 1024,
-            //     }
-            // );
-            const response1 = await axios.post('/api/generateCircuitInputs', { jwt, pubkey, maxMessageLength: 1024 });
+            const response1 = await axios.post("/api/generateCircuitInputs", {
+                jwt,
+                pubkey,
+                maxMessageLength: 1024,
+            });
             console.log(response1);
             const { circuitInputs, accountCode } = response1.data.circuitInputs;
 
@@ -133,20 +100,18 @@ export default function Home() {
         try {
             const jwt = response.credential;
             console.log("JWT:", jwt);
-            const decodedHeader = {}
-            // JSON.parse(
-            //     Buffer.from(
-            //         response.credential.split(".")[0],
-            //         "base64"
-            //     ).toString("utf-8")
-            // );
-            const decodedPayload = {}
-            // JSON.parse(
-            //     Buffer.from(
-            //         response.credential.split(".")[1],
-            //         "base64"
-            //     ).toString("utf-8")
-            // );
+            const decodedHeader = JSON.parse(
+                Buffer.from(
+                    response.credential.split(".")[0],
+                    "base64"
+                ).toString("utf-8")
+            );
+            const decodedPayload = JSON.parse(
+                Buffer.from(
+                    response.credential.split(".")[1],
+                    "base64"
+                ).toString("utf-8")
+            );
             console.log("Decoded Header:", decodedHeader);
             console.log("Decoded Payload:", decodedPayload);
             setJwt(jwt);
@@ -213,10 +178,10 @@ export default function Home() {
                             stepStatuses[index] === "success"
                                 ? "green.500"
                                 : stepStatuses[index] === "processing"
-                                    ? "blue.500"
-                                    : stepStatuses[index] === "failed"
-                                        ? "red.500"
-                                        : "gray.500"
+                                  ? "blue.500"
+                                  : stepStatuses[index] === "failed"
+                                    ? "red.500"
+                                    : "gray.500"
                         }
                     >
                         {stepStatuses[index] === "success" && (
