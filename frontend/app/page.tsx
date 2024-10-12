@@ -77,21 +77,25 @@ export default function Home() {
                 pubkey,
                 maxMessageLength: 1024,
             });
-            console.log(response1);
-            const { circuitInputs, accountCode } = response1.data.circuitInputs;
 
-            const response2 = await axios.post(
-                "https://zkemail--jwt-prover-v0-1-0-flask-app.modal.run/prove/jwt",
-                {
-                    input: circuitInputs,
-                }
-            );
+            console.log("Sending to proxyJwtProver:", {
+                input: response1.data,
+            });
+            const response2 = await axios.post("/api/proxyJwtProver", {
+                input: response1.data,
+            });
             console.log("Proof:", response2.data.proof);
             setProof(response2.data.proof);
             setStepStatuses((prev) => ["success", "success", "success"]);
         } catch (error) {
             console.error("Error generating proof:", error);
-            setError("Failed to generate proof. Please try again.");
+            if (axios.isAxiosError(error) && error.response) {
+                setError(
+                    `Failed to generate proof: ${error.response.data.message || error.message}`
+                );
+            } else {
+                setError("Failed to generate proof. Please try again.");
+            }
             setStepStatuses((prev) => ["success", "failed", "idle"]);
         }
     };
