@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { generateJWTVerifierInputs } from "../../../packages/helpers/src/input-generators";
+import { generateJWTVerifierInputs } from "@zk-jwt/helpers/src/input-generators";
 import { genAccountCode } from "@zk-email/relayer-utils";
 
 export default async function handler(
