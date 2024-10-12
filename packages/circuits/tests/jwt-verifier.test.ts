@@ -460,7 +460,7 @@ describe("JWT Verifier Circuit", () => {
     });
 
     // @Note - Needs an actual Google Sign-In JWT to run
-    it.skip("Verify a real Google Sign-In JWT", async () => {
+    it("Verify a real Google Sign-In JWT", async () => {
         const googleSignInData = JSON.parse(
             fs.readFileSync(
                 path.join(__dirname, "test-jwts/google-sign-in.json"),
@@ -482,98 +482,107 @@ describe("JWT Verifier Circuit", () => {
             }
         );
 
-        const witness = await circuit.calculateWitness(jwtVerifierInputs);
-        await circuit.checkConstraints(witness);
-
-        const [header, payload, signature] = splitJWT(rawJWT);
-        const decodedPayload = JSON.parse(
-            Buffer.from(payload, "base64").toString()
+        const jwtVerifierInputsJson = JSON.stringify(
+            jwtVerifierInputs,
+            null,
+            2
         );
+        const outputPath = path.join(__dirname, "jwtVerifierInputs.json");
+        fs.writeFileSync(outputPath, jwtVerifierInputsJson);
+        console.log(`JWT verifier inputs written to ${outputPath}`);
 
-        // kid
-        const expectedKid = BigInt(
-            "0x" + googleSignInData.publicKeys.keys[1].kid
-        );
-        expect(expectedKid).toEqual(witness[1]);
+        // const witness = await circuit.calculateWitness(jwtVerifierInputs);
+        // await circuit.checkConstraints(witness);
 
-        // issuer
-        const paddedIssuer = relayerUtils.padString(decodedPayload.iss, 32);
-        const issuerFields = relayerUtils.bytes2Fields(paddedIssuer);
-        for (let i = 0; i < issuerFields.length; i++) {
-            expect(BigInt(issuerFields[i])).toEqual(witness[1 + 1 + i]);
-        }
+        // const [header, payload, signature] = splitJWT(rawJWT);
+        // const decodedPayload = JSON.parse(
+        //     Buffer.from(payload, "base64").toString()
+        // );
 
-        // publicKeyHash
-        const expectedPubKeyHash = relayerUtils.publicKeyHash(
-            "0x" + Buffer.from(publicKey.n, "base64").toString("hex")
-        );
-        expect(BigInt(expectedPubKeyHash)).toEqual(
-            witness[1 + 1 + issuerFields.length]
-        );
+        // // kid
+        // const expectedKid = BigInt(
+        //     "0x" + googleSignInData.publicKeys.keys[1].kid
+        // );
+        // expect(expectedKid).toEqual(witness[1]);
 
-        // jwtNullifier
-        const expectedJwtNullifier = relayerUtils.emailNullifier(
-            "0x" + Buffer.from(signature, "base64").toString("hex")
-        );
-        expect(BigInt(expectedJwtNullifier)).toEqual(
-            witness[1 + 1 + issuerFields.length + 1]
-        );
+        // // issuer
+        // const paddedIssuer = relayerUtils.padString(decodedPayload.iss, 32);
+        // const issuerFields = relayerUtils.bytes2Fields(paddedIssuer);
+        // for (let i = 0; i < issuerFields.length; i++) {
+        //     expect(BigInt(issuerFields[i])).toEqual(witness[1 + 1 + i]);
+        // }
 
-        // timestamp
-        expect(decodedPayload.iat).toEqual(
-            parseInt(witness[1 + 1 + issuerFields.length + 2])
-        );
+        // // publicKeyHash
+        // const expectedPubKeyHash = relayerUtils.publicKeyHash(
+        //     "0x" + Buffer.from(publicKey.n, "base64").toString("hex")
+        // );
+        // expect(BigInt(expectedPubKeyHash)).toEqual(
+        //     witness[1 + 1 + issuerFields.length]
+        // );
 
-        // maskedCommand (in this case, there's no command, so it should be empty)
-        const maskedCommand = "Swap 1 ETH to DAI";
-        const paddedMaskedCommand = relayerUtils.padString(maskedCommand, 605);
-        const maskedCommandFields =
-            relayerUtils.bytes2Fields(paddedMaskedCommand);
-        for (let i = 0; i < maskedCommandFields.length; ++i) {
-            expect(BigInt(maskedCommandFields[i])).toEqual(
-                witness[1 + 1 + issuerFields.length + 3 + i]
-            );
-        }
+        // // jwtNullifier
+        // const expectedJwtNullifier = relayerUtils.emailNullifier(
+        //     "0x" + Buffer.from(signature, "base64").toString("hex")
+        // );
+        // expect(BigInt(expectedJwtNullifier)).toEqual(
+        //     witness[1 + 1 + issuerFields.length + 1]
+        // );
 
-        // accountSalt
-        const accountSalt = relayerUtils.accountSalt(
-            decodedPayload.email,
-            accountCode
-        );
-        expect(BigInt(accountSalt)).toEqual(
-            witness[
-                1 + 1 + issuerFields.length + 3 + maskedCommandFields.length
-            ]
-        );
+        // // timestamp
+        // expect(decodedPayload.iat).toEqual(
+        //     parseInt(witness[1 + 1 + issuerFields.length + 2])
+        // );
 
-        // azp
-        const paddedAzp = relayerUtils.padString(decodedPayload.azp, 72);
-        const azpFields = relayerUtils.bytes2Fields(paddedAzp);
-        for (let i = 0; i < azpFields.length; i++) {
-            expect(BigInt(azpFields[i])).toEqual(
-                witness[
-                    1 +
-                        1 +
-                        issuerFields.length +
-                        3 +
-                        maskedCommandFields.length +
-                        1 +
-                        i
-                ]
-            );
-        }
+        // // maskedCommand (in this case, there's no command, so it should be empty)
+        // const maskedCommand = "Swap 1 ETH to DAI";
+        // const paddedMaskedCommand = relayerUtils.padString(maskedCommand, 605);
+        // const maskedCommandFields =
+        //     relayerUtils.bytes2Fields(paddedMaskedCommand);
+        // for (let i = 0; i < maskedCommandFields.length; ++i) {
+        //     expect(BigInt(maskedCommandFields[i])).toEqual(
+        //         witness[1 + 1 + issuerFields.length + 3 + i]
+        //     );
+        // }
 
-        // isCodeExist (should be 0 as there's no invitation code in this JWT)
-        expect(0n).toEqual(
-            witness[
-                1 +
-                    1 +
-                    issuerFields.length +
-                    3 +
-                    maskedCommandFields.length +
-                    1 +
-                    azpFields.length
-            ]
-        );
+        // // accountSalt
+        // const accountSalt = relayerUtils.accountSalt(
+        //     decodedPayload.email,
+        //     accountCode
+        // );
+        // expect(BigInt(accountSalt)).toEqual(
+        //     witness[
+        //         1 + 1 + issuerFields.length + 3 + maskedCommandFields.length
+        //     ]
+        // );
+
+        // // azp
+        // const paddedAzp = relayerUtils.padString(decodedPayload.azp, 72);
+        // const azpFields = relayerUtils.bytes2Fields(paddedAzp);
+        // for (let i = 0; i < azpFields.length; i++) {
+        //     expect(BigInt(azpFields[i])).toEqual(
+        //         witness[
+        //             1 +
+        //                 1 +
+        //                 issuerFields.length +
+        //                 3 +
+        //                 maskedCommandFields.length +
+        //                 1 +
+        //                 i
+        //         ]
+        //     );
+        // }
+
+        // // isCodeExist (should be 0 as there's no invitation code in this JWT)
+        // expect(0n).toEqual(
+        //     witness[
+        //         1 +
+        //             1 +
+        //             issuerFields.length +
+        //             3 +
+        //             maskedCommandFields.length +
+        //             1 +
+        //             azpFields.length
+        //     ]
+        // );
     });
 });

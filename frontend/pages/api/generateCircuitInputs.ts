@@ -8,17 +8,24 @@ export default async function handler(
 ) {
     if (req.method === "POST") {
         try {
-            const { jwt, publicKey, maxMessageLength } = req.body;
+            console.log("req.body", req.body);
+            const { jwt, pubkey, maxMessageLength } = req.body;
+            if (!jwt || !pubkey || !maxMessageLength) {
+                res.status(400).json({ error: "Missing required fields" });
+                return;
+            }
             const accountCode = await genAccountCode();
-            const inputs = await generateJWTVerifierInputs(
+            console.log("accountCode", accountCode);
+            const circuitInputs = await generateJWTVerifierInputs(
                 jwt,
-                publicKey,
-                BigInt(accountCode),
+                pubkey,
+                accountCode,
                 {
                     maxMessageLength: maxMessageLength,
                 }
             );
-            res.status(200).json(inputs);
+            console.log("circuitInputs", circuitInputs);
+            res.status(200).json(circuitInputs);
         } catch (error) {
             res.status(500).json({ error: "Failed to generate inputs" });
         }
