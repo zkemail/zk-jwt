@@ -5,6 +5,8 @@ pragma solidity ^0.8.12;
 import "forge-std/Script.sol";
 import "../src/utils/JwtRegistry.sol";
 
+// 1. `source .env`
+// 2. `forge script script/Deploy_jwtRegistry.s.sol:DeployScript --rpc-url $RPC_URL --verify --etherscan-api-key $ETHERSCAN_API_KEY --broadcast -vvvv`
 contract DeployScript is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
