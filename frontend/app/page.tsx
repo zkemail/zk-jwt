@@ -71,21 +71,18 @@ export default function Home() {
     const generateProof = async (jwt: string, pubkey: any) => {
         try {
             setStepStatuses((prev) => ["success", "processing", "idle"]);
-
-            const response1 = await axios.post("/api/generateCircuitInputs", {
-                jwt,
-                pubkey,
-                maxMessageLength: 1024,
+            const circuitInputs = await axios.post(
+                "/api/generateCircuitInputs",
+                {
+                    jwt,
+                    pubkey,
+                    maxMessageLength: 1024,
+                }
+            );
+            const proverResponse = await axios.post("/api/proxyJwtProver", {
+                input: circuitInputs.data,
             });
-
-            console.log("Sending to proxyJwtProver:", {
-                input: response1.data,
-            });
-            const response2 = await axios.post("/api/proxyJwtProver", {
-                input: response1.data,
-            });
-            console.log("Proof:", response2.data.proof);
-            setProof(response2.data.proof);
+            setProof(proverResponse.data.proof);
             setStepStatuses((prev) => ["success", "success", "success"]);
         } catch (error) {
             console.error("Error generating proof:", error);
