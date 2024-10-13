@@ -3430,7 +3430,7 @@ __metadata:
 
 "@zk-jwt/helpers@file:../packages/helpers::locator=frontend%40workspace%3Afrontend":
   version: 0.0.1
-  resolution: "@zk-jwt/helpers@file:../packages/helpers#../packages/helpers::hash=730ec8&locator=frontend%40workspace%3Afrontend"
+  resolution: "@zk-jwt/helpers@file:../packages/helpers#../packages/helpers::hash=fed1e9&locator=frontend%40workspace%3Afrontend"
   dependencies:
     "@zk-email/helpers": ^6.1.5
     addressparser: ^1.0.1
@@ -3446,7 +3446,7 @@ __metadata:
     pako: ^2.1.0
     psl: ^1.9.0
     snarkjs: "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
-  checksum: f1778f9c704c96834327d9dceb6f8ed394f792b7991eddcd521434321170f353845695e8ff56f8e035107fd1498aa0f6cca78815ba840390d0138cb7fea80631
+  checksum: ad90ffd6b8077a9a02349fa73d05022a7abbe7472f62932941454afec5088862302e0b050ecd6256e494b83b71f1932714dbd4b03dd6797b63a3a26a1f0d2ce5
   languageName: node
   linkType: hard
 
