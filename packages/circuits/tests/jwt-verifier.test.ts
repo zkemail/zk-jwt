@@ -26,7 +26,7 @@ describe("JWT Verifier Circuit", () => {
         circuit = await wasm_tester(
             path.join(__dirname, "./test-circuits/jwt-verifier-test.circom"),
             {
-                recompile: true,
+                recompile: false,
                 include: path.join(__dirname, "../../../node_modules"),
                 output: path.join(__dirname, "./compiled-test-circuits"),
             }
@@ -482,107 +482,101 @@ describe("JWT Verifier Circuit", () => {
             }
         );
 
-        const jwtVerifierInputsJson = JSON.stringify(
-            jwtVerifierInputs,
-            null,
-            2
+        const witness = await circuit.calculateWitness(jwtVerifierInputs);
+        await circuit.checkConstraints(witness);
+
+        const [header, payload, signature] = splitJWT(rawJWT);
+        const decodedPayload = JSON.parse(
+            Buffer.from(payload, "base64").toString()
         );
-        const outputPath = path.join(__dirname, "jwtVerifierInputs.json");
-        fs.writeFileSync(outputPath, jwtVerifierInputsJson);
-        console.log(`JWT verifier inputs written to ${outputPath}`);
 
-        // const witness = await circuit.calculateWitness(jwtVerifierInputs);
-        // await circuit.checkConstraints(witness);
+        // kid
+        const expectedKid = BigInt(
+            "0x" + googleSignInData.publicKeys.keys[1].kid
+        );
+        expect(expectedKid).toEqual(witness[1]);
 
-        // const [header, payload, signature] = splitJWT(rawJWT);
-        // const decodedPayload = JSON.parse(
-        //     Buffer.from(payload, "base64").toString()
-        // );
+        // issuer
+        const paddedIssuer = relayerUtils.padString(decodedPayload.iss, 32);
+        const issuerFields = relayerUtils.bytes2Fields(paddedIssuer);
+        for (let i = 0; i < issuerFields.length; i++) {
+            expect(BigInt(issuerFields[i])).toEqual(witness[1 + 1 + i]);
+        }
+        console.log("iss length", issuerFields.length);
 
-        // // kid
-        // const expectedKid = BigInt(
-        //     "0x" + googleSignInData.publicKeys.keys[1].kid
-        // );
-        // expect(expectedKid).toEqual(witness[1]);
+        // publicKeyHash
+        const expectedPubKeyHash = relayerUtils.publicKeyHash(
+            "0x" + Buffer.from(publicKey.n, "base64").toString("hex")
+        );
+        expect(BigInt(expectedPubKeyHash)).toEqual(
+            witness[1 + 1 + issuerFields.length]
+        );
 
-        // // issuer
-        // const paddedIssuer = relayerUtils.padString(decodedPayload.iss, 32);
-        // const issuerFields = relayerUtils.bytes2Fields(paddedIssuer);
-        // for (let i = 0; i < issuerFields.length; i++) {
-        //     expect(BigInt(issuerFields[i])).toEqual(witness[1 + 1 + i]);
-        // }
+        // jwtNullifier
+        const expectedJwtNullifier = relayerUtils.emailNullifier(
+            "0x" + Buffer.from(signature, "base64").toString("hex")
+        );
+        expect(BigInt(expectedJwtNullifier)).toEqual(
+            witness[1 + 1 + issuerFields.length + 1]
+        );
 
-        // // publicKeyHash
-        // const expectedPubKeyHash = relayerUtils.publicKeyHash(
-        //     "0x" + Buffer.from(publicKey.n, "base64").toString("hex")
-        // );
-        // expect(BigInt(expectedPubKeyHash)).toEqual(
-        //     witness[1 + 1 + issuerFields.length]
-        // );
+        // timestamp
+        expect(decodedPayload.iat).toEqual(
+            parseInt(witness[1 + 1 + issuerFields.length + 2])
+        );
 
-        // // jwtNullifier
-        // const expectedJwtNullifier = relayerUtils.emailNullifier(
-        //     "0x" + Buffer.from(signature, "base64").toString("hex")
-        // );
-        // expect(BigInt(expectedJwtNullifier)).toEqual(
-        //     witness[1 + 1 + issuerFields.length + 1]
-        // );
+        // maskedCommand (in this case, there's no command, so it should be empty)
+        const maskedCommand = "Swap 1 ETH to DAI";
+        const paddedMaskedCommand = relayerUtils.padString(maskedCommand, 605);
+        const maskedCommandFields =
+            relayerUtils.bytes2Fields(paddedMaskedCommand);
+        for (let i = 0; i < maskedCommandFields.length; ++i) {
+            expect(BigInt(maskedCommandFields[i])).toEqual(
+                witness[1 + 1 + issuerFields.length + 3 + i]
+            );
+        }
+        console.log("maskedCommand length", maskedCommandFields.length);
 
-        // // timestamp
-        // expect(decodedPayload.iat).toEqual(
-        //     parseInt(witness[1 + 1 + issuerFields.length + 2])
-        // );
+        // accountSalt
+        const accountSalt = relayerUtils.accountSalt(
+            decodedPayload.email,
+            accountCode
+        );
+        expect(BigInt(accountSalt)).toEqual(
+            witness[
+                1 + 1 + issuerFields.length + 3 + maskedCommandFields.length
+            ]
+        );
 
-        // // maskedCommand (in this case, there's no command, so it should be empty)
-        // const maskedCommand = "Swap 1 ETH to DAI";
-        // const paddedMaskedCommand = relayerUtils.padString(maskedCommand, 605);
-        // const maskedCommandFields =
-        //     relayerUtils.bytes2Fields(paddedMaskedCommand);
-        // for (let i = 0; i < maskedCommandFields.length; ++i) {
-        //     expect(BigInt(maskedCommandFields[i])).toEqual(
-        //         witness[1 + 1 + issuerFields.length + 3 + i]
-        //     );
-        // }
+        // azp
+        const paddedAzp = relayerUtils.padString(decodedPayload.azp, 72);
+        const azpFields = relayerUtils.bytes2Fields(paddedAzp);
+        for (let i = 0; i < azpFields.length; i++) {
+            expect(BigInt(azpFields[i])).toEqual(
+                witness[
+                    1 +
+                        1 +
+                        issuerFields.length +
+                        3 +
+                        maskedCommandFields.length +
+                        1 +
+                        i
+                ]
+            );
+        }
+        console.log("azp length", azpFields.length);
 
-        // // accountSalt
-        // const accountSalt = relayerUtils.accountSalt(
-        //     decodedPayload.email,
-        //     accountCode
-        // );
-        // expect(BigInt(accountSalt)).toEqual(
-        //     witness[
-        //         1 + 1 + issuerFields.length + 3 + maskedCommandFields.length
-        //     ]
-        // );
-
-        // // azp
-        // const paddedAzp = relayerUtils.padString(decodedPayload.azp, 72);
-        // const azpFields = relayerUtils.bytes2Fields(paddedAzp);
-        // for (let i = 0; i < azpFields.length; i++) {
-        //     expect(BigInt(azpFields[i])).toEqual(
-        //         witness[
-        //             1 +
-        //                 1 +
-        //                 issuerFields.length +
-        //                 3 +
-        //                 maskedCommandFields.length +
-        //                 1 +
-        //                 i
-        //         ]
-        //     );
-        // }
-
-        // // isCodeExist (should be 0 as there's no invitation code in this JWT)
-        // expect(0n).toEqual(
-        //     witness[
-        //         1 +
-        //             1 +
-        //             issuerFields.length +
-        //             3 +
-        //             maskedCommandFields.length +
-        //             1 +
-        //             azpFields.length
-        //     ]
-        // );
+        // isCodeExist (should be 0 as there's no invitation code in this JWT)
+        expect(0n).toEqual(
+            witness[
+                1 +
+                    1 +
+                    issuerFields.length +
+                    3 +
+                    maskedCommandFields.length +
+                    1 +
+                    azpFields.length
+            ]
+        );
     });
 });
