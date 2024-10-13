@@ -5,7 +5,7 @@ import { sepolia } from "viem/chains";
 import { config } from "dotenv";
 import { encodeAbiParameters, parseAbiParameters } from "viem";
 
-const contractABI = require("../../public/JwtVerifier.json").abi;
+import { abi as contractABI } from "../../public/JwtVerifier.json";
 const contractAddress = "0x63E990e29317Bf54a6c4F5Fb26e33342D3DE6Fd3";
 
 config();
