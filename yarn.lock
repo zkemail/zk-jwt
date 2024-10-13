@@ -3430,7 +3430,7 @@ __metadata:
 
 "@zk-jwt/helpers@file:../packages/helpers::locator=frontend%40workspace%3Afrontend":
   version: 0.0.1
-  resolution: "@zk-jwt/helpers@file:../packages/helpers#../packages/helpers::hash=fed1e9&locator=frontend%40workspace%3Afrontend"
+  resolution: "@zk-jwt/helpers@file:../packages/helpers#../packages/helpers::hash=730ec8&locator=frontend%40workspace%3Afrontend"
   dependencies:
     "@zk-email/helpers": ^6.1.5
     addressparser: ^1.0.1
@@ -3446,7 +3446,7 @@ __metadata:
     pako: ^2.1.0
     psl: ^1.9.0
     snarkjs: "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
-  checksum: ad90ffd6b8077a9a02349fa73d05022a7abbe7472f62932941454afec5088862302e0b050ecd6256e494b83b71f1932714dbd4b03dd6797b63a3a26a1f0d2ce5
+  checksum: f1778f9c704c96834327d9dceb6f8ed394f792b7991eddcd521434321170f353845695e8ff56f8e035107fd1498aa0f6cca78815ba840390d0138cb7fea80631
   languageName: node
   linkType: hard
 
@@ -6053,7 +6053,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ffjavascript@npm:0.3.0, ffjavascript@npm:^0.3.0":
+"ffjavascript@npm:0.3.0":
   version: 0.3.0
   resolution: "ffjavascript@npm:0.3.0"
   dependencies:
@@ -6072,6 +6072,17 @@ __metadata:
     wasmcurves: 0.2.2
     web-worker: 1.2.0
   checksum: d4c549228b31692bb8a44f7eb46720b0504a9ff5bc00e8a9c44ad104622cb83613542b4c321f83cb3027c9dcd1b0834da2b1ea679c3277642f754e9e5ea1c06f
+  languageName: node
+  linkType: hard
+
+"ffjavascript@npm:^0.3.0":
+  version: 0.3.1
+  resolution: "ffjavascript@npm:0.3.1"
+  dependencies:
+    wasmbuilder: 0.0.16
+    wasmcurves: 0.2.2
+    web-worker: 1.2.0
+  checksum: fa43e35083873a7752d3049066d3e967604d6d35c5a3c9101ef4b68bebdc0837a0e0ffe006a3104a7caea0b2ff5d1d885f7f025006e017cb390631361589f427
   languageName: node
   linkType: hard
 
@@ -11046,8 +11057,8 @@ __metadata:
   linkType: hard
 
 "viem@npm:^2.21.23":
-  version: 2.21.23
-  resolution: "viem@npm:2.21.23"
+  version: 2.21.24
+  resolution: "viem@npm:2.21.24"
   dependencies:
     "@adraffy/ens-normalize": 1.11.0
     "@noble/curves": 1.6.0
@@ -11063,7 +11074,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 05ac6b2da04ce760ba89f2d002de88961491834756a16240c3726a7eec74af7910465189d0b4106595f146e2fbc5b637105cc0d98538ddfa10fc1a1a7be0bfc2
+  checksum: 1bea4d0edae2a0a0d86ac3b7dfef4a4e124ecff96db201de2398ecda95f3fbd7f676f9124fcd828af0eab8144f350ef70973baf4dc13329492bd94a248bb7c8d
   languageName: node
   linkType: hard
 
