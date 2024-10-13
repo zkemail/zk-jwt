@@ -55,47 +55,26 @@ export default function Home() {
     const [jwt, setJwt] = useState("");
     const [error, setError] = useState("");
     const [proof, setProof] = useState(null);
-    const [stepStatuses, setStepStatuses] = useState(["idle", "idle", "idle"]);
-
+    const [stepStatuses, setStepStatuses] = useState([
+        "idle",
+        "idle",
+        "idle",
+        "idle",
+    ]);
     const steps = [
         { title: "JWT Generation", description: "Generating JWT" },
         { title: "Proof Generation", description: "Starting proof generation" },
         { title: "Proof Complete", description: "Proof generation completed" },
+        {
+            title: "Submit to Contract",
+            description: "Submitting proof to contract",
+        },
     ];
 
     const { activeStep, setActiveStep } = useSteps({
         index: 0,
         count: steps.length,
     });
-
-    const generateProof = async (jwt: string, pubkey: any) => {
-        try {
-            setStepStatuses((prev) => ["success", "processing", "idle"]);
-            const circuitInputs = await axios.post(
-                "/api/generateCircuitInputs",
-                {
-                    jwt,
-                    pubkey,
-                    maxMessageLength: 1024,
-                }
-            );
-            const proverResponse = await axios.post("/api/proxyJwtProver", {
-                input: circuitInputs.data,
-            });
-            setProof(proverResponse.data.proof);
-            setStepStatuses((prev) => ["success", "success", "success"]);
-        } catch (error) {
-            console.error("Error generating proof:", error);
-            if (axios.isAxiosError(error) && error.response) {
-                setError(
-                    `Failed to generate proof: ${error.response.data.message || error.message}`
-                );
-            } else {
-                setError("Failed to generate proof. Please try again.");
-            }
-            setStepStatuses((prev) => ["success", "failed", "idle"]);
-        }
-    };
 
     const handleCredentialResponse = async (response: any) => {
         try {
@@ -125,10 +104,21 @@ export default function Home() {
                 (key: any) => key.kid === decodedHeader.kid
             );
 
-            generateProof(jwt, {
+            const result = await generateProof(jwt, {
                 n: pubkey.n,
                 e: 65537,
             });
+            if (result) {
+                const { proof, pub_signals } = result;
+                await submitProofToContract(
+                    proof,
+                    pub_signals,
+                    decodedHeader,
+                    decodedPayload
+                );
+            } else {
+                throw new Error("Failed to generate proof");
+            }
         } catch (error) {
             console.error("Error decoding JWT:", error);
             setError(
@@ -169,6 +159,97 @@ export default function Home() {
             }
         }
     }, [command]);
+
+    const generateProof = async (jwt: string, pubkey: any) => {
+        try {
+            setStepStatuses((prev) => [
+                "success",
+                "processing",
+                "idle",
+                "idle",
+            ]);
+            const circuitInputs = await axios.post(
+                "/api/generateCircuitInputs",
+                {
+                    jwt,
+                    pubkey,
+                    maxMessageLength: 1024,
+                }
+            );
+            const proverResponse = await axios.post("/api/proxyJwtProver", {
+                input: circuitInputs.data,
+            });
+            setProof(proverResponse.data.proof);
+            setStepStatuses((prev) => [
+                "success",
+                "success",
+                "success",
+                "idle",
+            ]);
+
+            return {
+                proof: proverResponse.data.proof,
+                pub_signals: proverResponse.data.pub_signals,
+            };
+        } catch (error) {
+            console.error("Error generating proof:", error);
+            if (axios.isAxiosError(error) && error.response) {
+                setError(
+                    `Failed to generate proof: ${error.response.data.message || error.message}`
+                );
+            } else {
+                setError("Failed to generate proof. Please try again.");
+            }
+            setStepStatuses((prev) => ["success", "failed", "idle", "idle"]);
+        }
+    };
+
+    const submitProofToContract = async (
+        proof: any,
+        pub_signals: any,
+        header: any,
+        payload: any
+    ) => {
+        try {
+            setStepStatuses((prev) => [
+                "success",
+                "success",
+                "success",
+                "processing",
+            ]);
+            console.log("Submitting proof to contract:", proof, pub_signals);
+            const response = await axios.post("/api/submitProofToContract", {
+                proof,
+                pub_signals,
+                header,
+                payload,
+            });
+            console.log("Proof submitted to contract:", response.data);
+            setStepStatuses((prev) => [
+                "success",
+                "success",
+                "success",
+                "success",
+            ]);
+        } catch (error) {
+            console.error("Error submitting proof to contract:", error);
+            if (axios.isAxiosError(error) && error.response) {
+                setError(
+                    `Failed to submit proof: ${error.response.data.message || error.message}`
+                );
+            } else {
+                setError(
+                    "Failed to submit proof to contract. Please try again."
+                );
+            }
+            setStepStatuses((prev) => [
+                "success",
+                "success",
+                "success",
+                "failed",
+            ]);
+        }
+    };
 
     const renderBreadcrumb = () => (
         <Breadcrumb spacing="8px" separator=">">
