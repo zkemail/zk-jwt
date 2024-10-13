@@ -46,7 +46,8 @@ RUN ls /root
 RUN mkdir params
 WORKDIR /root/params
 RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier.zkey --output ./jwt-verifier.zkey
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_js/jwt-verifier --output ./jwt-verifier
+RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp.zip --output ./jwt-verifier_cpp.zip
+RUN unzip jwt-verifier_cpp.zip
 WORKDIR /root
 
 RUN ls params
