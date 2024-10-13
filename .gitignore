@@ -3,6 +3,7 @@
 #
 
 dist
+__pycache__
 
 # dependencies
 /node_modules
