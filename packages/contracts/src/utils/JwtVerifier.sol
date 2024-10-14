@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import "../interfaces/IJwtGroth16Verifier.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import { strings } from "solidity-stringutils/src/strings.sol";
+import {strings} from "solidity-stringutils/src/strings.sol";
 import {IVerifier, EmailProof} from "../interfaces/IVerifier.sol";
 
 contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
@@ -19,6 +19,8 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
     uint256 public constant AZP_FIELDS = 3;
     uint256 public constant AZP_BYTES = 72;
 
+    event JWTProofVerified(string maskedCommand);
+
     constructor() {}
 
     /// @notice Initialize the contract with the initial owner and deploy Groth16Verifier
@@ -31,9 +33,7 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         groth16Verifier = IJwtGroth16Verifier(_groth16Verifier);
     }
 
-    function verifyEmailProof(
-        EmailProof memory proof
-    ) public view returns (bool) {
+    function verifyEmailProof(EmailProof memory proof) public returns (bool) {
         (
             uint256[2] memory pA,
             uint256[2][2] memory pB,
@@ -41,19 +41,19 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         ) = abi.decode(proof.proof, (uint256[2], uint256[2][2], uint256[2]));
 
         uint256[ISS_FIELDS + COMMAND_FIELDS + AZP_FIELDS + 6] memory pubSignals;
-        
+
         // string[] = [kid, iss, azp]
         string[] memory parts = this.stringToArray(proof.domainName);
-        
+
         // kid
-        pubSignals[0] = uint256(stringToBytes32(parts[0]));        
+        pubSignals[0] = uint256(stringToBytes32(parts[0]));
 
         // iss
         uint256[] memory stringFields;
         stringFields = _packBytes2Fields(bytes(parts[1]), ISS_BYTES);
         for (uint256 i = 0; i < ISS_FIELDS; i++) {
             pubSignals[1 + i] = stringFields[i];
-        }        
+        }
         // publicKeyHash;
         pubSignals[1 + ISS_FIELDS] = uint256(proof.publicKeyHash);
         // jwtNullifier;
@@ -73,19 +73,24 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
             proof.accountSalt
         );
         // azp
-        stringFields = _packBytes2Fields(
-            bytes(parts[2]),
-            AZP_BYTES
-        );
+        stringFields = _packBytes2Fields(bytes(parts[2]), AZP_BYTES);
         for (uint256 i = 0; i < AZP_FIELDS; i++) {
-            pubSignals[1 + ISS_FIELDS + 3 + COMMAND_FIELDS + 1 + i] = stringFields[i];
+            pubSignals[
+                1 + ISS_FIELDS + 3 + COMMAND_FIELDS + 1 + i
+            ] = stringFields[i];
         }
         // isCodeExist;
-        pubSignals[1 + ISS_FIELDS + 3 + COMMAND_FIELDS + 1 + AZP_FIELDS] = proof.isCodeExist
+        pubSignals[1 + ISS_FIELDS + 3 + COMMAND_FIELDS + 1 + AZP_FIELDS] = proof
+            .isCodeExist
             ? 1
             : 0;
 
-        return groth16Verifier.verifyProof(pA, pB, pC, pubSignals);
+        require(
+            groth16Verifier.verifyProof(pA, pB, pC, pubSignals),
+            "Invalid proof"
+        );
+
+        emit JWTProofVerified(proof.maskedCommand);
     }
 
     function _packBytes2Fields(
@@ -131,7 +136,9 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         return COMMAND_BYTES;
     }
 
-    function stringToArray(string memory _strings) external pure returns (string[] memory) {
+    function stringToArray(
+        string memory _strings
+    ) external pure returns (string[] memory) {
         strings.slice memory slicee = _strings.toSlice();
         strings.slice memory delim = "|".toSlice();
         string[] memory parts = new string[](slicee.count(delim) + 1);
@@ -142,7 +149,9 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         return parts;
     }
 
-    function stringToBytes32(string memory source) public pure returns (bytes32 result) {
+    function stringToBytes32(
+        string memory source
+    ) public pure returns (bytes32 result) {
         return bytes32(abi.encodePacked(source));
     }
 }
