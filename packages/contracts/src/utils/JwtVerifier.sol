@@ -6,9 +6,13 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {strings} from "solidity-stringutils/src/strings.sol";
 import {IVerifier, EmailProof} from "../interfaces/IVerifier.sol";
+import {HexUtils} from "./HexUtils.sol";
+import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 
 contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
     using strings for *;
+    using HexUtils for string;
+    using StringToArrayUtils for string;
 
     IJwtGroth16Verifier groth16Verifier;
 
@@ -18,8 +22,6 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
     uint256 public constant COMMAND_BYTES = 605;
     uint256 public constant AZP_FIELDS = 3;
     uint256 public constant AZP_BYTES = 72;
-
-    event JWTProofVerified(string maskedCommand);
 
     constructor() {}
 
@@ -33,7 +35,9 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         groth16Verifier = IJwtGroth16Verifier(_groth16Verifier);
     }
 
-    function verifyEmailProof(EmailProof memory proof) public returns (bool) {
+    function verifyEmailProof(
+        EmailProof memory proof
+    ) public view returns (bool) {
         (
             uint256[2] memory pA,
             uint256[2][2] memory pB,
@@ -42,12 +46,12 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
 
         uint256[ISS_FIELDS + COMMAND_FIELDS + AZP_FIELDS + 6] memory pubSignals;
 
+        // Split a string consisting of kid|iss|azp concatenated in domainName by stringToArray with | as delimiter
         // string[] = [kid, iss, azp]
-        string[] memory parts = this.stringToArray(proof.domainName);
+        string[] memory parts = proof.domainName.stringToArray();
 
         // kid
-        pubSignals[0] = uint256(stringToBytes32(parts[0]));
-
+        pubSignals[0] = uint256(parts[0].hexStringToBytes32());
         // iss
         uint256[] memory stringFields;
         stringFields = _packBytes2Fields(bytes(parts[1]), ISS_BYTES);
@@ -60,7 +64,8 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         pubSignals[1 + ISS_FIELDS + 1] = uint256(proof.emailNullifier);
         // timestamp;
         pubSignals[1 + ISS_FIELDS + 2] = uint256(proof.timestamp);
-        // maskedCommand[commandFieldLength];
+
+        // maskedCommand
         stringFields = _packBytes2Fields(
             bytes(proof.maskedCommand),
             COMMAND_BYTES
@@ -79,18 +84,12 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
                 1 + ISS_FIELDS + 3 + COMMAND_FIELDS + 1 + i
             ] = stringFields[i];
         }
-        // isCodeExist;
         pubSignals[1 + ISS_FIELDS + 3 + COMMAND_FIELDS + 1 + AZP_FIELDS] = proof
             .isCodeExist
             ? 1
             : 0;
 
-        require(
-            groth16Verifier.verifyProof(pA, pB, pC, pubSignals),
-            "Invalid proof"
-        );
-
-        emit JWTProofVerified(proof.maskedCommand);
+        return groth16Verifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
     function _packBytes2Fields(
@@ -134,24 +133,5 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
 
     function getCommandBytes() external pure returns (uint256) {
         return COMMAND_BYTES;
-    }
-
-    function stringToArray(
-        string memory _strings
-    ) external pure returns (string[] memory) {
-        strings.slice memory slicee = _strings.toSlice();
-        strings.slice memory delim = "|".toSlice();
-        string[] memory parts = new string[](slicee.count(delim) + 1);
-        for (uint i = 0; i < parts.length; i++) {
-            parts[i] = slicee.split(delim).toString();
-        }
-        require(parts.length == 3, "Invalid kid|iss|azp strings");
-        return parts;
-    }
-
-    function stringToBytes32(
-        string memory source
-    ) public pure returns (bytes32 result) {
-        return bytes32(abi.encodePacked(source));
     }
 }

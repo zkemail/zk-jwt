@@ -15,7 +15,7 @@ program
     "--input-file <string>",
     "Path of a json file to write the generated input"
   )
-  .requiredOption('-a, --accountCode <string>', 'Account code as bigint string')
+  .requiredOption('-a, --account-code <string>', 'Account code as bigint string')
   .option('-h, --header <string>', 'JWT header as JSON string')
   .option('-p, --payload <string>', 'JWT payload as JSON string')
   .option('-m, --maxMessageLength <number>', 'Maximum message length', '1024')
@@ -58,7 +58,7 @@ async function main() {
 
   const { rawJWT, publicKey } = generateJWT(header, {
     ...payload,
-    nonce: "Send 0.1 ETH to alice@gmail.com",
+    nonce: "Send 0.12 ETH to 0x1234",
   });
 
   const jwtVerifierInputs = await generateJWTVerifierInputs(
@@ -104,7 +104,7 @@ async function main() {
     const fileContent = fs.readFileSync(options.inputFile as string, 'utf-8');
     const jsonData = JSON.parse(fileContent);
     const payload = JSON.stringify({ input: jsonData });
-    const urlObject = new URL("https://zkemail--jwt-prover-v0-1-0-flask-app.modal.run/prove/jwt");
+    const urlObject = new URL("https://zkemail--jwt-prover-v0-1-4-flask-app.modal.run/prove/jwt");
     const reqOptions = {
       hostname: urlObject.hostname,
       path: urlObject.pathname,
@@ -132,12 +132,12 @@ async function main() {
 
             await fs.promises.writeFile(
               path.join(dir, "proof.json"),
-              JSON.stringify(convertBigIntFieldsToString(proof), null, 2)
+              JSON.stringify(proof, null, 2)
             );
 
             await fs.promises.writeFile(
               path.join(dir, "public.json"),
-              JSON.stringify(convertBigIntFieldsToString(publicSignals), null, 2)
+              JSON.stringify(publicSignals, null, 2)
             );
             console.log('Files written successfully');
             resolve();

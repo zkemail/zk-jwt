@@ -91,3 +91,4 @@ target/
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
 packages/contracts/artifacts
+packages/contracts/test/build_integration/*

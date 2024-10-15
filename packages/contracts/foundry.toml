@@ -5,7 +5,7 @@ libs = ["../../node_modules", "lib"]
 optimizer = true
 optimizer-runs = 20_000
 fs_permissions = [
-    { access = "read", path = "./test/jwt_proofs" },
+    { access = "read", path = "./test/build_integration" },
 ]
 
 solc = "0.8.26"

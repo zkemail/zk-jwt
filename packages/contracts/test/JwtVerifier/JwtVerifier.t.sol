@@ -6,8 +6,13 @@ import "forge-std/console.sol";
 import {EmailProof, JwtVerifier} from "../../src/utils/JwtVerifier.sol";
 import {JwtGroth16Verifier} from "../../src/utils/JwtGroth16Verifier.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import {HexUtils} from "../../src/utils/HexUtils.sol";
 
 contract JwtVerifierTest_verifyEmailProof is Test {
+    using Strings for *;
+    using HexUtils for bytes32;
+
     JwtVerifier verifier;
 
     constructor() {}
@@ -26,23 +31,67 @@ contract JwtVerifierTest_verifyEmailProof is Test {
     }
 
     function test_verifyEmailProof() public {
-        // account code = 16351800486276213158813915254152097017375347006603152442842997572625254103242
-        console.log("test_verifyEmailProof");
+        bytes32 accountCode = 0x1162ebff40918afe5305e68396f0283eb675901d0387f97d21928d423aaa0b54;
+
+        // Verify the jwt proof
+        string[] memory inputGenerationInput = new string[](2);
+        inputGenerationInput[0] = string.concat(
+            vm.projectRoot(),
+            "/test/bin/generate.sh"
+        );
+        inputGenerationInput[1] = uint256(accountCode).toHexString(32);
+        vm.ffi(inputGenerationInput);
+
+        string memory publicInputFile = vm.readFile(
+            string.concat(
+                vm.projectRoot(),
+                "/test/build_integration/public.json"
+            )
+        );
+        string[] memory pubSignals = abi.decode(
+            vm.parseJson(publicInputFile),
+            (string[])
+        );
+
+        // kid -> pubSignals[0]
+        bytes32 kid = bytes32(vm.parseUint(pubSignals[0]));
+        string memory kidString = kid.bytes32ToHexString();
+        // iss -> pubSignals[1] - pubSignals[2]
+        string memory iss = "random.website.com";
+        // publicKeyHash -> pubSignals[3]
+        bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[3]));
+        // nullifier -> pubSignals[4]
+        bytes32 jwtNullifier = bytes32(vm.parseUint(pubSignals[4]));
+        // timestamp -> pubSignals[5]
+        uint timeStamp = vm.parseUint(pubSignals[5]);
+        // maskedCommand -> pubSignals[6] - pubSignals[25]
+        string memory maskedCommand = "Send 0.12 ETH to 0x1234";
+        // accountSalt -> pubSignals[26]
+        bytes32 accountSalt = bytes32(vm.parseUint(pubSignals[26]));
+        // azp -> pubSignals[27] - pubSignals[29]
+        string memory azp = "demo-client-id";
+        // isCodeExist -> pubSignals[30]
+        bool isCodeExist = vm.parseUint(pubSignals[30]) == 1;
+
         EmailProof memory emailProof;
-        emailProof.domainName = "0x5aaff47c21d06e266cce395b2145c7c6d4730ea5|random.website.com|demo-client-id";
-        emailProof.publicKeyHash = bytes32(0x17b17b71ba34d6771b91f2689fddf7266d561d4dcc5d43174d0e100468d89685);
-        emailProof.timestamp = 1694989812;
-        emailProof.maskedCommand = "Send 0.1 ETH to alice@gmail.com";
-        emailProof.emailNullifier = bytes32(0x24dc5e63ebcbbe243ef41484ec2d97a6ea130387702a9cad6aea2193457d5aec);
-        emailProof.accountSalt = bytes32(0x2426ca85629574124b746006d8d50f7e7c0e3a0d91a9cdf6c477e314ed14b8ca);
-        emailProof.isCodeExist = true;
+
+        emailProof.domainName = string(
+            abi.encodePacked(kidString, "|", iss, "|", azp)
+        );
+        emailProof.publicKeyHash = publicKeyHash;
+        emailProof.timestamp = timeStamp;
+        emailProof.maskedCommand = maskedCommand;
+        emailProof.emailNullifier = jwtNullifier;
+        emailProof.accountSalt = accountSalt;
+        emailProof.isCodeExist = isCodeExist;
         emailProof.proof = proofToBytes(
             string.concat(
                 vm.projectRoot(),
-                "/test/jwt_proofs/proof.json"
+                "/test/build_integration/proof.json"
             )
         );
-        verifier.verifyEmailProof(emailProof);
+
+        require(verifier.verifyEmailProof(emailProof) == true, "verify failed");
     }
 
     function proofToBytes(
@@ -70,5 +119,4 @@ contract JwtVerifierTest_verifyEmailProof is Test {
         bytes memory proof = abi.encode(pA, pB, pC);
         return proof;
     }
-
 }
