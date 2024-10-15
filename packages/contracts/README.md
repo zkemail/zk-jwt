@@ -1,5 +1,24 @@
 # JWT Contracts
 
+
+Build
+
+```
+$ yarn build
+```
+
+Unit tests
+
+```
+$ yarn test:unit
+```
+
+Integration tests
+
+```
+$ yarn test:integration
+```
+
 To deploy, clone .env.sample and fill in your API and private keys, then run:
 
 ```

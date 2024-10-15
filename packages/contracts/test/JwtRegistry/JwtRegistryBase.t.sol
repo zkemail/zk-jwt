@@ -19,6 +19,8 @@ contract JwtRegistryTestBase is Test {
     function setUp() public virtual {
         // Create jwt dkim registry
         jwtRegistry = new JwtRegistry(deployer);
+        vm.startPrank(deployer);
         jwtRegistry.setDKIMPublicKeyHash(kidIssAzpString, publicKeyHash);
+        vm.stopPrank();
     }
 }

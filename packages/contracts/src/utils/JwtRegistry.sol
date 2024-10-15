@@ -7,14 +7,15 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import { strings } from "solidity-stringutils/src/strings.sol";
+import {strings} from "solidity-stringutils/src/strings.sol";
+import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 
 /// @title JWT Registry
 /// @notice TODO
 /// @dev TODO
 contract JwtRegistry is IDKIMRegistry, Ownable {
-
     using strings for *;
+    using StringToArrayUtils for string;
 
     DKIMRegistry public dkimRegistry;
 
@@ -33,10 +34,11 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
         string memory domainName,
         bytes32 publicKeyHash
     ) public view returns (bool) {
-        string[] memory parts = this.stringToArray(domainName);
+        string[] memory parts = domainName.stringToArray();
         string memory kidAndIss = string(abi.encode(parts[0], "|", parts[1]));
-        return dkimRegistry.isDKIMPublicKeyHashValid(kidAndIss, publicKeyHash) 
-          && whitelistedClients[parts[2]];
+        return
+            dkimRegistry.isDKIMPublicKeyHashValid(kidAndIss, publicKeyHash) &&
+            whitelistedClients[parts[2]];
     }
 
     /// @notice Sets a public key hash for a `kis|iss` string  after validating the provided signature.
@@ -46,10 +48,10 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
     function setDKIMPublicKeyHash(
         string memory domainName,
         bytes32 publicKeyHash
-    ) public {
+    ) public onlyOwner {
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
-        string[] memory parts = this.stringToArray(domainName);
+        string[] memory parts = domainName.stringToArray();
         string memory kidAndIss = string(abi.encode(parts[0], "|", parts[1]));
         require(
             isDKIMPublicKeyHashValid(domainName, publicKeyHash) == false,
@@ -72,7 +74,7 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
     function revokeDKIMPublicKeyHash(
         string memory domainName,
         bytes32 publicKeyHash
-    ) public {
+    ) public onlyOwner {
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
         require(
@@ -91,19 +93,8 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
     /// @param domainName The domain name containing kis, iss, and azp fields
     /// @dev This function removes the azp from the whitelisted clients
     function disableAzp(string memory domainName) public {
-        string[] memory parts = this.stringToArray(domainName);
+        string[] memory parts = domainName.stringToArray();
         string memory azp = parts[2];
         whitelistedClients[azp] = false;
-    }
-    
-    function stringToArray(string memory _strings) external pure returns (string[] memory) {
-        strings.slice memory slicee = _strings.toSlice();
-        strings.slice memory delim = "|".toSlice();
-        string[] memory parts = new string[](slicee.count(delim) + 1);
-        for (uint i = 0; i < parts.length; i++) {
-            parts[i] = slicee.split(delim).toString();
-        }
-        require(parts.length == 3, "Invalid kid|iss|azp strings");
-        return parts;
     }
 }
