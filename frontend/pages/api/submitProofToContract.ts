@@ -6,7 +6,7 @@ import { config } from "dotenv";
 import { encodeAbiParameters, parseAbiParameters } from "viem";
 
 import { abi as contractABI } from "../../public/JwtVerifier.json";
-const contractAddress = "0xD3863Ad6AD48e3dEc3736d335967b4117f64ce49";
+const contractAddress = "0x9Ff07b3f525736Ac92F00f522aDbe2439EAB2e20";
 
 config();
 const privateKey = process.env.PRIVATE_KEY;
