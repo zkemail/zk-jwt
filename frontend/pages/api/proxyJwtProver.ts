@@ -12,7 +12,7 @@ export default async function handler(
 
     try {
         const response = await axios.post(
-            "https://zkemail--jwt-prover-v0-1-0-flask-app.modal.run/prove/jwt",
+            "https://zkemail--jwt-prover-v0-1-4-flask-app.modal.run/prove/jwt",
             req.body,
             {
                 headers: {
