@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { createPublicClient, http, createWalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { sepolia } from "viem/chains";
+import { baseSepolia, sepolia } from "viem/chains";
 import { config } from "dotenv";
 import { encodeAbiParameters, parseAbiParameters } from "viem";
 
 import { abi as contractABI } from "../../public/JwtVerifier.json";
-const contractAddress = "0x63E990e29317Bf54a6c4F5Fb26e33342D3DE6Fd3";
+const contractAddress = "0xD3863Ad6AD48e3dEc3736d335967b4117f64ce49";
 
 config();
 const privateKey = process.env.PRIVATE_KEY;
@@ -16,12 +16,12 @@ if (!privateKey) {
 }
 
 const publicClient = createPublicClient({
-    chain: sepolia,
+    chain: baseSepolia,
     transport: http(),
 });
 
 const walletClient = createWalletClient({
-    chain: sepolia,
+    chain: baseSepolia,
     transport: http(),
 });
 
