@@ -92,7 +92,7 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
     /// @notice Disables the azp (authorized party) associated with the given domain name
     /// @param domainName The domain name containing kis, iss, and azp fields
     /// @dev This function removes the azp from the whitelisted clients
-    function disableAzp(string memory domainName) public {
+    function disableAzp(string memory domainName) public onlyOwner {
         string[] memory parts = domainName.stringToArray();
         string memory azp = parts[2];
         whitelistedClients[azp] = false;
