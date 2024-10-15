@@ -22,5 +22,11 @@ contract JwtRegistryTestBase is Test {
         vm.startPrank(deployer);
         jwtRegistry.setDKIMPublicKeyHash(kidIssAzpString, publicKeyHash);
         vm.stopPrank();
+
+        bool isRegistered = jwtRegistry.isDKIMPublicKeyHashValid(
+            kidIssAzpString,
+            publicKeyHash
+        );
+        assertTrue(isRegistered, "DKIM Public Key Hash should be registered");
     }
 }
