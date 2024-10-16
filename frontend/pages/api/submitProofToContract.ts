@@ -70,12 +70,15 @@ export default async function handler(
         };
         console.log("JWT proof:", jwtProof);
 
+        const gas = 1000000n;
+
         const { request } = await publicClient.simulateContract({
             account,
             address: contractAddress,
             abi: contractABI,
             functionName: "verifyEmailProof",
             args: [jwtProof],
+            gas,
         });
         console.log("Contract request:", request);
         const hash = await walletClient.writeContract(request);
