@@ -6,7 +6,7 @@ import { config } from "dotenv";
 import { encodeAbiParameters, parseAbiParameters } from "viem";
 
 import { abi as contractABI } from "../../public/JwtVerifier.json";
-const contractAddress = "0x9Ff07b3f525736Ac92F00f522aDbe2439EAB2e20";
+const contractAddress = "0x04Dd7D48dbe268A957A7aED7FA6206D833c6A3bF";
 
 config();
 const privateKey = process.env.PRIVATE_KEY;
@@ -70,12 +70,15 @@ export default async function handler(
         };
         console.log("JWT proof:", jwtProof);
 
+        const gas = 8000000n;
+
         const { request } = await publicClient.simulateContract({
             account,
             address: contractAddress,
             abi: contractABI,
             functionName: "verifyEmailProof",
             args: [jwtProof],
+            gas,
         });
         console.log("Contract request:", request);
         const hash = await walletClient.writeContract(request);
