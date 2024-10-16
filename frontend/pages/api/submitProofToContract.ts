@@ -70,7 +70,7 @@ export default async function handler(
         };
         console.log("JWT proof:", jwtProof);
 
-        const gas = 1000000n;
+        const gas = 1000000;
 
         const { request } = await publicClient.simulateContract({
             account,
@@ -78,7 +78,7 @@ export default async function handler(
             abi: contractABI,
             functionName: "verifyEmailProof",
             args: [jwtProof],
-            gas,
+            gas: BigInt(gas),
         });
         console.log("Contract request:", request);
         const hash = await walletClient.writeContract(request);
