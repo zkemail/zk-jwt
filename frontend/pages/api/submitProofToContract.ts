@@ -55,14 +55,14 @@ export default async function handler(
             maskedCommand: payload.nonce,
             emailNullifier: `0x${BigInt(pub_signals[4]).toString(16).padStart(64, "0")}`,
             accountSalt: `0x${BigInt(pub_signals[26]).toString(16).padStart(64, "0")}`,
-            isCodeExist: Boolean(pub_signals[30]),
+            isCodeExist: pub_signals[30] == 1,
             proof: encodeAbiParameters(
                 parseAbiParameters("uint256[2], uint256[2][2], uint256[2]"),
                 [
                     proof.pi_a.slice(0, 2).map(BigInt),
                     [
-                        proof.pi_b[0].slice(0, 2).map(BigInt),
-                        proof.pi_b[1].slice(0, 2).map(BigInt),
+                        [BigInt(proof.pi_b[0][1]), BigInt(proof.pi_b[0][0])],
+                        [BigInt(proof.pi_b[1][1]), BigInt(proof.pi_b[1][0])],
                     ],
                     proof.pi_c.slice(0, 2).map(BigInt),
                 ]
