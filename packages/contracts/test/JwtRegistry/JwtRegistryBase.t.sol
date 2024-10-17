@@ -20,7 +20,7 @@ contract JwtRegistryTestBase is Test {
         // Create jwt dkim registry
         jwtRegistry = new JwtRegistry(deployer);
         vm.startPrank(deployer);
-        jwtRegistry.setDKIMPublicKeyHash(kidIssAzpString, publicKeyHash);
+        jwtRegistry.setJwtPublicKey(kidIssAzpString, publicKeyHash);
         vm.stopPrank();
 
         bool isRegistered = jwtRegistry.isDKIMPublicKeyHashValid(
