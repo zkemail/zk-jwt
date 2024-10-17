@@ -57,7 +57,7 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
     /// @param domainName The domain name contains kis, iss and azp fields.
     /// @param publicKeyHash The public key hash to set.
     /// @dev This function requires that the public key hash is not already set or revoked.
-    function setDKIMPublicKeyHash(
+    function setJwtPublicKey(
         string memory domainName,
         bytes32 publicKeyHash
     ) public onlyOwner {
