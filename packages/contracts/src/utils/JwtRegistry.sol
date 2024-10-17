@@ -41,6 +41,18 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
             whitelistedClients[parts[2]];
     }
 
+    /// @notice Validates a JWT public key hash
+    /// @dev This function is just a wrapper for isDKIMPublicKeyHashValid
+    /// @param domainName The domain name containing kid, iss, and azp fields
+    /// @param publicKeyHash The public key hash to validate
+    /// @return bool Returns true if the public key hash is valid, false otherwise
+    function isJwtPublicKeyValid(
+        string memory domainName,
+        bytes32 publicKeyHash
+    ) public view returns (bool) {
+        return this.isDKIMPublicKeyHashValid(domainName, publicKeyHash);
+    }
+
     /// @notice Sets a public key hash for a `kis|iss` string  after validating the provided signature.
     /// @param domainName The domain name contains kis, iss and azp fields.
     /// @param publicKeyHash The public key hash to set.

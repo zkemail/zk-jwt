@@ -28,5 +28,10 @@ contract JwtRegistryTestBase is Test {
             publicKeyHash
         );
         assertTrue(isRegistered, "DKIM Public Key Hash should be registered");
+        isRegistered = jwtRegistry.isJwtPublicKeyValid(
+            kidIssAzpString,
+            publicKeyHash
+        );
+        assertTrue(isRegistered, "DKIM Public Key Hash should be registered");
     }
 }
