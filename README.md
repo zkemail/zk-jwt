@@ -1,6 +1,6 @@
-# zk-blind
+# jwt-tx-auth
 
-post anonymous confessions about your work place / organization in zero-knowledge!
+Sign arbitrary messages via a standard Gmail JWT, and prove them in under a million constraints client-side (i.e. sub 40 seconds).
 
 `yarn` to install all dependencies.
 
