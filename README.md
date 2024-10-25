@@ -1,6 +1,10 @@
 # jwt-tx-auth
 
-Sign arbitrary messages via a standard Gmail JWT, and prove them in under a million constraints client-side (i.e. sub 40 seconds).
+Sign arbitrary messages via a standard Gmail JWT, and prove them in under a million constraints client-side (i.e. sub 40 seconds). Test the demo on [jwt.zk.email](https://jwt.zk.email).
+
+## Old Readme
+
+As this code is forked off of our [OpenAI JWT work from 2022](https://github.com/zkemail/openai-jwt), this was the old instructions.
 
 `yarn` to install all dependencies.
 
