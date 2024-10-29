@@ -15,10 +15,13 @@ include "@zk-email/ether-email-auth-circom/src/utils/hash_sign.circom";
 include "@zk-email/ether-email-auth-circom/src/utils/account_salt.circom";
 include "@zk-email/ether-email-auth-circom/src/regexes/invitation_code_with_prefix_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/email_addr_regex.circom";
+include "@zk-email/zk-regex-circom/circuits/common/email_domain_regex.circom";
+
 include "./utils/array.circom";
 include "./utils/bytes.circom";
 include "./utils/constants.circom";
 include "./utils/hex2int.circom";
+include "./utils/merkle-tree.circom";
 
 /**
  * @title JWTVerifier
@@ -33,6 +36,8 @@ include "./utils/hex2int.circom";
  * @param maxB64PayloadLength Maximum length of the Base64 encoded payload.
  * @param maxAzpLength Maximum length of the "azp" value in the JWT payload.
  * @param maxCommandLength Maximum length of the command in the nonce.
+ * @param enableAnonymousDomain A boolean indicating if the anonymous domain feature is enabled.
+ * @param anonymousDomainsTreeHeight The height of the Merkle tree storing the anonymous domains.
  *
  * @input message[maxMessageLength] The JWT message to be verified (header + payload).
  * @input messageLength The length of the JWT message that is signed.
@@ -70,7 +75,9 @@ template JWTVerifier(
         maxB64HeaderLength, 
         maxB64PayloadLength, 
         maxAzpLength, 
-        maxCommandLength
+        maxCommandLength,
+        enableAnonymousDomain,
+        anonymousDomainsTreeHeight
     ) {
  
     signal input message[maxMessageLength]; // JWT message (header + payload)
@@ -323,4 +330,40 @@ template JWTVerifier(
     // Verify the invitation code is equal to the account code
     signal embeddedAccountCode <== Hex2FieldModular(invitationCodeLen)(invitationCodeHex);
     isCodeExist * (embeddedAccountCode - accountCode) === 0;
+
+    if (enableAnonymousDomain) {
+        signal input emailDomainIndex;
+        signal input anonymousDomainsTreeRoot;
+        signal input emailDomainPath[anonymousDomainsTreeHeight];
+        signal input emailDomainPathHelper[anonymousDomainsTreeHeight];
+
+        var domainLen = DOMAIN_MAX_BYTES();
+        var domainFieldLen = compute_ints_size(domainLen);
+
+        // Extract the domain from the email
+        signal domainRegexOut, domainRegexReveal[maxEmailLength];
+        (domainRegexOut, domainRegexReveal) <== EmailDomainRegex(maxEmailLength)(email);
+        domainRegexOut === 1;
+        signal isValidDomainIndex <== LessThan(log2Ceil(maxEmailLength))([emailDomainIndex, maxEmailLength]);
+        isValidDomainIndex === 1;
+        signal domainNameBytes[domainLen] <== SelectRegexReveal(maxEmailLength, domainLen)(domainRegexReveal, emailDomainIndex);
+        signal domainName[domainFieldLen] <== Bytes2Ints(domainLen)(domainNameBytes);
+
+        // Generate the leaf of the Merkle tree for the email domain
+        component domainHasher = PoseidonModular(domainFieldLen);
+        for (var i = 0; i < domainFieldLen; i++) {
+            domainHasher.in[i] <== domainName[i];
+        }
+        signal domainLeaf <== domainHasher.out;
+
+        // Verify the email domain is in the Merkle tree
+        component treeVerifier = MerkleTreeVerifier(anonymousDomainsTreeHeight);
+        for (var i = 0; i < anonymousDomainsTreeHeight; i++) {
+            treeVerifier.proof[i] <== emailDomainPath[i];
+            treeVerifier.proofHelper[i] <== emailDomainPathHelper[i];
+        }
+        treeVerifier.root <== anonymousDomainsTreeRoot;
+        treeVerifier.leaf <== domainLeaf;
+        treeVerifier.isValid === 1;
+    }
 }
