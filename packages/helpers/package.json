@@ -6,7 +6,9 @@
     "scripts": {
         "build": "tsc",
         "test": "jest tests/**/*.test.ts",
-        "lint": "prettier --write src/**/*.ts tests/**/*.ts && eslint .",
+        "test:file": "jest --testPathPattern",
+        "test:name": "jest -t",
+        "lint": "eslint .",
         "prepublish": "yarn lint && yarn build",
         "publish": "yarn npm publish --access=public"
     },
