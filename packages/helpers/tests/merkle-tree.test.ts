@@ -33,7 +33,7 @@ describe("MerkleTree", () => {
             const tree1 = await createMerkleTree(2, leaves);
             const tree2 = await createMerkleTree(2, leaves);
 
-            expect(tree1.getRoot()).toBe(tree2.getRoot());
+            expect(tree1.getRoot()).toEqual(tree2.getRoot());
         });
 
         it("should calculate different roots for different leaves", async () => {
@@ -43,7 +43,7 @@ describe("MerkleTree", () => {
             const tree1 = await createMerkleTree(2, leaves1);
             const tree2 = await createMerkleTree(2, leaves2);
 
-            expect(tree1.getRoot()).not.toBe(tree2.getRoot());
+            expect(tree1.getRoot()).not.toEqual(tree2.getRoot());
         });
     });
 

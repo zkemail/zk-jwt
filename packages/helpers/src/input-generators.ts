@@ -19,7 +19,7 @@ type JWTInputGenerationArgs = {
     anonymousDomainsTreeHeight?: number;
     anonymousDomainsTreeRoot?: bigint;
     emailDomainPath?: bigint[];
-    emailDomainPathHelper?: bigint[];
+    emailDomainPathHelper?: number[];
 };
 
 function findCodeIndex(nonce: string | undefined, accountCode: bigint): number {
@@ -154,13 +154,7 @@ export async function generateJWTVerifierInputs(
 
         const codeIndex = findCodeIndex(parsedPayload.nonce, accountCode);
 
-        let emailDomainIndex;
-        if (params.enableAnonymousDomains) {
-            const { index } = getDomainFromEmail(parsedPayload.email);
-            emailDomainIndex = index;
-        }
-
-        return {
+        const baseInputs = {
             message: Uint8ArrayToCharArray(messagePadded),
             messageLength: messagePaddedLen.toString(),
             pubkey: toCircomBigIntBytes(base64ToBigInt(publicKey.n)),
@@ -179,16 +173,37 @@ export async function generateJWTVerifierInputs(
             emailLength: emailLength.toString(),
             nonceKeyStartIndex: nonceKeyStartIndex.toString(),
             commandLength: commandLength.toString(),
-            emailDomainIndex: emailDomainIndex?.toString() || "",
-            anonymousDomainsTreeRoot:
-                params.anonymousDomainsTreeRoot?.toString() || "",
-            emailDomainPath:
-                params.emailDomainPath?.map((path) => path.toString()) || [],
-            emailDomainPathHelper:
-                params.emailDomainPathHelper?.map((helper) =>
-                    helper.toString()
-                ) || [],
         };
+
+        if (params.enableAnonymousDomains) {
+            if (
+                !params.anonymousDomainsTreeRoot ||
+                !params.emailDomainPath ||
+                !params.emailDomainPathHelper
+            ) {
+                throw new InvalidInputError(
+                    "Anonymous domains tree root, email domain path, and email domain path helper are required when enableAnonymousDomains is true"
+                );
+            }
+
+            const { index } = getDomainFromEmail(parsedPayload.email);
+
+            return {
+                ...baseInputs,
+                emailDomainIndex: index.toString(),
+                anonymousDomainsTreeRoot:
+                    params.anonymousDomainsTreeRoot.toString(),
+                emailDomainPath:
+                    params.emailDomainPath?.map((path) => path.toString()) ||
+                    [],
+                emailDomainPathHelper:
+                    params.emailDomainPathHelper?.map((helper) =>
+                        helper.toString()
+                    ) || [],
+            };
+        }
+
+        return baseInputs;
     } catch (error: any) {
         if (
             error instanceof JWTVerificationError ||

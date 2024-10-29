@@ -20,19 +20,30 @@ template MerkleTreeVerifier(height) {
     signal computedHash[height + 1];
     computedHash[0] <== leaf;
 
-    // For each level, compute the next hash based on the path
+    // For each level, compute the next hash
+    component hasher[height];
+    signal leftProof[height];
+    signal leftComputed[height];
+    signal rightProof[height];
+    signal rightComputed[height];
+
     for (var i = 0; i < height; i++) {
-        component hasher = Poseidon(2);
+        hasher[i] = Poseidon(2);
         
-        // If pathIndex is 0, proof element goes on right
-        // If pathIndex is 1, proof element goes on left
-        hasher.inputs[0] <== (1 - proofHelper[i]) * computedHash[i] + proofHelper[i] * proof[i];
-        hasher.inputs[1] <== proofHelper[i] * computedHash[i] + (1 - proofHelper[i]) * proof[i];
+        // Break down the selector logic into separate constraints
+        leftProof[i] <== proofHelper[i] * proof[i];
+        leftComputed[i] <== (1 - proofHelper[i]) * computedHash[i];
+        rightProof[i] <== (1 - proofHelper[i]) * proof[i];
+        rightComputed[i] <== proofHelper[i] * computedHash[i];
         
-        computedHash[i + 1] <== hasher.out;
+        // Combine the inputs
+        hasher[i].inputs[0] <== leftProof[i] + leftComputed[i];
+        hasher[i].inputs[1] <== rightProof[i] + rightComputed[i];
+        
+        computedHash[i + 1] <== hasher[i].out;
     }
 
     // Check if computed root matches the provided root
-    isValid <== IsEqual()(computedHash[height], root);
+    isValid <== IsEqual()([computedHash[height], root]);
 }
 

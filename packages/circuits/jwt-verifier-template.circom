@@ -5,6 +5,7 @@ include "circomlib/circuits/poseidon.circom";
 include "@zk-email/circuits/utils/array.circom";
 include "@zk-email/circuits/utils/constants.circom";
 include "@zk-email/circuits/utils/hash.circom";
+include "@zk-email/circuits/utils/regex.circom";
 include "@zk-email/circuits/lib/sha.circom";
 include "@zk-email/circuits/lib/rsa.circom";
 include "@zk-email/circuits/lib/base64.circom";
