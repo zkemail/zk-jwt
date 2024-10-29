@@ -103,9 +103,6 @@ export async function generateJWTVerifierInputs(
         const header = Buffer.from(headerString, "base64").toString("utf-8");
         const payload = Buffer.from(payloadString, "base64").toString("utf-8");
 
-        console.log("Header:", header);
-        console.log("Payload:", payload);
-
         // Parse payload
         let parsedPayload;
         try {

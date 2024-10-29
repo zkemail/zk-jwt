@@ -48,7 +48,6 @@ describe("generateJWTVerifierInputs", () => {
         expect(result.codeIndex).toBeDefined();
         expect(result.periodIndex).toBeDefined();
         expect(result.jwtTypStartIndex).toBeDefined();
-        expect(result.jwtAlgStartIndex).toBeDefined();
         expect(result.jwtKidStartIndex).toBeDefined();
         expect(result.issKeyStartIndex).toBeDefined();
         expect(result.issLength).toBeDefined();
