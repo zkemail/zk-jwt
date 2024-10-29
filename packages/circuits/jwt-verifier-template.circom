@@ -55,14 +55,14 @@ include "./utils/hex2int.circom";
  * @input commandLength The length of the command in the "nonce" claim.
  *
  * @output kid The "kid" value from the JWT header.
- * @output iss The "iss" value from the JWT payload.
- * @output publicKeyHash The hash of the public key used for verification.
- * @output jwtNullifier A unique identifier derived from the JWT signature.
- * @output timestamp The "iat" value from the JWT payload.
- * @output maskedCommand The command from the nonce with sensitive information removed.
- * @output accountSalt A salt derived from the email and account code.
- * @output azp The "azp" value from the JWT payload.
- * @output isCodeExist A boolean indicating if an invitation code exists in the command.
+ * @output iss[issFieldLength] The "iss" (issuer) value from the JWT payload as an array of integers.
+ * @output publicKeyHash The Poseidon hash of the RSA public key.
+ * @output jwtNullifier A unique identifier derived from the JWT signature using Poseidon hash.
+ * @output timestamp The "iat" (issued at) timestamp value from the JWT payload.
+ * @output maskedCommand[commandFieldLength] The command from the nonce with sensitive information (code and email) removed.
+ * @output accountSalt A salt value derived from the email and account code.
+ * @output azp[azpFieldLength] The "azp" (authorized party) value from the JWT payload as an array of integers.
+ * @output isCodeExist A boolean (0/1) indicating if a valid invitation code exists in the command.
  */ 
 template JWTVerifier(
         n,
