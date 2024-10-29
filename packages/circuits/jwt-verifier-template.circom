@@ -290,7 +290,7 @@ template JWTVerifier(
     // Check if the command in the nonce has a valid invitation code and remove the prefix if it exists
     signal prefixedCodeRegexOut, prefixedCodeRegexReveal[maxCommandLength];
     (prefixedCodeRegexOut, prefixedCodeRegexReveal) <== InvitationCodeWithPrefixRegex(maxCommandLength)(command);
-    isCodeExist <== IsZero()(prefixedCodeRegexOut-1);
+    isCodeExist <== prefixedCodeRegexOut;
     signal removedCode[maxCommandLength];
     for(var i = 0; i < maxCommandLength; i++) {
         removedCode[i] <== isCodeExist * prefixedCodeRegexReveal[i];
@@ -299,7 +299,7 @@ template JWTVerifier(
     // Check if the command in the nonce has a valid email address and remove the email address if it exists
     signal emailAddrRegexOut, emailAddrRegexReveal[maxCommandLength];
     (emailAddrRegexOut, emailAddrRegexReveal) <== EmailAddrRegex(maxCommandLength)(command);
-    signal isEmailAddrExist <== IsZero()(emailAddrRegexOut-1);
+    signal isEmailAddrExist <== emailAddrRegexOut;
     signal removedEmailAddr[maxCommandLength];
     for(var i = 0; i < maxCommandLength; i++) {
         removedEmailAddr[i] <== isEmailAddrExist * emailAddrRegexReveal[i];
