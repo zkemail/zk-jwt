@@ -15,6 +15,11 @@ export interface RSAPublicKey {
 
 type JWTInputGenerationArgs = {
     maxMessageLength?: number; // Max length of the JWT message including padding
+    enableAnonymousDomains?: boolean;
+    anonymousDomainsTreeHeight?: number;
+    anonymousDomainsTreeRoot?: bigint;
+    emailDomainPath?: bigint[];
+    emailDomainPathHelper?: bigint[];
 };
 
 function findCodeIndex(nonce: string | undefined, accountCode: bigint): number {
@@ -22,6 +27,22 @@ function findCodeIndex(nonce: string | undefined, accountCode: bigint): number {
     const index = nonce.indexOf(accountCode.toString(16).slice(2));
     return index >= 0 ? index : 0;
 }
+
+const getDomainFromEmail = (
+    email: string
+): { domain: string; index: number } => {
+    // Match everything after @ symbol
+    const match = email.match(/@(.+)$/);
+
+    if (!match) {
+        throw new Error(`Invalid email format: ${email}`);
+    }
+
+    const domain = match[1]; // The captured group (everything after @)
+    const index = match.index! + 1; // +1 to skip the @ symbol
+
+    return { domain, index };
+};
 
 /**
  * @description Generate circuit inputs for the JWTVerifier circuit from a raw JWT token
@@ -55,6 +76,10 @@ export async function generateJWTVerifierInputs(
     emailLength: string; // Length of the "email" in the JWT payload
     nonceKeyStartIndex: string; // Index of the "nonce" key in the JWT payload
     commandLength: string; // Length of the "command" in the "nonce" key in the JWT payload
+    emailDomainIndex?: string; // Index of the email domain in the anonymous domains Merkle tree
+    anonymousDomainsTreeRoot?: string; // Root of the anonymous domains Merkle tree
+    emailDomainPath?: string[]; // Path to the email domain in the anonymous domains Merkle tree
+    emailDomainPathHelper?: string[]; // Helper for the path to the email domain in the anonymous domains Merkle tree
 }> {
     try {
         // Input validation
@@ -129,6 +154,12 @@ export async function generateJWTVerifierInputs(
 
         const codeIndex = findCodeIndex(parsedPayload.nonce, accountCode);
 
+        let emailDomainIndex;
+        if (params.enableAnonymousDomains) {
+            const { index } = getDomainFromEmail(parsedPayload.email);
+            emailDomainIndex = index;
+        }
+
         return {
             message: Uint8ArrayToCharArray(messagePadded),
             messageLength: messagePaddedLen.toString(),
@@ -148,6 +179,15 @@ export async function generateJWTVerifierInputs(
             emailLength: emailLength.toString(),
             nonceKeyStartIndex: nonceKeyStartIndex.toString(),
             commandLength: commandLength.toString(),
+            emailDomainIndex: emailDomainIndex?.toString() || "",
+            anonymousDomainsTreeRoot:
+                params.anonymousDomainsTreeRoot?.toString() || "",
+            emailDomainPath:
+                params.emailDomainPath?.map((path) => path.toString()) || [],
+            emailDomainPathHelper:
+                params.emailDomainPathHelper?.map((helper) =>
+                    helper.toString()
+                ) || [],
         };
     } catch (error: any) {
         if (

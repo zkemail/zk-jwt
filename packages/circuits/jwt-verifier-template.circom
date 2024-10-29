@@ -76,7 +76,7 @@ template JWTVerifier(
         maxB64PayloadLength, 
         maxAzpLength, 
         maxCommandLength,
-        enableAnonymousDomain,
+        enableAnonymousDomains,
         anonymousDomainsTreeHeight
     ) {
  
@@ -331,7 +331,7 @@ template JWTVerifier(
     signal embeddedAccountCode <== Hex2FieldModular(invitationCodeLen)(invitationCodeHex);
     isCodeExist * (embeddedAccountCode - accountCode) === 0;
 
-    if (enableAnonymousDomain) {
+    if (enableAnonymousDomains) {
         signal input emailDomainIndex;
         signal input anonymousDomainsTreeRoot;
         signal input emailDomainPath[anonymousDomainsTreeHeight];
