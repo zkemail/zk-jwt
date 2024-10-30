@@ -13,13 +13,13 @@ describe("Utility Functions", () => {
         it("should throw an error for an invalid JWT format", () => {
             const invalidJWT = "invalidJWT";
             expect(() => splitJWT(invalidJWT)).toThrow(
-                'Invalid JWT format. Expected 3 parts separated by "."'
+                "Invalid JWT format: Missing components"
             );
         });
     });
 
     describe("base64ToBigInt", () => {
-        it.only("should convert a Base64 string to a bigint", () => {
+        it("should convert a Base64 string to a bigint", () => {
             const encoded = "AQAB";
             const decoded = base64ToBigInt(encoded);
             expect(decoded).toBe(65537n);

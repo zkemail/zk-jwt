@@ -99,7 +99,7 @@ describe("generateJWTVerifierInputs", () => {
     });
 
     it("should throw JWTVerificationError for invalid signature", async () => {
-        const tamperedJWT = validJWT.slice(0, -1) + "X";
+        const tamperedJWT = validJWT.slice(0, -5) + "XXXXX";
         await expect(
             generateJWTVerifierInputs(
                 tamperedJWT,
