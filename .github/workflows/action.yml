@@ -1,4 +1,4 @@
-name: ZK JWT tests
+name: ZK JWT Tests
 on: [push]
 jobs:
   run_circuit_tests:
@@ -39,10 +39,6 @@ jobs:
         working-directory: ./packages/circuits
         run: yarn install --immutable
 
-      - name: Ensure lockfile has not changed
-        working-directory: ./packages/circuits
-        run: git diff --exit-code ./yarn.lock
-
       - name: Run Tests
         working-directory: ./packages/circuits
         run: yarn test
@@ -61,10 +57,6 @@ jobs:
       - name: Install Yarn dependencies
         working-directory: ./packages/helpers
         run: yarn install --immutable
-
-      - name: Ensure lockfile has not changed
-        working-directory: ./packages/helpers
-        run: git diff --exit-code ./yarn.lock
       
       - name: Run build
         working-directory: ./packages/helpers

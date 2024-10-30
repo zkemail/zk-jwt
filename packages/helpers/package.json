@@ -4,10 +4,9 @@
     "license": "MIT",
     "main": "dist",
     "scripts": {
-        "install": "yarn build",
-        "build": "npx tsc",
+        "build": "tsc",
         "test": "jest tests/**/*.test.ts",
-        "lint": "eslint .",
+        "lint": "prettier --write src/**/*.ts tests/**/*.ts && eslint .",
         "prepublish": "yarn lint && yarn build",
         "publish": "yarn npm publish --access=public"
     },
@@ -59,8 +58,7 @@
     "peerDependencies": {
         "@babel/core": "^7.22.5",
         "eslint": "^8.0.0",
-        "eslint-plugin-import": "^2.29.1",
-        "react": "^18.0.0"
+        "eslint-plugin-import": "^2.29.1"
     },
     "jest": {
         "roots": [
