@@ -2755,13 +2755,13 @@ __metadata:
   linkType: hard
 
 "@zk-email/contracts@npm:^6.1.5":
-  version: 6.3.0
-  resolution: "@zk-email/contracts@npm:6.3.0"
+  version: 6.3.1
+  resolution: "@zk-email/contracts@npm:6.3.1"
   dependencies:
     "@openzeppelin/contracts": ^5.0.0
     "@openzeppelin/contracts-upgradeable": ^5.0.0
     dotenv: ^16.3.1
-  checksum: 099561d0e7eb7436beeb56d7214e374a1dc9ea95b5169757b5d1c46c2ea1a3e9d775517b5301c1e56d3f932e251e3cfa0f8daa3f8115bac34a247c2c5126d4c5
+  checksum: bdf609b4641680a3fb4df01217f9fcaac3c8c34b7b5a95fdf2aa3e278188f44b4cb39fedd4b2126c147ce36596e63ebadf1653686a44040d2c25176045f97b49
   languageName: node
   linkType: hard
 
@@ -2778,9 +2778,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zk-email/helpers@npm:^6.1.5":
-  version: 6.3.0
-  resolution: "@zk-email/helpers@npm:6.3.0"
+"@zk-email/helpers@npm:^6.3.1":
+  version: 6.3.1
+  resolution: "@zk-email/helpers@npm:6.3.1"
   dependencies:
     addressparser: ^1.0.1
     atob: ^2.1.2
@@ -2791,7 +2791,7 @@ __metadata:
     pako: ^2.1.0
     psl: ^1.9.0
     snarkjs: "git+https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
-  checksum: 0d175ba4716e9357f905c862d7c8c7f85addade5ae5089d184b99767b999c4def8d23ef4c99d90eeb36b30fb338d8ae9b435978198c00f11d2492f4602dc7cb3
+  checksum: 0243fa84cec29c6586c7242b775293b02ffd08921ae0f07120a52fbf1fd35f3e5916e56030c66dad17cbb040d1efa52c2be03be1ddc0b958be5fce8ce8638b8e
   languageName: node
   linkType: hard
 
@@ -2843,7 +2843,7 @@ __metadata:
     "@types/psl": ^1.1.2
     "@typescript-eslint/eslint-plugin": ^7.0.0
     "@typescript-eslint/parser": ^7.0.0
-    "@zk-email/helpers": ^6.1.5
+    "@zk-email/helpers": ^6.3.1
     addressparser: ^1.0.1
     atob: ^2.1.2
     axios: ^1.7.7
@@ -3713,9 +3713,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001669":
-  version: 1.0.30001674
-  resolution: "caniuse-lite@npm:1.0.30001674"
-  checksum: 05bbb4f9823b38ac157678be69c4ec4aa39fbbf6af3ffaffe89c8f5b118a1883d2e7c0065e9a71149061ab653bf332f2fa6256c195b16db85e49651b52f109df
+  version: 1.0.30001675
+  resolution: "caniuse-lite@npm:1.0.30001675"
+  checksum: d1e20a445af355209a8795924e556ed97cd3e744ae0b09e27773a4dcf53e6531de9d206b0929bcbe62e5b69a555237a12c943edb48872803ef64cdb1877f47af
   languageName: node
   linkType: hard
 
