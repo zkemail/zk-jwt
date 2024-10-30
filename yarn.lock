@@ -3430,7 +3430,7 @@ __metadata:
 
 "@zk-jwt/helpers@file:../packages/helpers::locator=frontend%40workspace%3Afrontend":
   version: 0.0.1
-  resolution: "@zk-jwt/helpers@file:../packages/helpers#../packages/helpers::hash=760f02&locator=frontend%40workspace%3Afrontend"
+  resolution: "@zk-jwt/helpers@file:../packages/helpers#../packages/helpers::hash=435ce9&locator=frontend%40workspace%3Afrontend"
   dependencies:
     "@zk-email/helpers": ^6.1.5
     addressparser: ^1.0.1
@@ -3446,7 +3446,12 @@ __metadata:
     pako: ^2.1.0
     psl: ^1.9.0
     snarkjs: ^0.7.4
-  checksum: c16e302e229937615d5ed62d124935b1f4d4654ae97b770b23523fa1f8007a3b42aed14f9caf94a9dc43fe527722bae9d3e16a38c61f59274a2cf047fcd35f6c
+  peerDependencies:
+    "@babel/core": ^7.22.5
+    eslint: ^8.0.0
+    eslint-plugin-import: ^2.29.1
+    react: ^18.0.0
+  checksum: d2d1baa3d02ab171dbf97b0db78f24fdb843f32560da474c34e423777e469982e9ecbddad941581909b25dc74d5680015e9c027ef9ab329aff104024d356f470
   languageName: node
   linkType: hard
 
@@ -3491,6 +3496,11 @@ __metadata:
     snarkjs: ^0.7.4
     ts-jest: ^29.2.5
     typescript: ^5.2.2
+  peerDependencies:
+    "@babel/core": ^7.22.5
+    eslint: ^8.0.0
+    eslint-plugin-import: ^2.29.1
+    react: ^18.0.0
   languageName: unknown
   linkType: soft
 
@@ -3498,6 +3508,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@zk-jwt/zk-jwt-circuits@workspace:packages/circuits"
   dependencies:
+    "@babel/core": ^7.22.5
     "@babel/preset-env": ^7.22.20
     "@babel/preset-typescript": ^7.23.0
     "@types/jest": ^29.5.4
@@ -3514,6 +3525,8 @@ __metadata:
     snarkjs: ^0.7.4
     ts-jest: ^29.1.1
     typescript: ^4.8.3
+  peerDependencies:
+    "@babel/core": ^7.22.5
   languageName: unknown
   linkType: soft
 
