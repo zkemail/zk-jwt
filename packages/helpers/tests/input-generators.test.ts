@@ -72,6 +72,7 @@ describe("generateJWTVerifierInputs", () => {
         expect(result.nonceKeyStartIndex).toBeDefined();
         expect(result.commandLength).toBeDefined();
         expect(result.emailDomainIndex).toBeDefined();
+        expect(result.emailDomainLength).toBeDefined();
         expect(result.anonymousDomainsTreeRoot).toBeDefined();
         expect(result.emailDomainPath).toBeDefined();
         expect(result.emailDomainPathHelper).toBeDefined();

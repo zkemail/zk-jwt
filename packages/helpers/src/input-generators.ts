@@ -77,6 +77,7 @@ export async function generateJWTVerifierInputs(
     nonceKeyStartIndex: string; // Index of the "nonce" key in the JWT payload
     commandLength: string; // Length of the "command" in the "nonce" key in the JWT payload
     emailDomainIndex?: string; // Index of the email domain in the anonymous domains Merkle tree
+    emailDomainLength?: number; // Length of the email domain
     anonymousDomainsTreeRoot?: string; // Root of the anonymous domains Merkle tree
     emailDomainPath?: string[]; // Path to the email domain in the anonymous domains Merkle tree
     emailDomainPathHelper?: string[]; // Helper for the path to the email domain in the anonymous domains Merkle tree
@@ -186,11 +187,12 @@ export async function generateJWTVerifierInputs(
                 );
             }
 
-            const { index } = getDomainFromEmail(parsedPayload.email);
+            const { domain, index } = getDomainFromEmail(parsedPayload.email);
 
             return {
                 ...baseInputs,
                 emailDomainIndex: index.toString(),
+                emailDomainLength: domain.length,
                 anonymousDomainsTreeRoot:
                     params.anonymousDomainsTreeRoot.toString(),
                 emailDomainPath:

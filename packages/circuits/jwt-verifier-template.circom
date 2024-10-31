@@ -334,25 +334,21 @@ template JWTVerifier(
 
     if (enableAnonymousDomains) {
         signal input emailDomainIndex;
+        signal input emailDomainLength;
         signal input anonymousDomainsTreeRoot;
         signal input emailDomainPath[anonymousDomainsTreeHeight];
         signal input emailDomainPathHelper[anonymousDomainsTreeHeight];
 
-        var domainLen = DOMAIN_MAX_BYTES();
-        var domainFieldLen = compute_ints_size(domainLen);
+        var maxDomainLength = DOMAIN_MAX_BYTES();
+        var maxDomainFieldLength = compute_ints_size(maxDomainLength);
 
         // Extract the domain from the email
-        signal domainRegexOut, domainRegexReveal[maxEmailLength];
-        (domainRegexOut, domainRegexReveal) <== EmailDomainRegex(maxEmailLength)(email);
-        domainRegexOut === 1;
-        signal isValidDomainIndex <== LessThan(log2Ceil(maxEmailLength))([emailDomainIndex, maxEmailLength]);
-        isValidDomainIndex === 1;
-        signal domainNameBytes[domainLen] <== SelectRegexReveal(maxEmailLength, domainLen)(domainRegexReveal, emailDomainIndex);
-        signal domainName[domainFieldLen] <== Bytes2Ints(domainLen)(domainNameBytes);
+        signal domainNameBytes[maxDomainLength] <== RevealSubstring(maxEmailLength, maxDomainLength, 0)(email, emailDomainIndex, emailDomainLength);
+        signal domainName[maxDomainFieldLength] <== Bytes2Ints(maxDomainLength)(domainNameBytes);
 
         // Generate the leaf of the Merkle tree for the email domain
-        component domainHasher = PoseidonModular(domainFieldLen);
-        for (var i = 0; i < domainFieldLen; i++) {
+        component domainHasher = PoseidonModular(maxDomainFieldLength);
+        for (var i = 0; i < maxDomainFieldLength; i++) {
             domainHasher.in[i] <== domainName[i];
         }
         signal domainLeaf <== domainHasher.out;
