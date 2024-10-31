@@ -37,6 +37,7 @@ include "./utils/merkle-tree.circom";
  * @param maxB64PayloadLength Maximum length of the Base64 encoded payload.
  * @param maxAzpLength Maximum length of the "azp" value in the JWT payload.
  * @param maxCommandLength Maximum length of the command in the nonce.
+ * @param revealEmailDomain A boolean indicating if the email domain should be revealed.
  * @param enableAnonymousDomain A boolean indicating if the anonymous domain feature is enabled.
  * @param anonymousDomainsTreeHeight The height of the Merkle tree storing the anonymous domains.
  *
@@ -77,6 +78,7 @@ template JWTVerifier(
         maxB64PayloadLength, 
         maxAzpLength, 
         maxCommandLength,
+        revealEmailDomain,
         enableAnonymousDomains,
         anonymousDomainsTreeHeight
     ) {
@@ -332,35 +334,43 @@ template JWTVerifier(
     signal embeddedAccountCode <== Hex2FieldModular(invitationCodeLen)(invitationCodeHex);
     isCodeExist * (embeddedAccountCode - accountCode) === 0;
 
-    if (enableAnonymousDomains) {
+    if (revealEmailDomain || enableAnonymousDomains) {
         signal input emailDomainIndex;
         signal input emailDomainLength;
-        signal input anonymousDomainsTreeRoot;
-        signal input emailDomainPath[anonymousDomainsTreeHeight];
-        signal input emailDomainPathHelper[anonymousDomainsTreeHeight];
 
         var maxDomainLength = DOMAIN_MAX_BYTES();
         var maxDomainFieldLength = compute_ints_size(maxDomainLength);
 
         // Extract the domain from the email
         signal domainNameBytes[maxDomainLength] <== RevealSubstring(maxEmailLength, maxDomainLength, 0)(email, emailDomainIndex, emailDomainLength);
-        signal domainName[maxDomainFieldLength] <== Bytes2Ints(maxDomainLength)(domainNameBytes);
 
-        // Generate the leaf of the Merkle tree for the email domain
-        component domainHasher = PoseidonModular(maxDomainFieldLength);
-        for (var i = 0; i < maxDomainFieldLength; i++) {
-            domainHasher.in[i] <== domainName[i];
+        if (revealEmailDomain && !enableAnonymousDomains) {
+            signal output domainName[maxDomainFieldLength] <== Bytes2Ints(maxDomainLength)(domainNameBytes);
         }
-        signal domainLeaf <== domainHasher.out;
 
-        // Verify the email domain is in the Merkle tree
-        component treeVerifier = MerkleTreeVerifier(anonymousDomainsTreeHeight);
-        for (var i = 0; i < anonymousDomainsTreeHeight; i++) {
-            treeVerifier.proof[i] <== emailDomainPath[i];
-            treeVerifier.proofHelper[i] <== emailDomainPathHelper[i];
+        if (enableAnonymousDomains && !revealEmailDomain) {
+            signal input anonymousDomainsTreeRoot;
+            signal input emailDomainPath[anonymousDomainsTreeHeight];
+            signal input emailDomainPathHelper[anonymousDomainsTreeHeight]; 
+
+            signal domainName[maxDomainFieldLength] <== Bytes2Ints(maxDomainLength)(domainNameBytes);
+
+            // Generate the leaf of the Merkle tree for the email domain
+            component domainHasher = PoseidonModular(maxDomainFieldLength);
+            for (var i = 0; i < maxDomainFieldLength; i++) {
+                domainHasher.in[i] <== domainName[i];
+            }
+            signal domainLeaf <== domainHasher.out;
+
+            // Verify the email domain is in the Merkle tree
+            component treeVerifier = MerkleTreeVerifier(anonymousDomainsTreeHeight);
+            for (var i = 0; i < anonymousDomainsTreeHeight; i++) {
+                treeVerifier.proof[i] <== emailDomainPath[i];
+                treeVerifier.proofHelper[i] <== emailDomainPathHelper[i];
+            }
+            treeVerifier.root <== anonymousDomainsTreeRoot;
+            treeVerifier.leaf <== domainLeaf;
+            treeVerifier.isValid === 1;
         }
-        treeVerifier.root <== anonymousDomainsTreeRoot;
-        treeVerifier.leaf <== domainLeaf;
-        treeVerifier.isValid === 1;
     }
 }

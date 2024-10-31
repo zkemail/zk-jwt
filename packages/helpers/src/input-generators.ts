@@ -15,6 +15,7 @@ export interface RSAPublicKey {
 
 type JWTInputGenerationArgs = {
     maxMessageLength?: number; // Max length of the JWT message including padding
+    revealEmailDomain?: boolean;
     enableAnonymousDomains?: boolean;
     anonymousDomainsTreeHeight?: number;
     anonymousDomainsTreeRoot?: bigint;
@@ -176,33 +177,49 @@ export async function generateJWTVerifierInputs(
             commandLength: commandLength.toString(),
         };
 
-        if (params.enableAnonymousDomains) {
-            if (
-                !params.anonymousDomainsTreeRoot ||
-                !params.emailDomainPath ||
-                !params.emailDomainPathHelper
-            ) {
-                throw new InvalidInputError(
-                    "Anonymous domains tree root, email domain path, and email domain path helper are required when enableAnonymousDomains is true"
-                );
-            }
-
+        if (params.enableAnonymousDomains || params.revealEmailDomain) {
             const { domain, index } = getDomainFromEmail(parsedPayload.email);
 
-            return {
-                ...baseInputs,
-                emailDomainIndex: index.toString(),
-                emailDomainLength: domain.length,
-                anonymousDomainsTreeRoot:
-                    params.anonymousDomainsTreeRoot.toString(),
-                emailDomainPath:
-                    params.emailDomainPath?.map((path) => path.toString()) ||
-                    [],
-                emailDomainPathHelper:
-                    params.emailDomainPathHelper?.map((helper) =>
-                        helper.toString()
-                    ) || [],
-            };
+            if (params.revealEmailDomain && !params.enableAnonymousDomains) {
+                return {
+                    ...baseInputs,
+                    emailDomainIndex: index.toString(),
+                    emailDomainLength: domain.length,
+                };
+            } else if (
+                params.enableAnonymousDomains &&
+                !params.revealEmailDomain
+            ) {
+                if (
+                    !params.anonymousDomainsTreeRoot ||
+                    !params.emailDomainPath ||
+                    !params.emailDomainPathHelper
+                ) {
+                    throw new InvalidInputError(
+                        "Anonymous domains tree root, email domain path, and email domain path helper are required when enableAnonymousDomains is true"
+                    );
+                }
+
+                return {
+                    ...baseInputs,
+                    emailDomainIndex: index.toString(),
+                    emailDomainLength: domain.length,
+                    anonymousDomainsTreeRoot:
+                        params.anonymousDomainsTreeRoot.toString(),
+                    emailDomainPath:
+                        params.emailDomainPath?.map((path) =>
+                            path.toString()
+                        ) || [],
+                    emailDomainPathHelper:
+                        params.emailDomainPathHelper?.map((helper) =>
+                            helper.toString()
+                        ) || [],
+                };
+            } else {
+                throw new InvalidInputError(
+                    "Either revealEmailDomain or enableAnonymousDomains must be true"
+                );
+            }
         }
 
         return baseInputs;
