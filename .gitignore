@@ -51,6 +51,7 @@ test.log
 packages/contracts/out/
 packages/contracts/lib/
 packages/contracts/broadcast
+packages/contracts/artifacts
 .next
 node_modules.nosync
 *Wallet*
