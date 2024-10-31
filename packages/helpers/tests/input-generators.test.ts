@@ -48,11 +48,7 @@ describe("generateJWTVerifierInputs", () => {
                         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
                     ),
                 ],
-                emailDomainPathHelper: [
-                    BigInt(
-                        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-                    ),
-                ],
+                emailDomainPathHelper: [0],
             }
         );
 
