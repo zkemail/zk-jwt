@@ -197,7 +197,7 @@ template JWTVerifier(
     // Verify if the typ in the header is "JWT"
     var typLength = JWT_TYP_LENGTH();
     var typ[typLength] = JWT_TYP();
-    signal typMatch[typLength] <== RevealSubstring(maxHeaderLength, typLength, 0)(header, jwtTypStartIndex, typLength);
+    signal typMatch[typLength] <== RevealSubstring(maxHeaderLength, typLength, 1)(header, jwtTypStartIndex, typLength);
     for (var i = 0; i < typLength; i++) {
         typMatch[i] === typ[i];
     }
