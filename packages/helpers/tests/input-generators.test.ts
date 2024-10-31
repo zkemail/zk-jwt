@@ -48,7 +48,6 @@ describe("generateJWTVerifierInputs", () => {
         expect(result.codeIndex).toBeDefined();
         expect(result.periodIndex).toBeDefined();
         expect(result.jwtTypStartIndex).toBeDefined();
-        expect(result.jwtAlgStartIndex).toBeDefined();
         expect(result.jwtKidStartIndex).toBeDefined();
         expect(result.issKeyStartIndex).toBeDefined();
         expect(result.issLength).toBeDefined();
@@ -100,7 +99,7 @@ describe("generateJWTVerifierInputs", () => {
     });
 
     it("should throw JWTVerificationError for invalid signature", async () => {
-        const tamperedJWT = validJWT.slice(0, -1) + "X";
+        const tamperedJWT = validJWT.slice(0, -5) + "XXXXX";
         await expect(
             generateJWTVerifierInputs(
                 tamperedJWT,

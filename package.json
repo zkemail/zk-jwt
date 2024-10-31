@@ -11,8 +11,7 @@
     "test": "jest"
   },
   "workspaces": [
-    "packages/*",
-    "frontend"
+    "packages/*"
   ],
   "devDependencies": {
     "@babel/core": "^7.22.5",

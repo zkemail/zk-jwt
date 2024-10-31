@@ -34,35 +34,34 @@ include "./utils/hex2int.circom";
  * @param maxAzpLength Maximum length of the "azp" value in the JWT payload.
  * @param maxCommandLength Maximum length of the command in the nonce.
  *
- * @input message[maxMessageLength] The JWT message to be verified, which includes the header and payload.
+ * @input message[maxMessageLength] The JWT message to be verified (header + payload).
  * @input messageLength The length of the JWT message that is signed.
- * @input pubkey[k] The RSA public key split into k chunks, used for signature verification.
- * @input signature[k] The RSA signature split into k chunks, which is to be verified against the JWT message.
- * @input accountCode The account code to be verified against the invitation code in the command.
+ * @input pubkey[k] The RSA public key split into k chunks.
+ * @input signature[k] The RSA signature split into k chunks.
+ * @input accountCode The account code to verify against the invitation code.
  * @input codeIndex The index of the invitation code in the command.
- * @input periodIndex The index of the period separating the header and payload in the JWT.
- * @input jwtTypStartIndex The index of the "typ" claim in the JWT header.
- * @input jwtAlgStartIndex The index of the "alg" claim in the JWT header.
- * @input jwtKidStartIndex The index of the "kid" claim in the JWT header.
- * @input issKeyStartIndex The index of the "iss" claim in the JWT payload.
- * @input issLength The length of the "iss" claim in the JWT payload.
- * @input iatKeyStartIndex The index of the "iat" claim in the JWT payload.
- * @input azpKeyStartIndex The index of the "azp" claim in the JWT payload.
- * @input azpLength The length of the "azp" claim in the JWT payload.
- * @input emailKeyStartIndex The index of the "email" claim in the JWT payload.
- * @input emailLength The length of the "email" claim in the JWT payload.
- * @input nonceKeyStartIndex The index of the "nonce" claim in the JWT payload.
- * @input commandLength The length of the command in the "nonce" claim.
+ * @input periodIndex The index of the period separating header and payload.
+ * @input jwtTypStartIndex The index of the "typ" claim in the header.
+ * @input jwtKidStartIndex The index of the "kid" claim in the header.
+ * @input issKeyStartIndex The index of the "iss" claim in the payload.
+ * @input issLength The length of the "iss" claim.
+ * @input iatKeyStartIndex The index of the "iat" claim.
+ * @input azpKeyStartIndex The index of the "azp" claim.
+ * @input azpLength The length of the "azp" claim.
+ * @input emailKeyStartIndex The index of the "email" claim.
+ * @input emailLength The length of the email.
+ * @input nonceKeyStartIndex The index of the "nonce" claim.
+ * @input commandLength The length of the command.
  *
- * @output kid The "kid" value from the JWT header.
- * @output iss The "iss" value from the JWT payload.
- * @output publicKeyHash The hash of the public key used for verification.
+ * @output kid The "kid" value from the header.
+ * @output iss[issFieldLength] The "iss" (issuer) value as an array of integers.
+ * @output publicKeyHash The Poseidon hash of the RSA public key.
  * @output jwtNullifier A unique identifier derived from the JWT signature.
- * @output timestamp The "iat" value from the JWT payload.
- * @output maskedCommand The command from the nonce with sensitive information removed.
- * @output accountSalt A salt derived from the email and account code.
- * @output azp The "azp" value from the JWT payload.
- * @output isCodeExist A boolean indicating if an invitation code exists in the command.
+ * @output timestamp The "iat" (issued at) timestamp value.
+ * @output maskedCommand[commandFieldLength] The command with sensitive info (code and email) removed.
+ * @output accountSalt A salt derived from email and account code.
+ * @output azp[azpFieldLength] The "azp" (authorized party) value as an array of integers.
+ * @output isCodeExist A boolean (0/1) indicating if a valid invitation code exists.
  */ 
 template JWTVerifier(
         n,
@@ -198,7 +197,7 @@ template JWTVerifier(
     // Verify if the typ in the header is "JWT"
     var typLength = JWT_TYP_LENGTH();
     var typ[typLength] = JWT_TYP();
-    signal typMatch[typLength] <== RevealSubstring(maxHeaderLength, typLength, 0)(header, jwtTypStartIndex, typLength);
+    signal typMatch[typLength] <== RevealSubstring(maxHeaderLength, typLength, 1)(header, jwtTypStartIndex, typLength);
     for (var i = 0; i < typLength; i++) {
         typMatch[i] === typ[i];
     }
@@ -290,7 +289,7 @@ template JWTVerifier(
     // Check if the command in the nonce has a valid invitation code and remove the prefix if it exists
     signal prefixedCodeRegexOut, prefixedCodeRegexReveal[maxCommandLength];
     (prefixedCodeRegexOut, prefixedCodeRegexReveal) <== InvitationCodeWithPrefixRegex(maxCommandLength)(command);
-    isCodeExist <== IsZero()(prefixedCodeRegexOut-1);
+    isCodeExist <== prefixedCodeRegexOut;
     signal removedCode[maxCommandLength];
     for(var i = 0; i < maxCommandLength; i++) {
         removedCode[i] <== isCodeExist * prefixedCodeRegexReveal[i];
@@ -299,7 +298,7 @@ template JWTVerifier(
     // Check if the command in the nonce has a valid email address and remove the email address if it exists
     signal emailAddrRegexOut, emailAddrRegexReveal[maxCommandLength];
     (emailAddrRegexOut, emailAddrRegexReveal) <== EmailAddrRegex(maxCommandLength)(command);
-    signal isEmailAddrExist <== IsZero()(emailAddrRegexOut-1);
+    signal isEmailAddrExist <== emailAddrRegexOut;
     signal removedEmailAddr[maxCommandLength];
     for(var i = 0; i < maxCommandLength; i++) {
         removedEmailAddr[i] <== isEmailAddrExist * emailAddrRegexReveal[i];
