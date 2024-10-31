@@ -13,12 +13,12 @@
     "@openzeppelin/contracts-upgradeable": "^5.0.0",
     "@zk-email/contracts": "^6.1.5",
     "solady": "^0.0.123",
-    "solidity-stringutils": "github:LayerZero-Labs/solidity-stringutils"
+    "solidity-stringutils": "git+https://github.com/LayerZero-Labs/solidity-stringutils.git"
   },
   "devDependencies": {
-    "ds-test": "https://github.com/dapphub/ds-test",
-    "forge-std": "https://github.com/foundry-rs/forge-std",
-    "solhint": "^3.6.1"
+    "ds-test": "git+https://github.com/dapphub/ds-test.git",
+    "forge-std": "git+https://github.com/foundry-rs/forge-std.git",
+    "solhint": "^3.6.2"
   },
   "files": [
     "/src",
