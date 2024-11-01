@@ -671,5 +671,6 @@ describe("Anonymous Email Domains", () => {
 
         const witness = await circuit.calculateWitness(jwtVerifierInputs);
         await circuit.checkConstraints(witness);
+        expect(witness[32]).toEqual(anonymousDomainsTree.getRoot());
     });
 });
