@@ -36,7 +36,20 @@ describe("generateJWTVerifierInputs", () => {
         const result = await generateJWTVerifierInputs(
             validJWT,
             validPublicKey,
-            validAccountCode
+            validAccountCode,
+            {
+                enableAnonymousDomains: true,
+                anonymousDomainsTreeHeight: 2,
+                anonymousDomainsTreeRoot: BigInt(
+                    "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+                ),
+                emailDomainPath: [
+                    BigInt(
+                        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+                    ),
+                ],
+                emailDomainPathHelper: [0],
+            }
         );
 
         expect(result).toBeDefined();
@@ -58,6 +71,11 @@ describe("generateJWTVerifierInputs", () => {
         expect(result.emailLength).toBeDefined();
         expect(result.nonceKeyStartIndex).toBeDefined();
         expect(result.commandLength).toBeDefined();
+        expect(result.emailDomainIndex).toBeDefined();
+        expect(result.emailDomainLength).toBeDefined();
+        expect(result.anonymousDomainsTreeRoot).toBeDefined();
+        expect(result.emailDomainPath).toBeDefined();
+        expect(result.emailDomainPathHelper).toBeDefined();
     });
 
     it("should throw InvalidInputError for empty JWT", async () => {

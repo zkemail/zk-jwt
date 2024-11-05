@@ -2448,6 +2448,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/circomlibjs@npm:^0.1.6":
+  version: 0.1.6
+  resolution: "@types/circomlibjs@npm:0.1.6"
+  checksum: c1626380bd46f6da6ab45c59338a91f0166933ae987a03eda2ae09c490457aa010e412c46192502198b7b41054ee0129bece3d3edcbabdb05ea226582f772cc4
+  languageName: node
+  linkType: hard
+
 "@types/cookie@npm:^0.4.1":
   version: 0.4.1
   resolution: "@types/cookie@npm:0.4.1"
@@ -2555,11 +2562,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*, @types/node@npm:^22.7.2":
-  version: 22.8.4
-  resolution: "@types/node@npm:22.8.4"
+  version: 22.8.5
+  resolution: "@types/node@npm:22.8.5"
   dependencies:
     undici-types: ~6.19.8
-  checksum: 1e55594ce7942e259919283e6bb9ee814f184afcd545956d95163dd3b1d4b1923dba97e0c258c5a9dd2c96b2e754fa9ae42994437a564255c8907ae7cdc25b4b
+  checksum: c5c3466047c2cc5f70824a89aa3873fb21abc231d7d52672ea157c01e5acbbca9831362c1d2df589f9ea10a3bdfade867ec647850d9dcf88dce7119885cb8d22
   languageName: node
   linkType: hard
 
@@ -2835,6 +2842,7 @@ __metadata:
     "@babel/preset-typescript": ^7.21.5
     "@types/addressparser": ^1.0.3
     "@types/atob": ^2.1.2
+    "@types/circomlibjs": ^0.1.6
     "@types/jest": ^29.5.12
     "@types/mocha": ^10.0.1
     "@types/node": ^22.7.2
@@ -3713,9 +3721,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001669":
-  version: 1.0.30001675
-  resolution: "caniuse-lite@npm:1.0.30001675"
-  checksum: d1e20a445af355209a8795924e556ed97cd3e744ae0b09e27773a4dcf53e6531de9d206b0929bcbe62e5b69a555237a12c943edb48872803ef64cdb1877f47af
+  version: 1.0.30001676
+  resolution: "caniuse-lite@npm:1.0.30001676"
+  checksum: c972232e4b3240865760ea8d29805cea7af69bd91e258a3e864e34a2b369ce6e6b69469cb39f008de593166965350e5370e6cde91fb58c02209259d8a2204fdf
   languageName: node
   linkType: hard
 

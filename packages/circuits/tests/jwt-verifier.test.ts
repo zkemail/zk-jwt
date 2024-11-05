@@ -1,3 +1,4 @@
+import fs from "fs";
 import path from "path";
 import { wasm as wasm_tester } from "circom_tester";
 const relayerUtils = require("@zk-email/relayer-utils");
@@ -7,7 +8,11 @@ import {
 } from "../../helpers/src/input-generators";
 import { generateJWT } from "../../helpers/src/jwt";
 import { splitJWT } from "../../helpers/src/utils";
-import fs from "fs";
+import {
+    createMerkleTree,
+    MerkleTree,
+    poseidonModular,
+} from "../../helpers/src/merkle-tree";
 
 describe("JWT Verifier Circuit", () => {
     jest.setTimeout(10 * 60 * 1000); // 10 minutes
@@ -575,5 +580,97 @@ describe("JWT Verifier Circuit", () => {
                     azpFields.length
             ]
         );
+    });
+});
+
+describe("Anonymous Email Domains", () => {
+    let circuit: any;
+    let header: any;
+    let accountCode: bigint;
+    let kid: bigint;
+    let anonymousDomainsTree: MerkleTree;
+    const domains = [
+        "anonymous.relay",
+        "protonmail.com",
+        "tutanota.com",
+        "gmail.com",
+    ];
+
+    async function createAnonymousDomainsTree(
+        domains: string[],
+        height: number
+    ) {
+        const paddedDomains = domains.map(
+            (domain) => relayerUtils.padString(domain, 255) // DOMAIN_MAX_BYTES
+        );
+        const domainFields = paddedDomains.map((paddedDomain) =>
+            relayerUtils.bytes2Fields(paddedDomain)
+        );
+        const domainLeaves = await Promise.all(
+            domainFields.map((field) => poseidonModular(field))
+        );
+        return createMerkleTree(height, domainLeaves);
+    }
+
+    beforeAll(async () => {
+        circuit = await wasm_tester(
+            path.join(
+                __dirname,
+                "./test-circuits/jwt-verifier-with-anon-email-domains-test.circom"
+            ),
+            {
+                recompile: true,
+                include: path.join(__dirname, "../../../node_modules"),
+                output: path.join(__dirname, "./compiled-test-circuits"),
+            }
+        );
+
+        accountCode = await relayerUtils.genAccountCode();
+        kid = BigInt("0x5aaff47c21d06e266cce395b2145c7c6d4730ea5");
+
+        header = {
+            alg: "RS256",
+            typ: "JWT",
+            kid: kid.toString(16),
+        };
+
+        anonymousDomainsTree = await createAnonymousDomainsTree(domains, 2);
+    });
+
+    it("should support anonymous domains", async () => {
+        const email = "user@gmail.com";
+        const timestamp = Math.floor(Date.now() / 1000);
+
+        const payload = {
+            email,
+            iat: timestamp,
+            azp: "demo-client-id",
+            iss: "accounts.google.com",
+            nonce: "Send 0.1 ETH to recipient@gmail.com",
+        };
+
+        const { rawJWT, publicKey } = generateJWT(header, payload);
+
+        const emailDomainProof = anonymousDomainsTree.getProof(
+            domains.indexOf("gmail.com")
+        );
+
+        const jwtVerifierInputs = await generateJWTVerifierInputs(
+            rawJWT,
+            publicKey,
+            accountCode,
+            {
+                maxMessageLength: 1024,
+                enableAnonymousDomains: true,
+                anonymousDomainsTreeHeight: 4,
+                anonymousDomainsTreeRoot: anonymousDomainsTree.getRoot(),
+                emailDomainPath: emailDomainProof.proof,
+                emailDomainPathHelper: emailDomainProof.pathIndices,
+            }
+        );
+
+        const witness = await circuit.calculateWitness(jwtVerifierInputs);
+        await circuit.checkConstraints(witness);
+        expect(witness[32]).toEqual(anonymousDomainsTree.getRoot());
     });
 });
