@@ -41,29 +41,28 @@ RUN git clone https://github.com/zkemail/jwt-tx-auth.git
 WORKDIR /jwt-tx-auth/packages/prover
 RUN pip install -r requirements.txt
 RUN cp ./circom_proofgen.sh /root
-# RUN cp ./email_auth_with_body_parsing_with_qp_encoding /root
 WORKDIR /root
 RUN ls /root
 RUN mkdir params
 WORKDIR /root/params
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier.zkey --output ./jwt-verifier.zkey
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier.zkey --output ./jwt-verifier.zkey
 RUN mkdir ./jwt-verifier_cpp
 WORKDIR /root/params/jwt-verifier_cpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/jwt-verifier --output ./jwt-verifier
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/Makefile --output ./Makefile
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/calcwit.cpp --output ./calcwit.cpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/calcwit.hpp --output ./calcwit.hpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/calcwit.o --output ./calcwit.o
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/circom.hpp --output ./circom.hpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/jwt-verifier.cpp --output ./jwt-verifier.cpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/jwt-verifier.dat --output ./jwt-verifier.dat
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/fr.asm --output ./fr.asm
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/fr.cpp --output ./fr.cpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/fr.hpp --output ./fr.hpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/fr.o --output ./fr.o
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/fr_asm.o --output ./fr_asm.o
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/main.cpp --output ./main.cpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/jwt-verifier_cpp/main.o --output ./main.o
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/jwt-verifier --output ./jwt-verifier
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/Makefile --output ./Makefile
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/calcwit.cpp --output ./calcwit.cpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/calcwit.hpp --output ./calcwit.hpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/calcwit.o --output ./calcwit.o
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/circom.hpp --output ./circom.hpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/jwt-verifier.cpp --output ./jwt-verifier.cpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/jwt-verifier.dat --output ./jwt-verifier.dat
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/fr.asm --output ./fr.asm
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/fr.cpp --output ./fr.cpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/fr.hpp --output ./fr.hpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/fr.o --output ./fr.o
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/fr_asm.o --output ./fr_asm.o
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/main.cpp --output ./main.cpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/main.o --output ./main.o
 RUN chmod +x ./jwt-verifier
 WORKDIR /root
 RUN ls params
