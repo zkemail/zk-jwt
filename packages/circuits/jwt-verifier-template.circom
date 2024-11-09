@@ -37,9 +37,6 @@ include "./utils/merkle-tree.circom";
  * @param maxB64PayloadLength Maximum length of the Base64 encoded payload.
  * @param maxAzpLength Maximum length of the "azp" value in the JWT payload.
  * @param maxCommandLength Maximum length of the command in the nonce.
- * @param revealEmailDomain A boolean indicating if the email domain should be revealed.
- * @param enableAnonymousDomain A boolean indicating if the anonymous domain feature is enabled.
- * @param anonymousDomainsTreeHeight The height of the Merkle tree storing the anonymous domains.
  *
  * @input message[maxMessageLength] The JWT message to be verified (header + payload).
  * @input messageLength The length of the JWT message that is signed.
@@ -59,6 +56,8 @@ include "./utils/merkle-tree.circom";
  * @input emailLength The length of the email.
  * @input nonceKeyStartIndex The index of the "nonce" claim.
  * @input commandLength The length of the command.
+ * @input emailDomainIndex The index of the domain in the email.
+ * @input emailDomainLength The length of the domain in the email.
  *
  * @output kid The "kid" value from the header.
  * @output iss[issFieldLength] The "iss" (issuer) value as an array of integers.
@@ -68,6 +67,7 @@ include "./utils/merkle-tree.circom";
  * @output maskedCommand[commandFieldLength] The command with sensitive info (code and email) removed.
  * @output accountSalt A salt derived from email and account code.
  * @output azp[azpFieldLength] The "azp" (authorized party) value as an array of integers.
+ * @output domainName[maxDomainFieldLength] The domain name extracted from the email.
  * @output isCodeExist A boolean (0/1) indicating if a valid invitation code exists.
  */ 
 template JWTVerifier(
@@ -78,9 +78,6 @@ template JWTVerifier(
         maxB64PayloadLength, 
         maxAzpLength, 
         maxCommandLength,
-        revealEmailDomain,
-        enableAnonymousDomains,
-        anonymousDomainsTreeHeight
     ) {
  
     signal input message[maxMessageLength]; // JWT message (header + payload)
@@ -105,6 +102,8 @@ template JWTVerifier(
     signal input emailLength; // Length of the "email" in the JWT payload
     signal input nonceKeyStartIndex; // Index of the "nonce" key in the JWT payload
     signal input commandLength; // Length of the "command" in the "nonce" key in the JWT payload
+    signal input emailDomainIndex; // Index of the domain in the email
+    signal input emailDomainLength; // Length of the domain in the email
 
     assert(maxMessageLength % 64 == 0);
     assert(n * k > 2048); // to support 2048 bit RSA
@@ -119,6 +118,8 @@ template JWTVerifier(
     var azpFieldLength = compute_ints_size(maxAzpLength);
     var issLen = ISSUER_MAX_BYTES();
     var issFieldLength = compute_ints_size(issLen);
+    var maxDomainLength = DOMAIN_MAX_BYTES();
+    var maxDomainFieldLength = compute_ints_size(maxDomainLength);
 
     signal output kid;
     signal output iss[issFieldLength];
@@ -128,6 +129,7 @@ template JWTVerifier(
     signal output maskedCommand[commandFieldLength];
     signal output accountSalt;
     signal output azp[azpFieldLength];
+    signal output domainName[maxDomainFieldLength];
     signal output isCodeExist;
 
     // Assert message length fits in ceil(log2(maxMessageLength))
@@ -279,6 +281,10 @@ template JWTVerifier(
     signal emailStartIndex <== emailKeyStartIndex + emailKeyLength + 1;
     signal email[maxEmailLength] <== RevealSubstring(maxPayloadLength, maxEmailLength, 0)(payload, emailStartIndex, emailLength);
 
+    // Extract the domain from the email
+    signal domainNameBytes[maxDomainLength] <== RevealSubstring(maxEmailLength, maxDomainLength, 0)(email, emailDomainIndex, emailDomainLength);
+    domainName <== Bytes2Ints(maxDomainLength)(domainNameBytes);
+
     // Calculate account salt using email
     var numEmailInts = compute_ints_size(maxEmailLength);
     signal emailInts[numEmailInts] <== Bytes2Ints(maxEmailLength)(email);
@@ -333,44 +339,4 @@ template JWTVerifier(
     // Verify the invitation code is equal to the account code
     signal embeddedAccountCode <== Hex2FieldModular(invitationCodeLen)(invitationCodeHex);
     isCodeExist * (embeddedAccountCode - accountCode) === 0;
-
-    if (revealEmailDomain || enableAnonymousDomains) {
-        signal input emailDomainIndex;
-        signal input emailDomainLength;
-
-        var maxDomainLength = DOMAIN_MAX_BYTES();
-        var maxDomainFieldLength = compute_ints_size(maxDomainLength);
-
-        // Extract the domain from the email
-        signal domainNameBytes[maxDomainLength] <== RevealSubstring(maxEmailLength, maxDomainLength, 0)(email, emailDomainIndex, emailDomainLength);
-
-        if (revealEmailDomain && !enableAnonymousDomains) {
-            signal output domainName[maxDomainFieldLength] <== Bytes2Ints(maxDomainLength)(domainNameBytes);
-        }
-
-        if (enableAnonymousDomains && !revealEmailDomain) {
-            signal input anonymousDomainsTreeRoot;
-            signal input emailDomainPath[anonymousDomainsTreeHeight];
-            signal input emailDomainPathHelper[anonymousDomainsTreeHeight]; 
-
-            signal domainName[maxDomainFieldLength] <== Bytes2Ints(maxDomainLength)(domainNameBytes);
-
-            // Generate the leaf of the Merkle tree for the email domain
-            component domainHasher = PoseidonModular(maxDomainFieldLength);
-            for (var i = 0; i < maxDomainFieldLength; i++) {
-                domainHasher.in[i] <== domainName[i];
-            }
-            signal domainLeaf <== domainHasher.out;
-
-            // Verify the email domain is in the Merkle tree
-            component treeVerifier = MerkleTreeVerifier(anonymousDomainsTreeHeight);
-            for (var i = 0; i < anonymousDomainsTreeHeight; i++) {
-                treeVerifier.proof[i] <== emailDomainPath[i];
-                treeVerifier.proofHelper[i] <== emailDomainPathHelper[i];
-            }
-            treeVerifier.root <== anonymousDomainsTreeRoot;
-            treeVerifier.leaf <== domainLeaf;
-            treeVerifier.isValid === 1;
-        }
-    }
 }
