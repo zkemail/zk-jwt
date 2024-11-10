@@ -38,7 +38,7 @@ describe("generateJWTVerifierInputs", () => {
             validPublicKey,
             validAccountCode,
             {
-                enableAnonymousDomains: true,
+                verifyAnonymousDomains: true,
                 anonymousDomainsTreeHeight: 2,
                 anonymousDomainsTreeRoot: BigInt(
                     "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"

@@ -26,7 +26,7 @@ export interface JWTInputGenerationArgs {
     /** Max length of the JWT message including padding */
     maxMessageLength?: number;
     /** Enable anonymous domain verification */
-    enableAnonymousDomains?: boolean;
+    verifyAnonymousDomains?: boolean;
     /** Height of the Merkle tree for anonymous domains */
     anonymousDomainsTreeHeight?: number;
     /** Root of the Merkle tree for anonymous domains */
@@ -159,7 +159,7 @@ function validateAnonymousDomainParams(params: JWTInputGenerationArgs): void {
         !params.emailDomainPathHelper
     ) {
         throw new InvalidInputError(
-            "Anonymous domains tree root, email domain path, and email domain path helper are required when enableAnonymousDomains is true"
+            "Anonymous domains tree root, email domain path, and email domain path helper are required when verifyAnonymousDomains is true"
         );
     }
 }
@@ -217,7 +217,7 @@ export async function generateJWTVerifierInputs(
     accountCode: bigint,
     params: JWTInputGenerationArgs = {}
 ): Promise<BaseJWTVerifierInputs | AnonymousJWTVerifierInputs> {
-    return params.enableAnonymousDomains
+    return params.verifyAnonymousDomains
         ? await _generateJWTVerifierWithAnonymousDomainInputs(
               rawJWT,
               publicKey,

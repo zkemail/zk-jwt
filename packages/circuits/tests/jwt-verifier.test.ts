@@ -756,7 +756,7 @@ describe("Anonymous Email Domains", () => {
             accountCode,
             {
                 maxMessageLength: 1024,
-                enableAnonymousDomains: true,
+                verifyAnonymousDomains: true,
                 anonymousDomainsTreeHeight: 4,
                 anonymousDomainsTreeRoot: anonymousDomainsTree.getRoot(),
                 emailDomainPath: emailDomainProof.proof,
