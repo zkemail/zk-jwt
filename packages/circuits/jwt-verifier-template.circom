@@ -22,7 +22,6 @@ include "./utils/array.circom";
 include "./utils/bytes.circom";
 include "./utils/constants.circom";
 include "./utils/hex2int.circom";
-include "./utils/merkle-tree.circom";
 
 /**
  * @title JWTVerifier
@@ -77,9 +76,9 @@ template JWTVerifier(
         maxB64HeaderLength, 
         maxB64PayloadLength, 
         maxAzpLength, 
-        maxCommandLength,
+        maxCommandLength
     ) {
- 
+
     signal input message[maxMessageLength]; // JWT message (header + payload)
     signal input messageLength; // Length of the message signed in the JWT
     signal input pubkey[k]; // RSA public key split into k chunks

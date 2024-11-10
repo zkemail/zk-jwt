@@ -1,5 +1,5 @@
 pragma circom 2.1.6;
 
-include "../../jwt-verifier-template.circom";
+include "../../jwt-verifier-with-anon-domain-template.circom";
 
-component main { public [ anonymousDomainsTreeRoot ] } = JWTVerifier(121, 17, 1024, 128, 896, 72, 605, 0, 1, 2);
+component main { public [ anonymousDomainsTreeRoot ] } = JWTVerifierWithAnonymousDomain(121, 17, 1024, 128, 896, 72, 605, 2);

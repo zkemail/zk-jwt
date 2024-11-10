@@ -1,5 +1,10 @@
 pragma circom 2.1.6;
 
+include "@zk-email/circuits/utils/hash.circom";
+
+include "./jwt-verifier-template.circom";
+include "./utils/merkle-tree.circom";
+
 /**
  * @title JWTVerifierWithAnonymousDomain
  * @description A circuit template that extends JWTVerifier to add anonymous domain verification.
@@ -58,7 +63,7 @@ template JWTVerifierWithAnonymousDomain(
         maxB64PayloadLength, 
         maxAzpLength, 
         maxCommandLength,
-        anonymousDomainsTreeHeight,
+        anonymousDomainsTreeHeight
 ) {
     signal input message[maxMessageLength]; // JWT message (header + payload)
     signal input messageLength; // Length of the message signed in the JWT
@@ -110,6 +115,13 @@ template JWTVerifierWithAnonymousDomain(
     jwtVerifier.commandLength <== commandLength;
     jwtVerifier.emailDomainIndex <== emailDomainIndex;
     jwtVerifier.emailDomainLength <== emailDomainLength;
+
+    var commandFieldLength = compute_ints_size(maxCommandLength);
+    var azpFieldLength = compute_ints_size(maxAzpLength);
+    var issLen = ISSUER_MAX_BYTES();
+    var issFieldLength = compute_ints_size(issLen);
+    var maxDomainLength = DOMAIN_MAX_BYTES();
+    var maxDomainFieldLength = compute_ints_size(maxDomainLength);
 
     signal output kid;
     signal output iss[issFieldLength];
