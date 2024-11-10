@@ -145,6 +145,24 @@ describe("JWT Verifier Circuit", () => {
             );
         }
 
+        // domainName
+        const paddedDomain = relayerUtils.padString("gmail.com", 255);
+        const expectedDomainFields = relayerUtils.bytes2Fields(paddedDomain);
+        for (let i = 0; i < expectedDomainFields.length; i++) {
+            expect(BigInt(expectedDomainFields[i])).toEqual(
+                witness[
+                    1 +
+                        1 +
+                        issuerFields.length +
+                        3 +
+                        maskedCommandFields.length +
+                        1 +
+                        azpFields.length +
+                        i
+                ]
+            );
+        }
+
         // isCodeExist
         expect(0n).toEqual(
             witness[
@@ -154,7 +172,8 @@ describe("JWT Verifier Circuit", () => {
                     3 +
                     maskedCommandFields.length +
                     1 +
-                    azpFields.length
+                    azpFields.length +
+                    expectedDomainFields.length
             ]
         );
     });
@@ -245,6 +264,24 @@ describe("JWT Verifier Circuit", () => {
             );
         }
 
+        // domainName
+        const paddedDomain = relayerUtils.padString("gmail.com", 255);
+        const expectedDomainFields = relayerUtils.bytes2Fields(paddedDomain);
+        for (let i = 0; i < expectedDomainFields.length; i++) {
+            expect(BigInt(expectedDomainFields[i])).toEqual(
+                witness[
+                    1 +
+                        1 +
+                        issuerFields.length +
+                        3 +
+                        maskedCommandFields.length +
+                        1 +
+                        azpFields.length +
+                        i
+                ]
+            );
+        }
+
         // isCodeExist
         expect(0n).toEqual(
             witness[
@@ -254,7 +291,8 @@ describe("JWT Verifier Circuit", () => {
                     3 +
                     maskedCommandFields.length +
                     1 +
-                    azpFields.length
+                    azpFields.length +
+                    expectedDomainFields.length
             ]
         );
     });
@@ -347,6 +385,24 @@ describe("JWT Verifier Circuit", () => {
             );
         }
 
+        // domainName
+        const paddedDomain = relayerUtils.padString("gmail.com", 255);
+        const expectedDomainFields = relayerUtils.bytes2Fields(paddedDomain);
+        for (let i = 0; i < expectedDomainFields.length; i++) {
+            expect(BigInt(expectedDomainFields[i])).toEqual(
+                witness[
+                    1 +
+                        1 +
+                        issuerFields.length +
+                        3 +
+                        maskedCommandFields.length +
+                        1 +
+                        azpFields.length +
+                        i
+                ]
+            );
+        }
+
         // isCodeExist
         expect(1n).toEqual(
             witness[
@@ -356,7 +412,8 @@ describe("JWT Verifier Circuit", () => {
                     3 +
                     maskedCommandFields.length +
                     1 +
-                    azpFields.length
+                    azpFields.length +
+                    expectedDomainFields.length
             ]
         );
     });
@@ -450,6 +507,24 @@ describe("JWT Verifier Circuit", () => {
             );
         }
 
+        // domainName
+        const paddedDomain = relayerUtils.padString("gmail.com", 255);
+        const expectedDomainFields = relayerUtils.bytes2Fields(paddedDomain);
+        for (let i = 0; i < expectedDomainFields.length; i++) {
+            expect(BigInt(expectedDomainFields[i])).toEqual(
+                witness[
+                    1 +
+                        1 +
+                        issuerFields.length +
+                        3 +
+                        maskedCommandFields.length +
+                        1 +
+                        azpFields.length +
+                        i
+                ]
+            );
+        }
+
         // isCodeExist
         expect(1n).toEqual(
             witness[
@@ -459,7 +534,8 @@ describe("JWT Verifier Circuit", () => {
                     3 +
                     maskedCommandFields.length +
                     1 +
-                    azpFields.length
+                    azpFields.length +
+                    expectedDomainFields.length
             ]
         );
     });
@@ -568,6 +644,24 @@ describe("JWT Verifier Circuit", () => {
             );
         }
 
+        // domainName
+        const paddedDomain = relayerUtils.padString("gmail.com", 255);
+        const expectedDomainFields = relayerUtils.bytes2Fields(paddedDomain);
+        for (let i = 0; i < expectedDomainFields.length; i++) {
+            expect(BigInt(expectedDomainFields[i])).toEqual(
+                witness[
+                    1 +
+                        1 +
+                        issuerFields.length +
+                        3 +
+                        maskedCommandFields.length +
+                        1 +
+                        azpFields.length +
+                        i
+                ]
+            );
+        }
+
         // isCodeExist (should be 0 as there's no invitation code in this JWT)
         expect(0n).toEqual(
             witness[
@@ -577,7 +671,8 @@ describe("JWT Verifier Circuit", () => {
                     3 +
                     maskedCommandFields.length +
                     1 +
-                    azpFields.length
+                    azpFields.length +
+                    expectedDomainFields.length
             ]
         );
     });
@@ -661,7 +756,7 @@ describe("Anonymous Email Domains", () => {
             accountCode,
             {
                 maxMessageLength: 1024,
-                enableAnonymousDomains: true,
+                verifyAnonymousDomains: true,
                 anonymousDomainsTreeHeight: 4,
                 anonymousDomainsTreeRoot: anonymousDomainsTree.getRoot(),
                 emailDomainPath: emailDomainProof.proof,
@@ -671,6 +766,6 @@ describe("Anonymous Email Domains", () => {
 
         const witness = await circuit.calculateWitness(jwtVerifierInputs);
         await circuit.checkConstraints(witness);
-        expect(witness[32]).toEqual(anonymousDomainsTree.getRoot());
+        expect(witness[41]).toEqual(anonymousDomainsTree.getRoot());
     });
 });

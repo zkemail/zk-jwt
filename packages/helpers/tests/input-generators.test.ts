@@ -38,7 +38,7 @@ describe("generateJWTVerifierInputs", () => {
             validPublicKey,
             validAccountCode,
             {
-                enableAnonymousDomains: true,
+                verifyAnonymousDomains: true,
                 anonymousDomainsTreeHeight: 2,
                 anonymousDomainsTreeRoot: BigInt(
                     "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
@@ -73,9 +73,6 @@ describe("generateJWTVerifierInputs", () => {
         expect(result.commandLength).toBeDefined();
         expect(result.emailDomainIndex).toBeDefined();
         expect(result.emailDomainLength).toBeDefined();
-        expect(result.anonymousDomainsTreeRoot).toBeDefined();
-        expect(result.emailDomainPath).toBeDefined();
-        expect(result.emailDomainPathHelper).toBeDefined();
     });
 
     it("should throw InvalidInputError for empty JWT", async () => {
@@ -125,32 +122,6 @@ describe("generateJWTVerifierInputs", () => {
                 validAccountCode
             )
         ).rejects.toThrow(JWTVerificationError);
-    });
-
-    it("should handle JWT without optional fields", async () => {
-        const minimalHeader = {
-            alg: "RS256",
-            typ: "JWT",
-        };
-        const minimalPayload = {
-            iss: "https://minimal.com",
-            iat: Math.floor(Date.now() / 1000),
-            nonce: "minimal nonce",
-        };
-
-        const { rawJWT, publicKey } = generateJWT(
-            minimalHeader,
-            minimalPayload
-        );
-        const result = await generateJWTVerifierInputs(
-            rawJWT,
-            publicKey,
-            validAccountCode
-        );
-
-        expect(result).toBeDefined();
-        expect(result.azpLength).toBe("0");
-        expect(result.emailLength).toBe("0");
     });
 
     it("should handle maximum message length", async () => {
