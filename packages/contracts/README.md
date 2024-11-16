@@ -14,24 +14,31 @@ This directory contains verifier contracts for handling JSON Web Tokens(JWTs) pr
 - **Purpose**: The `JWTVerifier` contract is responsible for verifying the authenticity of JWTs. It checks the proof and ensures the token is valid.
 - **Usage**: Use this contract in your project to verify JWTs proof before granting access to protected resources.
 
-## How to Use in Another Project
+## Build
 
-1. **Installation**: First, install the package using npm. Run the following command in your project directory:
+To build the project, run the following command:
 
-   ```
-   npm install @zk-jwt/zk-jwt-contracts
-   ```
+```
+yarn build
+```
 
-2. **Integration**: 
-   - **Solidity**: Import the contracts in your Solidity files using the following syntax:
+## Unit Tests
 
-     ```solidity
-     import {JwtVerifier} from "@zk-jwt/zk-jwt-contracts/utils/JwtVerifier.sol";
-     import {JwtGroth16Verifier} from "@zk-jwt/zk-jwt-contracts/utils/JwtGroth16Verifier.sol";
-     import {JwtRegistry} from "@zk-jwt/zk-jwt-contracts/utils/JwtRegistry.sol";
-     ```
+To run unit tests, use the following command:
 
-## Example Deployment
+```
+yarn test:unit
+```
+
+## Integration Tests
+
+To run integration tests, use the following command:
+
+```
+yarn test:integration
+```
+
+## Deployment
 
 To deploy, run the following commands:
 
@@ -40,6 +47,63 @@ foundryup
 source .env
 forge script script/Deploy_jwtRegistry.s.sol:DeployScript --rpc-url $RPC_URL --broadcast --verify -vvvv --sender $ETH_FROM
 ```
+
+## How to Use in Another Project
+
+1. **Installation**: First, install the package using yarn. Run the following command in your project directory:
+
+   ```
+   yarn add @zk-jwt/contracts 
+   ```
+
+2. **Integration**: 
+
+   - **Foundry**: Add the following line to remappings.txt:
+
+   ```text
+   @zk-jwt/contracts=../../node_modules/@zk-jwt/contracts/src
+   ```
+
+   - **Solidity**: Import the contracts in your Solidity files using the following syntax:
+
+     ```solidity
+     // Import necessary contracts for JWT verification
+     import {JwtVerifier} from "@zk-jwt/zk-jwt-contracts/utils/JwtVerifier.sol";
+     import {JwtGroth16Verifier} from "@zk-jwt/zk-jwt-contracts/utils/JwtGroth16Verifier.sol";
+     import {JwtRegistry} from "@zk-jwt/zk-jwt-contracts/utils/JwtRegistry.sol";
+     ```
+
+     You can use the imported contracts as follows:
+
+     ```solidity
+     IVerifier jwtVerifier;
+     JwtRegistry jwtRegistry;
+
+     // Create jwt registry and set DKIM public key hash
+     jwtRegistry = new JwtRegistry(deployer);
+     jwtRegistry.setDKIMPublicKeyHash(
+         "12345|https://example.com|client-id-12345",
+         publicKeyHash
+     );
+
+     // Create JwtVerifier and initialize with proxy
+     {
+         JwtVerifier verifierImpl = new JwtVerifier();
+         console.log(
+             "JwtVerifier implementation deployed at: %s",
+             address(verifierImpl)
+         );
+         JwtGroth16Verifier groth16Verifier = new JwtGroth16Verifier();
+         ERC1967Proxy verifierProxy = new ERC1967Proxy(
+             address(verifierImpl),
+             abi.encodeCall(
+                 verifierImpl.initialize,
+                 (msg.sender, address(groth16Verifier))
+             )
+         );
+         jwtVerifier = IVerifier(address(verifierProxy));
+     }
+     ```
 
 ## Sample Deployed Addresses
 
