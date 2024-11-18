@@ -68,9 +68,9 @@ forge script script/Deploy_jwtRegistry.s.sol:DeployScript --rpc-url $RPC_URL --b
 
      ```solidity
      // Import necessary contracts for JWT verification
-     import {JwtVerifier} from "@zk-jwt/zk-jwt-contracts/utils/JwtVerifier.sol";
-     import {JwtGroth16Verifier} from "@zk-jwt/zk-jwt-contracts/utils/JwtGroth16Verifier.sol";
-     import {JwtRegistry} from "@zk-jwt/zk-jwt-contracts/utils/JwtRegistry.sol";
+     import {JwtVerifier} from "@zk-jwt/contracts/utils/JwtVerifier.sol";
+     import {JwtGroth16Verifier} from "@zk-jwt/contracts/utils/JwtGroth16Verifier.sol";
+     import {JwtRegistry} from "@zk-jwt/contracts/utils/JwtRegistry.sol";
      ```
 
      You can use the imported contracts as follows:
