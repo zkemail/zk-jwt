@@ -29,7 +29,7 @@ describe("JWT Verifier Circuit", () => {
 
     beforeAll(async () => {
         circuit = await wasm_tester(
-            path.join(__dirname, "./test-circuits/jwt-verifier-test.circom"),
+            path.join(__dirname, "./test-circuits/jwt-authenticator-test.circom"),
             {
                 recompile: true,
                 include: path.join(__dirname, "../../../node_modules"),
@@ -711,7 +711,7 @@ describe("Anonymous Email Domains", () => {
         circuit = await wasm_tester(
             path.join(
                 __dirname,
-                "./test-circuits/jwt-verifier-with-anon-email-domains-test.circom"
+                "./test-circuits/jwt-authenticator-with-anon-email-domains-test.circom"
             ),
             {
                 recompile: true,
