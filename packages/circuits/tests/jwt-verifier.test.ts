@@ -83,7 +83,7 @@ describe("JWT Authenticator Circuit", () => {
         circuit = await wasm_tester(
             path.join(
                 __dirname,
-                "./test-circuits/jwt-authenticator-test.circom"
+                "./test-circuits/jwt-auth-test.circom"
             ),
             {
                 recompile: true,
@@ -596,7 +596,7 @@ describe("JWT Authenticator Circuit", () => {
     });
 
     // @Note - Needs an actual Google Sign-In JWT to run
-    it.skip("Verify a real Google Sign-In JWT", async () => {
+    it("Verify a real Google Sign-In JWT", async () => {
         const googleSignInData = JSON.parse(
             fs.readFileSync(
                 path.join(__dirname, "test-jwts/google-sign-in.json"),
@@ -766,7 +766,7 @@ describe("Anonymous Email Domains", () => {
         circuit = await wasm_tester(
             path.join(
                 __dirname,
-                "./test-circuits/jwt-authenticator-with-anon-email-domains-test.circom"
+                "./test-circuits/jwt-auth-with-anon-email-domains-test.circom"
             ),
             {
                 recompile: true,
