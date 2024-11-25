@@ -3,13 +3,13 @@ pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import {JwtRegistry} from "../../src/utils/JwtRegistry.sol";
 import {JwtProof, JwtVerifier} from "../../src/utils/JwtVerifier.sol";
 import {JwtGroth16Verifier} from "../../src/utils/JwtGroth16Verifier.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import {HexUtils} from "../../src/utils/HexUtils.sol";
 
+contract JwtVerifierTest_verifyjwtProof is Test {
 contract JwtVerifierTest_verifyjwtProof is Test {
     using Strings for *;
     using HexUtils for bytes32;
@@ -50,6 +50,7 @@ contract JwtVerifierTest_verifyjwtProof is Test {
         vm.stopPrank();
     }
 
+    function test_verifyjwtProof() public {
     function test_verifyjwtProof() public {
         bytes32 accountCode = 0x1162ebff40918afe5305e68396f0283eb675901d0387f97d21928d423aaa0b54;
 
@@ -94,15 +95,15 @@ contract JwtVerifierTest_verifyjwtProof is Test {
         bool isCodeExist = vm.parseUint(pubSignals[30]) == 1;
 
         JwtProof memory jwtProof;
+        JwtProof memory jwtProof;
 
         jwtProof.domainName = string(
-            abi.encodePacked(iss, "|", kidString)
+            abi.encodePacked(kidString, "|", iss, "|", azp)
         );
-        jwtProof.azp = azp;
         jwtProof.publicKeyHash = publicKeyHash;
         jwtProof.timestamp = timeStamp;
         jwtProof.maskedCommand = maskedCommand;
-        jwtProof.jwtNullifier = jwtNullifier;
+        jwtProof.emailNullifier = jwtNullifier;
         jwtProof.accountSalt = accountSalt;
         jwtProof.isCodeExist = isCodeExist;
         jwtProof.proof = proofToBytes(
@@ -112,6 +113,7 @@ contract JwtVerifierTest_verifyjwtProof is Test {
             )
         );
 
+        require(verifier.verifyJwtProof(jwtProof) == true, "verify failed");
         require(verifier.verifyJwtProof(jwtProof) == true, "verify failed");
     }
 

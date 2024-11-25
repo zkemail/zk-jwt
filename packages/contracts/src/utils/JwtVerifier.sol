@@ -6,6 +6,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {strings} from "solidity-stringutils/src/strings.sol";
 import {IVerifier, JwtProof} from "../interfaces/IVerifier.sol";
+import {IVerifier, JwtProof} from "../interfaces/IVerifier.sol";
 import {HexUtils} from "./HexUtils.sol";
 import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 import {JwtRegistry} from "./JwtRegistry.sol";
@@ -39,7 +40,7 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         jwtRegistry = JwtRegistry(_jwtRegistry);
     }
 
-    function verifyJwtProof(JwtProof memory proof) public returns (bool) {
+    function verifyJwtProof(JwtProof memory proof) public view returns (bool) {
         (
             uint256[2] memory pA,
             uint256[2][2] memory pB,
