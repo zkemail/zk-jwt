@@ -10,6 +10,11 @@ include "@zk-email/ether-email-auth-circom/src/utils/account_salt.circom";
 
 include "../utils/merkle-tree.circom";
 
+/// @title MaskEmailInCommand
+/// @notice Masks (reveals) email addresses from commands using regex matching
+/// @param maxCommandLength Maximum length of command string
+/// @input command[maxCommandLength] Command string to process
+/// @output removedEmailAddr[maxCommandLength] Mask of email address locations
 template MaskEmailInCommand(maxCommandLength) {
     signal input command[maxCommandLength];
     
@@ -25,6 +30,12 @@ template MaskEmailInCommand(maxCommandLength) {
     }
 }
 
+/// @title MaskCodeInCommand
+/// @notice Masks (reveals) invitation codes from commands using regex matching
+/// @param maxCommandLength Maximum length of command string
+/// @input command[maxCommandLength] Command string to process
+/// @output removedCode[maxCommandLength] Mask of code locations
+/// @output isCodeExist Boolean indicating if code was found
 template MaskCodeInCommand(maxCommandLength) {
     signal input command[maxCommandLength];
 
@@ -42,6 +53,13 @@ template MaskCodeInCommand(maxCommandLength) {
     }
 }
 
+/// @title ComputeJWTNullifier
+/// @notice Computes unique nullifier from JWT signature
+/// @dev Uses HashSign for initial processing and Poseidon for final hash
+/// @param n RSA chunk size in bits
+/// @param k Number of RSA chunks
+/// @input signature[k] RSA signature in k chunks
+/// @output jwtNullifier Unique nullifier for this JWT
 template ComputeJWTNullifier(n, k) {
     signal input signature[k];
     signal output jwtNullifier;
@@ -57,6 +75,12 @@ template ComputeJWTNullifier(n, k) {
     jwtNullifier <== Poseidon(1)([signHash]);
 }
 
+/// @title CalculateAccountSalt
+/// @notice Generates account salt from email and code
+/// @param maxEmailLength Maximum length of email string
+/// @input email[maxEmailLength] Email address bytes
+/// @input accountCode Account identification code
+/// @output accountSalt Unique salt for account derivation
 template CalculateAccountSalt(maxEmailLength) {
     signal input email[maxEmailLength];
     signal input accountCode;
@@ -68,6 +92,16 @@ template CalculateAccountSalt(maxEmailLength) {
     accountSalt <== AccountSalt(compute_ints_size(maxEmailLength))(emailInts, accountCode);
 }
 
+/// @title VerifyAnonymousDomain
+/// @notice Verifies email domain against a Merkle tree of allowed domains
+/// @dev Uses PoseidonModular for hashing and MerkleTreeVerifier for proof verification
+/// @param maxDomainFieldLength Maximum length of domain name in field elements
+/// @param anonymousDomainsTreeHeight Height of the Merkle tree
+/// @input domainName[maxDomainFieldLength] Domain name to verify
+/// @input anonymousDomainsTreeRoot Root of allowed domains Merkle tree
+/// @input emailDomainPath[anonymousDomainsTreeHeight] Merkle proof path
+/// @input emailDomainPathHelper[anonymousDomainsTreeHeight] Merkle proof helper values
+/// @output isDomainIncluded Boolean indicating if domain is allowed
 template VerifyAnonymousDomain(maxDomainFieldLength, anonymousDomainsTreeHeight) {
     signal input domainName[maxDomainFieldLength];
     signal input anonymousDomainsTreeRoot;

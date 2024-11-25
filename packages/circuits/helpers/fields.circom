@@ -6,6 +6,12 @@ include "@zk-email/ether-email-auth-circom/src/utils/digit2int.circom";
 
 include "../utils/constants.circom";
 
+/// @title ExtractKid
+/// @notice Extracts and validates the 'kid' (Key ID) from JWT header
+/// @param maxHeaderLength Maximum length of JWT header
+/// @input header[maxHeaderLength] JWT header bytes
+/// @input jwtKidStartIndex Starting index of 'kid' field
+/// @output kid Key ID converted to field element
 template ExtractKid(maxHeaderLength) {
     signal input header[maxHeaderLength];
     signal input jwtKidStartIndex;
@@ -27,6 +33,13 @@ template ExtractKid(maxHeaderLength) {
     kid <== Hex2FieldModular(kidLength)(kidBytes);
 }
 
+/// @title ExtractIssuer
+/// @notice Extracts and validates the 'iss' (Issuer) from JWT payload
+/// @param maxPayloadLength Maximum length of JWT payload
+/// @input payload[maxPayloadLength] JWT payload bytes
+/// @input issKeyStartIndex Starting index of 'iss' field
+/// @input issLength Length of issuer value
+/// @output iss[compute_ints_size(ISSUER_MAX_BYTES())] Issuer as array of field elements
 template ExtractIssuer(maxPayloadLength) {
     signal input payload[maxPayloadLength];
     signal input issKeyStartIndex;
@@ -48,6 +61,12 @@ template ExtractIssuer(maxPayloadLength) {
     iss <== Bytes2Ints(ISSUER_MAX_BYTES())(issMatch);
 }
 
+/// @title ExtractTimestamp
+/// @notice Extracts and validates the 'iat' (Issued At) timestamp
+/// @param maxPayloadLength Maximum length of JWT payload
+/// @input payload[maxPayloadLength] JWT payload bytes
+/// @input iatKeyStartIndex Starting index of 'iat' field
+/// @output timestamp Unix timestamp as field element
 template ExtractTimestamp(maxPayloadLength) {
     signal input payload[maxPayloadLength];
     signal input iatKeyStartIndex;
@@ -69,6 +88,14 @@ template ExtractTimestamp(maxPayloadLength) {
     timestamp <== Digit2Int(iatLength)(iatMatch);
 }
 
+/// @title ExtractAzp
+/// @notice Extracts and validates the 'azp' (Authorized Party)
+/// @param maxPayloadLength Maximum length of JWT payload
+/// @param maxAzpLength Maximum length of authorized party string
+/// @input payload[maxPayloadLength] JWT payload bytes
+/// @input azpKeyStartIndex Starting index of 'azp' field
+/// @input azpLength Length of azp value
+/// @output azp[compute_ints_size(maxAzpLength)] Authorized party as array of field elements
 template ExtractAzp(maxPayloadLength, maxAzpLength) {
     signal input payload[maxPayloadLength];
     signal input azpKeyStartIndex;
@@ -90,6 +117,14 @@ template ExtractAzp(maxPayloadLength, maxAzpLength) {
     azp <== Bytes2Ints(maxAzpLength)(azpMatch);
 }
 
+/// @title ExtractEmail
+/// @notice Extracts and validates the email field
+/// @param maxPayloadLength Maximum length of JWT payload
+/// @param maxEmailLength Maximum length of email string
+/// @input payload[maxPayloadLength] JWT payload bytes
+/// @input emailKeyStartIndex Starting index of email field
+/// @input emailLength Length of email value
+/// @output email[maxEmailLength] Email address bytes
 template ExtractEmail(maxPayloadLength, maxEmailLength) {
     signal input payload[maxPayloadLength];
     signal input emailKeyStartIndex;
@@ -110,6 +145,14 @@ template ExtractEmail(maxPayloadLength, maxEmailLength) {
     email <== RevealSubstring(maxPayloadLength, maxEmailLength, 0)(payload, emailStartIndex, emailLength);
 }
 
+/// @title ExtractDomainFromEmail
+/// @notice Extracts domain part from email address
+/// @param maxEmailLength Maximum length of email string
+/// @param maxDomainLength Maximum length of domain string
+/// @input email[maxEmailLength] Email address bytes
+/// @input emailDomainIndex Starting index of domain in email
+/// @input emailDomainLength Length of domain
+/// @output domainName[compute_ints_size(maxDomainLength)] Domain as array of field elements
 template ExtractDomainFromEmail(maxEmailLength, maxDomainLength) {
     signal input email[maxEmailLength];
     signal input emailDomainIndex;
@@ -128,6 +171,14 @@ template ExtractDomainFromEmail(maxEmailLength, maxDomainLength) {
     domainName <== Bytes2Ints(maxDomainLength)(domainNameBytes);
 }
 
+/// @title ExtractCommand
+/// @notice Extracts and validates command from nonce field
+/// @param maxPayloadLength Maximum length of JWT payload
+/// @param maxCommandLength Maximum length of command string
+/// @input payload[maxPayloadLength] JWT payload bytes
+/// @input nonceKeyStartIndex Starting index of nonce field
+/// @input commandLength Length of command value
+/// @output command[maxCommandLength] Command bytes
 template ExtractCommand(maxPayloadLength, maxCommandLength) {
     signal input payload[maxPayloadLength];
     signal input nonceKeyStartIndex;
