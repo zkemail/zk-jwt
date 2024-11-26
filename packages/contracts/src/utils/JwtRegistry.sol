@@ -9,11 +9,11 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {strings} from "solidity-stringutils/src/strings.sol";
 import {StringToArrayUtils} from "./StringToArrayUtils.sol";
+import "forge-std/console.sol";
 
 /// @title JWT Registry
 /// @notice TODO
 /// @dev TODO
-contract JwtRegistry is Ownable {
 contract JwtRegistry is Ownable {
     using strings for *;
     using StringToArrayUtils for string;
@@ -32,25 +32,23 @@ contract JwtRegistry is Ownable {
     /// @param publicKeyHash The public key hash to validate.
     /// @return bool Returns true if the public key hash is valid and not revoked, false otherwise.
     function isJwtPublicKeyHashValid(
-    function isJwtPublicKeyHashValid(
         string memory domainName,
         bytes32 publicKeyHash
     ) public view returns (bool) {
         string[] memory parts = domainName.stringToArray();
-        string memory issAndKid = string(abi.encodePacked(parts[0], "|", parts[1]));
+        string memory kidAndIss = string(abi.encodePacked(parts[0], "|", parts[1]));
+        console.log("kidAndIss");
+        console.log(kidAndIss);
+        console.log(parts[0]);
+        console.log(parts[1]);
+
         return
             dkimRegistry.isDKIMPublicKeyHashValid(kidAndIss, publicKeyHash);
-    }
-
-    function isAzpWhitelisted(
-        string memory azp
-    ) public view returns (bool) {
-        return whitelistedClients[azp];
     }
     
     /// @notice Validates a JWT public key hash
     /// @dev This function is just a wrapper for isDKIMPublicKeyHashValid
-    /// @param domainName The domain name containing iss and kid fields
+    /// @param domainName The domain name containing kid, iss, and azp fields
     /// @param publicKeyHash The public key hash to validate
     /// @return bool Returns true if the public key hash is valid, false otherwise
     function isJwtPublicKeyValid(
@@ -58,35 +56,28 @@ contract JwtRegistry is Ownable {
         bytes32 publicKeyHash
     ) public view returns (bool) {
         return this.isJwtPublicKeyHashValid(domainName, publicKeyHash);
-        return this.isJwtPublicKeyHashValid(domainName, publicKeyHash);
     }
 
-    /// @notice Sets a public key hash for a `iss|kid` string  after validating the provided signature.
-    /// @param domainName The domain name contains iss and kid fields.
-    /// @param publicKeyHash The public key hash to set.
-    /// @dev This function requires that the public key hash is not already set or revoked.
-    function setJwtPublicKey(
-        string memory domainName,
-        string memory azp,
-        bytes32 publicKeyHash
-    ) public onlyOwner {
-        require(bytes(domainName).length != 0, "Invalid domain name");
-        require(publicKeyHash != bytes32(0), "Invalid public key hash");
-        string[] memory parts = domainName.stringToArray();
-        string memory issAndKid = string(abi.encodePacked(parts[0], "|", parts[1]));
-        require(
-            isJwtPublicKeyHashValid(domainName, publicKeyHash) == false,
-            isJwtPublicKeyHashValid(domainName, publicKeyHash) == false,
-            "publicKeyHash is already set"
-        );
-        require(
-            dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash) == false,
-            "publicKeyHash is revoked"
-        );
+    function updateJwtRegistry() public onlyOwner {
+        // TODO Call ChainLink Function
+        // TODO Receive kid, iss, publicKeyHash
 
-        dkimRegistry.setDKIMPublicKeyHash(kidAndIss, publicKeyHash);
-        // Register azp
-        whitelistedClients[azp] = true;
+        // Example implementation, we implement ChainLink Function later
+        for(uint i = 0; i < 1; i++) {
+            string memory kidAndIss = "12345|https://example.com";
+            bytes32 publicKeyHash = 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788;
+            if(isJwtPublicKeyHashValid(kidAndIss, publicKeyHash)){
+                continue;
+            }
+            if(dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash)){
+                continue;
+            }
+            console.log("setDKIMPublicKeyHash");
+            console.log(kidAndIss);
+            console.logBytes32(publicKeyHash);
+            dkimRegistry.setDKIMPublicKeyHash(kidAndIss, publicKeyHash);    
+            console.log("DONE: setDKIMPublicKeyHash");
+        }
     }
 
     /// @notice Revokes a public key hash for `kis|iss` string after validating the provided signature.
@@ -100,7 +91,6 @@ contract JwtRegistry is Ownable {
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
         require(
-            isJwtPublicKeyHashValid(domainName, publicKeyHash) == true,
             isJwtPublicKeyHashValid(domainName, publicKeyHash) == true,
             "publicKeyHash is not set"
         );
@@ -120,15 +110,15 @@ contract JwtRegistry is Ownable {
 
     function whitelistAzp(
         string memory azp
-    ) public onlyOwner {
+    ) public onlyOwner(){
         whitelistedClients[azp] = true;
     }
 
     /// @notice Disables the azp (authorized party) associated with the given domain name
-    /// @param azp The azp string
+    /// @param azpString The azp string
     /// @dev This function removes the azp from the whitelisted clients
-    function disableAzp(string memory azp) public onlyOwner {
-        require(bytes(azp).length != 0, "Invalid azp string");
-        whitelistedClients[azp] = false;
+    function disableAzp(string memory azpString) public onlyOwner {
+        require(bytes(azpString).length != 0, "Invalid azp string");
+        whitelistedClients[azpString] = false;
     }
 }

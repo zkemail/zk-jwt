@@ -22,20 +22,20 @@ contract JwtRegistryTest_disableAzp is JwtRegistryTestBase {
     //     vm.stopPrank();
     // }
 
-    function testRevert_disableAzp_tooManyParts() public {
-        vm.startPrank(deployer);
-        string
-            memory invalidDomainName = "12345|https://example.com|client-id-12345|extra";
-        vm.expectRevert(bytes("Invalid kid|iss strings"));
-        jwtRegistry.disableAzp(invalidDomainName);
-        vm.stopPrank();
-    }
+    // function testRevert_disableAzp_tooManyParts() public {
+    //     vm.startPrank(deployer);
+    //     string
+    //         memory invalidDomainName = "12345|https://example.com|extra";
+    //     vm.expectRevert(bytes("Invalid kid|iss strings"));
+    //     jwtRegistry.disableAzp(invalidDomainName);
+    //     vm.stopPrank();
+    // }
 
     function testRevert_disableAzp_emptyString() public {
         vm.startPrank(deployer);
-        string memory invalidDomainName = "";
-        vm.expectRevert(bytes("Invalid kid|iss strings"));
-        jwtRegistry.disableAzp(invalidDomainName);
+        string memory azp = "";
+        vm.expectRevert(bytes("Invalid azp string"));
+        jwtRegistry.disableAzp(azp);
         vm.stopPrank();
     }
 

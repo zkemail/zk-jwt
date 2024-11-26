@@ -20,10 +20,10 @@ contract JwtRegistryTestBase is Test {
 
     function setUp() public virtual {
         // Create jwt registry
-        vm.startPrank(deployer);
         jwtRegistry = new JwtRegistry(deployer);
         vm.startPrank(deployer);
-        jwtRegistry.setJwtPublicKey(kidIssString, azpString, publicKeyHash);
+        jwtRegistry.updateJwtRegistry();
+        jwtRegistry.whitelistAzp(azpString);
         vm.stopPrank();
 
         bool isRegistered = jwtRegistry.isJwtPublicKeyHashValid(
