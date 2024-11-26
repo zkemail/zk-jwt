@@ -6,6 +6,7 @@ import "forge-std/console.sol";
 import {JwtRegistryTestBase} from "./JwtRegistryBase.t.sol";
 
 contract JwtRegistryTest_isJwtPublicKeyHashValid is JwtRegistryTestBase {
+contract JwtRegistryTest_isJwtPublicKeyHashValid is JwtRegistryTestBase {
     constructor() {}
 
     function setUp() public override {
@@ -13,7 +14,7 @@ contract JwtRegistryTest_isJwtPublicKeyHashValid is JwtRegistryTestBase {
     }
 
     function testFail_isJwtPublicKeyHashValid_invalidKid() public {
-        string memory domainName = "https://example.com|54321";
+        string memory domainName = "54321|https://example.com";
         bool res = jwtRegistry.isJwtPublicKeyHashValid(
             domainName,
             publicKeyHash
@@ -22,7 +23,16 @@ contract JwtRegistryTest_isJwtPublicKeyHashValid is JwtRegistryTestBase {
     }
 
     function testFail_isDKIMPublicKeyHashValid_invalidIss() public {
-        string memory domainName = "https://example.xyz|12345";
+        string memory domainName = "12345|https://example.xyz";
+        bool res = jwtRegistry.isJwtPublicKeyHashValid(
+            domainName,
+            publicKeyHash
+        );
+        assertEq(res, true);
+    }
+
+    function testFail_isDKIMPublicKeyHashValid_invalidAzp() public {
+        string memory domainName = "12345|https://example.com";
         bool res = jwtRegistry.isJwtPublicKeyHashValid(
             domainName,
             publicKeyHash
@@ -31,7 +41,7 @@ contract JwtRegistryTest_isJwtPublicKeyHashValid is JwtRegistryTestBase {
     }
 
     function test_isDKIMPublicKeyHashValid() public {
-        string memory domainName = "https://example.com|12345";
+        string memory domainName = "12345|https://example.com";
         bool res = jwtRegistry.isJwtPublicKeyHashValid(
             domainName,
             publicKeyHash

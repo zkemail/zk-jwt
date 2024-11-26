@@ -14,6 +14,7 @@ import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 /// @notice TODO
 /// @dev TODO
 contract JwtRegistry is Ownable {
+contract JwtRegistry is Ownable {
     using strings for *;
     using StringToArrayUtils for string;
 
@@ -27,9 +28,10 @@ contract JwtRegistry is Ownable {
     }
 
     /// @notice Checks if a public key hash is valid and not revoked for a given kis and iss.
-    /// @param domainName The domain name contains iss and kid fields.
+    /// @param domainName The domain name contains kid and iss fields.
     /// @param publicKeyHash The public key hash to validate.
     /// @return bool Returns true if the public key hash is valid and not revoked, false otherwise.
+    function isJwtPublicKeyHashValid(
     function isJwtPublicKeyHashValid(
         string memory domainName,
         bytes32 publicKeyHash
@@ -37,7 +39,13 @@ contract JwtRegistry is Ownable {
         string[] memory parts = domainName.stringToArray();
         string memory issAndKid = string(abi.encodePacked(parts[0], "|", parts[1]));
         return
-            dkimRegistry.isDKIMPublicKeyHashValid(issAndKid, publicKeyHash);
+            dkimRegistry.isDKIMPublicKeyHashValid(kidAndIss, publicKeyHash);
+    }
+
+    function isAzpWhitelisted(
+        string memory azp
+    ) public view returns (bool) {
+        return whitelistedClients[azp];
     }
     
     /// @notice Validates a JWT public key hash
@@ -50,6 +58,7 @@ contract JwtRegistry is Ownable {
         bytes32 publicKeyHash
     ) public view returns (bool) {
         return this.isJwtPublicKeyHashValid(domainName, publicKeyHash);
+        return this.isJwtPublicKeyHashValid(domainName, publicKeyHash);
     }
 
     /// @notice Sets a public key hash for a `iss|kid` string  after validating the provided signature.
@@ -58,6 +67,7 @@ contract JwtRegistry is Ownable {
     /// @dev This function requires that the public key hash is not already set or revoked.
     function setJwtPublicKey(
         string memory domainName,
+        string memory azp,
         bytes32 publicKeyHash
     ) public onlyOwner {
         require(bytes(domainName).length != 0, "Invalid domain name");
@@ -66,6 +76,7 @@ contract JwtRegistry is Ownable {
         string memory issAndKid = string(abi.encodePacked(parts[0], "|", parts[1]));
         require(
             isJwtPublicKeyHashValid(domainName, publicKeyHash) == false,
+            isJwtPublicKeyHashValid(domainName, publicKeyHash) == false,
             "publicKeyHash is already set"
         );
         require(
@@ -73,25 +84,9 @@ contract JwtRegistry is Ownable {
             "publicKeyHash is revoked"
         );
 
-        dkimRegistry.setDKIMPublicKeyHash(issAndKid, publicKeyHash);
-    }
-
-    function updateJwtRegistry() public onlyOwner {
-        // TODO Call ChainLink Function
-        // TODO Receive iss, kid, publicKeyHash
-
-        // Example implementation, we implement ChainLink Function later
-        for(uint i = 0; i < 1; i++) {
-            string memory issAndKid = "https://example.com|12345";
-            bytes32 publicKeyHash = 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788;
-            if(isJwtPublicKeyHashValid(issAndKid, publicKeyHash)){
-                continue;
-            }
-            if(dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash)){
-                continue;
-            }
-            dkimRegistry.setDKIMPublicKeyHash(issAndKid, publicKeyHash);    
-        }
+        dkimRegistry.setDKIMPublicKeyHash(kidAndIss, publicKeyHash);
+        // Register azp
+        whitelistedClients[azp] = true;
     }
 
     /// @notice Revokes a public key hash for `kis|iss` string after validating the provided signature.
@@ -105,6 +100,7 @@ contract JwtRegistry is Ownable {
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
         require(
+            isJwtPublicKeyHashValid(domainName, publicKeyHash) == true,
             isJwtPublicKeyHashValid(domainName, publicKeyHash) == true,
             "publicKeyHash is not set"
         );

@@ -9,7 +9,7 @@ import {JwtRegistryTestBase} from "./JwtRegistryBase.t.sol";
 contract JwtRegistryTestBase is Test {
     bytes32 publicKeyHash =
         0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788;
-    string issKidString = "https://example.com|12345";
+    string kidIssString = "12345|https://example.com";
     string azpString = "client-id-12345";
     
     JwtRegistry jwtRegistry;
@@ -22,20 +22,17 @@ contract JwtRegistryTestBase is Test {
         // Create jwt registry
         vm.startPrank(deployer);
         jwtRegistry = new JwtRegistry(deployer);
-
-        // TODO Call ChainLink Function, currently it's not implemented yet
-        // jwtRegistry.updateJwtRegistry();
-        jwtRegistry.setJwtPublicKey(issKidString, publicKeyHash);
-        jwtRegistry.whitelistAzp(azpString);
+        vm.startPrank(deployer);
+        jwtRegistry.setJwtPublicKey(kidIssString, azpString, publicKeyHash);
         vm.stopPrank();
 
         bool isRegistered = jwtRegistry.isJwtPublicKeyHashValid(
-            issKidString,
+            kidIssString,
             publicKeyHash
         );
         assertTrue(isRegistered, "JWT Public Key Hash should be registered");
         isRegistered = jwtRegistry.isJwtPublicKeyValid(
-            issKidString,
+            kidIssString,
             publicKeyHash
         );
         assertTrue(isRegistered, "JWT Public Key Hash should be registered");
