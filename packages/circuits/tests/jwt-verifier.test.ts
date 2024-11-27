@@ -81,10 +81,7 @@ describe("JWT Authenticator Circuit", () => {
 
     beforeAll(async () => {
         circuit = await wasm_tester(
-            path.join(
-                __dirname,
-                "./test-circuits/jwt-auth-test.circom"
-            ),
+            path.join(__dirname, "./test-circuits/jwt-auth-test.circom"),
             {
                 recompile: true,
                 include: path.join(__dirname, "../../../node_modules"),
@@ -596,7 +593,7 @@ describe("JWT Authenticator Circuit", () => {
     });
 
     // @Note - Needs an actual Google Sign-In JWT to run
-    it("Verify a real Google Sign-In JWT", async () => {
+    it.skip("Verify a real Google Sign-In JWT", async () => {
         const googleSignInData = JSON.parse(
             fs.readFileSync(
                 path.join(__dirname, "test-jwts/google-sign-in.json"),
