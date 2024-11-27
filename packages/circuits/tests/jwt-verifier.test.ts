@@ -596,7 +596,7 @@ describe("JWT Authenticator Circuit", () => {
     });
 
     // @Note - Needs an actual Google Sign-In JWT to run
-    it.skip("Verify a real Google Sign-In JWT", async () => {
+    it("Verify a real Google Sign-In JWT", async () => {
         const googleSignInData = JSON.parse(
             fs.readFileSync(
                 path.join(__dirname, "test-jwts/google-sign-in.json"),
