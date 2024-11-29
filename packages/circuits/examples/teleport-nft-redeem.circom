@@ -28,6 +28,7 @@ template TeleportNFTRedeem(
     signal input issLength; // Length of the "iss" in the JWT payload
     signal input azpKeyStartIndex; // Index of the "azp" (Authorized party) key in the JWT payload
     signal input azpLength; // Length of the "azp" (Authorized party) in the JWT payload
+    signal input subKeyStartIndex; // Index of the "sub" key in the JWT payload
     signal input emailKeyStartIndex; // Index of the "email" key in the JWT payload
     signal input emailLength; // Length of the "email" in the JWT payload
     signal input nonceKeyStartIndex; // Index of the "nonce" key in the JWT payload
@@ -56,6 +57,7 @@ template TeleportNFTRedeem(
     signal output iss[issFieldLength];
     signal output kid;
     signal output azp[azpFieldLength];
+    signal output sub;
     signal output domainName[maxDomainFieldLength];
     signal output command[commandFieldLength];
 
@@ -97,6 +99,13 @@ template TeleportNFTRedeem(
     extractAzp.azpLength <== azpLength;
     azp <== extractAzp.azp;
 
+    // Verify if the key `sub` in the payload is unique
+    // Reveal the sub in the payload
+    component extractSub = ExtractSub(maxPayloadLength);
+    extractSub.payload <== payload;
+    extractSub.subKeyStartIndex <== subKeyStartIndex;
+    sub <== extractSub.sub;
+
     // Verify if the key `email` in the payload is unique
     // Reveal the email in the payload
     component extractEmail = ExtractEmail(maxPayloadLength, maxEmailLength);
@@ -120,8 +129,6 @@ template TeleportNFTRedeem(
     extractCommand.commandLength <== commandLength;
     signal commandBytes[maxCommandLength] <== extractCommand.command;
     command <== Bytes2Ints(maxCommandLength)(commandBytes);
-
-    // TODO: Add a nullifier
 }
 
 component main = TeleportNFTRedeem(121, 17, 1024, 128, 896, 72, 605);

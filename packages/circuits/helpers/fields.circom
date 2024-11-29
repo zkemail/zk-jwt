@@ -205,12 +205,12 @@ template ExtractCommand(maxPayloadLength, maxCommandLength) {
 /// @param maxPayloadLength Maximum length of JWT payload
 /// @input payload[maxPayloadLength] JWT payload bytes
 /// @input subKeyStartIndex Starting index of 'sub' field
-/// @output sub[compute_ints_size(SUB_VALUE_LENGTH())] Subject as array of field elements
+/// @output sub Sub as field element
 template ExtractSub(maxPayloadLength) {
     signal input payload[maxPayloadLength];
     signal input subKeyStartIndex;
 
-    signal output sub[compute_ints_size(SUB_VALUE_LENGTH())];
+    signal output sub;
 
     // Verify if the key `sub` in the payload is unique
     var subKeyLength = SUB_KEY_LENGTH();
@@ -223,6 +223,6 @@ template ExtractSub(maxPayloadLength) {
     // Reveal the sub
     signal subStartIndex <== subKeyStartIndex + SUB_KEY_LENGTH() + 1;
     signal subMatch[SUB_VALUE_LENGTH()] <== RevealSubstring(maxPayloadLength, SUB_VALUE_LENGTH(), 0)(payload, subStartIndex, SUB_VALUE_LENGTH());
-    sub <== Bytes2Ints(SUB_VALUE_LENGTH())(subMatch);
+    sub <== Digit2Int(SUB_VALUE_LENGTH())(subMatch);
 }
 
