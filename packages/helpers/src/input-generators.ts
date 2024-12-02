@@ -35,6 +35,8 @@ export interface JWTInputGenerationArgs {
     emailDomainPath?: bigint[];
     /** Helper values for the Merkle proof */
     emailDomainPathHelper?: number[];
+    /** Expose the sub value in the JWT payload which is the unique Google ID */
+    exposeGoogleId?: boolean;
 }
 
 /** Base JWT verifier inputs interface */
@@ -171,18 +173,34 @@ function validateAnonymousDomainParams(params: JWTInputGenerationArgs): void {
 /**
  * Finds all required indices in JWT header and payload
  */
-function findJWTIndices(header: string, payload: string) {
+function findJWTIndices(
+    params: JWTInputGenerationArgs,
+    header: string,
+    payload: string
+) {
     const headerBuffer = Buffer.from(header);
     const payloadBuffer = Buffer.from(payload);
 
-    return {
-        jwtKidStartIndex: headerBuffer.indexOf('"kid":').toString(),
-        issKeyStartIndex: payloadBuffer.indexOf('"iss":').toString(),
-        iatKeyStartIndex: payloadBuffer.indexOf('"iat":').toString(),
-        azpKeyStartIndex: payloadBuffer.indexOf('"azp":').toString(),
-        emailKeyStartIndex: payloadBuffer.indexOf('"email":').toString(),
-        nonceKeyStartIndex: payloadBuffer.indexOf('"nonce":').toString(),
-    };
+    if (params.exposeGoogleId) {
+        return {
+            jwtKidStartIndex: headerBuffer.indexOf('"kid":').toString(),
+            issKeyStartIndex: payloadBuffer.indexOf('"iss":').toString(),
+            iatKeyStartIndex: payloadBuffer.indexOf('"iat":').toString(),
+            azpKeyStartIndex: payloadBuffer.indexOf('"azp":').toString(),
+            emailKeyStartIndex: payloadBuffer.indexOf('"email":').toString(),
+            nonceKeyStartIndex: payloadBuffer.indexOf('"nonce":').toString(),
+            subKeyStartIndex: payloadBuffer.indexOf('"sub":').toString(),
+        };
+    } else {
+        return {
+            jwtKidStartIndex: headerBuffer.indexOf('"kid":').toString(),
+            issKeyStartIndex: payloadBuffer.indexOf('"iss":').toString(),
+            iatKeyStartIndex: payloadBuffer.indexOf('"iat":').toString(),
+            azpKeyStartIndex: payloadBuffer.indexOf('"azp":').toString(),
+            emailKeyStartIndex: payloadBuffer.indexOf('"email":').toString(),
+            nonceKeyStartIndex: payloadBuffer.indexOf('"nonce":').toString(),
+        };
+    }
 }
 
 /**
@@ -262,7 +280,7 @@ export async function generateJWTAuthenticatorInputs(
             payloadString
         );
 
-        const indices = findJWTIndices(header, payload);
+        const indices = findJWTIndices(params, header, payload);
         const lengths = calculateLengths(parsedPayload);
         const { domain, index } = getDomainFromEmail(parsedPayload.email);
         const codeIndex = findCodeIndex(parsedPayload.nonce, accountCode);
