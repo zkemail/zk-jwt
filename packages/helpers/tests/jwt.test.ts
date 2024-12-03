@@ -1,5 +1,5 @@
 import { generateJWT, verifyJWT } from '../src/jwt';
-import { RSAPublicKey } from '../src/input-generators';
+import { RSAPublicKey } from '../src/types';
 
 describe('verifyJWT', () => {
   let rawJWT: string;
