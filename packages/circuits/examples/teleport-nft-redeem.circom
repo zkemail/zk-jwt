@@ -135,4 +135,4 @@ template TeleportNFTRedeem(
     command <== Bytes2Ints(maxCommandLength)(commandBytes);
 }
 
-component main = TeleportNFTRedeem(121, 17, 1024, 128, 896, 72, 605);
+component main = TeleportNFTRedeem(121, 17, 1024, 128, 896, 72, 280);
