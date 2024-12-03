@@ -25,7 +25,8 @@ program
   .requiredOption(
     "--circuit <string>",
     "Path to the circuit file"
-  );
+  )
+  .option("--name <string>", "Custom name for the circuit", "circuit");
 
 program.parse();
 const args = program.opts();
@@ -145,6 +146,7 @@ async function generateKeys(
 async function exec() {
   const buildDir = args.output;
   const circuitPath = args.circuit;
+  const circuitName = args.name;
 
   if (!fs.existsSync(circuitPath)) {
     throw new Error(`Circuit file does not exist at path: ${circuitPath}`);
@@ -155,9 +157,9 @@ async function exec() {
   await downloadPhase1(phase1Path);
   log("✓ Phase 1:", phase1Path);
 
-  const zKeyPath = path.join(buildDir, "circuit.zkey");
-  const vKeyPath = path.join(buildDir, "vkey.json");
-  const solidityVerifierPath = path.join(buildDir, "verifier.sol");
+  const zKeyPath = path.join(buildDir, `${circuitName}.zkey`);
+  const vKeyPath = path.join(buildDir, `${circuitName}_vkey.json`);
+  const solidityVerifierPath = path.join(buildDir, `${circuitName}_verifier.sol`);
 
   await generateKeys(phase1Path, circuitPath, zKeyPath, vKeyPath, solidityVerifierPath);
   log("✓ Keys for circuit generated");
