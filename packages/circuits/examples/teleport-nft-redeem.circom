@@ -1,5 +1,6 @@
 pragma circom 2.1.6;
 
+include "circomlib/circuits/poseidon.circom";
 include "@zk-email/circuits/helpers/reveal-substring.circom";
 include "@zk-email/ether-email-auth-circom/src/utils/bytes2ints.circom";
 
@@ -57,7 +58,7 @@ template TeleportNFTRedeem(
     signal output iss[issFieldLength];
     signal output kid;
     signal output azp[azpFieldLength];
-    signal output sub;
+    signal output emailNullifier;
     signal output domainName[maxDomainFieldLength];
     signal output command[commandFieldLength];
 
@@ -104,7 +105,10 @@ template TeleportNFTRedeem(
     component extractSub = ExtractSub(maxPayloadLength);
     extractSub.payload <== payload;
     extractSub.subKeyStartIndex <== subKeyStartIndex;
-    sub <== extractSub.sub;
+    signal sub <== extractSub.sub;
+
+    // Hash the sub to create the email nullifier
+    emailNullifier <== Poseidon(1)([sub]);
 
     // Verify if the key `email` in the payload is unique
     // Reveal the email in the payload
