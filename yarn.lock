@@ -2835,21 +2835,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/jwt-tx-builder-contracts@workspace:packages/contracts":
-  version: 0.0.0-use.local
-  resolution: "@zk-email/jwt-tx-builder-contracts@workspace:packages/contracts"
-  dependencies:
-    "@openzeppelin/contracts": ^5.0.0
-    "@openzeppelin/contracts-upgradeable": ^5.0.0
-    "@zk-email/contracts": ^6.1.5
-    ds-test: "git+https://github.com/dapphub/ds-test.git"
-    forge-std: "git+https://github.com/foundry-rs/forge-std.git"
-    solady: ^0.0.123
-    solhint: ^3.6.2
-    solidity-stringutils: "git+https://github.com/LayerZero-Labs/solidity-stringutils.git"
-  languageName: unknown
-  linkType: soft
-
 "@zk-email/jwt-tx-builder-helpers@workspace:packages/helpers":
   version: 0.0.0-use.local
   resolution: "@zk-email/jwt-tx-builder-helpers@workspace:packages/helpers"
@@ -2932,6 +2917,21 @@ __metadata:
   checksum: 81cf723b93c8ad052f52a62609068ae1452335304b53d978b8dc1d9ad7191bb8aa4727f5ab81fa8b21f62c80d23e21bed94fed9a4145c8b95122feadae76d8e0
   languageName: node
   linkType: hard
+
+"@zk-jwt/contracts@workspace:packages/contracts":
+  version: 0.0.0-use.local
+  resolution: "@zk-jwt/contracts@workspace:packages/contracts"
+  dependencies:
+    "@openzeppelin/contracts": ^5.0.0
+    "@openzeppelin/contracts-upgradeable": ^5.0.0
+    "@zk-email/contracts": ^6.1.5
+    ds-test: "git+https://github.com/dapphub/ds-test.git"
+    forge-std: "git+https://github.com/foundry-rs/forge-std.git"
+    solady: ^0.0.123
+    solhint: ^3.6.2
+    solidity-stringutils: "git+https://github.com/LayerZero-Labs/solidity-stringutils.git"
+  languageName: unknown
+  linkType: soft
 
 "@zk-jwt/zk-jwt@workspace:.":
   version: 0.0.0-use.local
