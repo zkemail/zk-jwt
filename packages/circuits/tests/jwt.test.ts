@@ -6,8 +6,8 @@ import {
     generateJWTAuthenticatorInputs,
     generateJWTAuthenticatorWithAnonDomainsInputs,
     generateJWTVerifierInputs,
-    RSAPublicKey,
 } from "../../helpers/src/input-generators";
+import { RSAPublicKey } from "../../helpers/src/types";
 import { generateJWT } from "../../helpers/src/jwt";
 import { splitJWT } from "../../helpers/src/utils";
 import {
