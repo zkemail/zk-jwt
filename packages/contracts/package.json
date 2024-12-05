@@ -1,5 +1,5 @@
 {
-  "name": "@zk-jwt/contracts",
+  "name": "@zk-email/jwt-tx-builder-contracts",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {

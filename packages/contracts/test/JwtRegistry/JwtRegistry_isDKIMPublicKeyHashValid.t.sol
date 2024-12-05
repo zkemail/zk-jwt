@@ -6,7 +6,6 @@ import "forge-std/console.sol";
 import {JwtRegistryTestBase} from "./JwtRegistryBase.t.sol";
 
 contract JwtRegistryTest_isJwtPublicKeyHashValid is JwtRegistryTestBase {
-contract JwtRegistryTest_isJwtPublicKeyHashValid is JwtRegistryTestBase {
     constructor() {}
 
     function setUp() public override {

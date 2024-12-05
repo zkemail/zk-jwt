@@ -11,7 +11,6 @@ struct JwtProof {
     bytes32 accountSalt; // Create2 salt of the account
     bool isCodeExist; // Check if the account code is exist
     bytes proof; // ZK proof of jwt
-    bytes proof; // ZK proof of jwt
 }
 
 interface IVerifier {
@@ -21,8 +20,6 @@ interface IVerifier {
      * @notice Verifies the provided jwt proof.
      * @param proof The jwt proof to be verified.
      * @return bool indicating whether the proof is valid.
-     */
-    function verifyJwtProof(JwtProof memory proof) external returns (bool);
      */
     function verifyJwtProof(JwtProof memory proof) external returns (bool);
 

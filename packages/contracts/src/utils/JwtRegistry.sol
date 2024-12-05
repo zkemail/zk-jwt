@@ -35,11 +35,12 @@ contract JwtRegistry is Ownable {
         bytes32 publicKeyHash
     ) public view returns (bool) {
         string[] memory parts = domainName.stringToArray();
-        string memory issAndKid = string(abi.encodePacked(parts[0], "|", parts[1]));
-        return
-            dkimRegistry.isDKIMPublicKeyHashValid(issAndKid, publicKeyHash);
+        string memory issAndKid = string(
+            abi.encodePacked(parts[0], "|", parts[1])
+        );
+        return dkimRegistry.isDKIMPublicKeyHashValid(issAndKid, publicKeyHash);
     }
-    
+
     /// @notice Validates a JWT public key hash
     /// @dev This function is just a wrapper for isDKIMPublicKeyHashValid
     /// @param domainName The domain name containing iss and kid fields
@@ -63,7 +64,9 @@ contract JwtRegistry is Ownable {
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
         string[] memory parts = domainName.stringToArray();
-        string memory issAndKid = string(abi.encodePacked(parts[0], "|", parts[1]));
+        string memory issAndKid = string(
+            abi.encodePacked(parts[0], "|", parts[1])
+        );
         require(
             isJwtPublicKeyHashValid(domainName, publicKeyHash) == false,
             "publicKeyHash is already set"
@@ -81,16 +84,16 @@ contract JwtRegistry is Ownable {
         // TODO Receive iss, kid, publicKeyHash
 
         // Example implementation, we implement ChainLink Function later
-        for(uint i = 0; i < 1; i++) {
+        for (uint i = 0; i < 1; i++) {
             string memory issAndKid = "https://example.com|12345";
             bytes32 publicKeyHash = 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788;
-            if(isJwtPublicKeyHashValid(issAndKid, publicKeyHash)){
+            if (isJwtPublicKeyHashValid(issAndKid, publicKeyHash)) {
                 continue;
             }
-            if(dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash)){
+            if (dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash)) {
                 continue;
             }
-            dkimRegistry.setDKIMPublicKeyHash(issAndKid, publicKeyHash);    
+            dkimRegistry.setDKIMPublicKeyHash(issAndKid, publicKeyHash);
         }
     }
 
@@ -116,15 +119,11 @@ contract JwtRegistry is Ownable {
         dkimRegistry.revokeDKIMPublicKeyHash(publicKeyHash);
     }
 
-    function isAzpWhitelisted(
-        string memory azp
-    ) public view returns (bool) {
+    function isAzpWhitelisted(string memory azp) public view returns (bool) {
         return whitelistedClients[azp];
     }
 
-    function whitelistAzp(
-        string memory azp
-    ) public onlyOwner {
+    function whitelistAzp(string memory azp) public onlyOwner {
         whitelistedClients[azp] = true;
     }
 
