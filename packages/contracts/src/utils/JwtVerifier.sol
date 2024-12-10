@@ -39,7 +39,7 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         jwtRegistry = JwtRegistry(_jwtRegistry);
     }
 
-    function verifyJwtProof(JwtProof memory proof) public returns (bool) {
+    function verifyJwtProof(JwtProof memory proof) public view returns (bool) {
         (
             uint256[2] memory pA,
             uint256[2][2] memory pB,
@@ -91,29 +91,29 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
             ? 1
             : 0;
 
-        // Check JwtRegistry, 
-        // if it returns false, then call updateJwtRegistry, 
-        // and then try isJwtPublicKeyValid again.
-        if (
-            !jwtRegistry.isJwtPublicKeyValid(
-                proof.domainName,
-                proof.publicKeyHash
-            )
-        ) {
-            jwtRegistry.updateJwtRegistry();
-            require(
-                jwtRegistry.isJwtPublicKeyValid(
-                    proof.domainName,
-                    proof.publicKeyHash
-                ),
-                "Invalid public key hash"
-            );
-        }
-        // Check if azp is in whitelist
-        require(
-            jwtRegistry.isAzpWhitelisted(proof.azp),
-            "azp is not whitelisted"
-        );
+        // // Check JwtRegistry, 
+        // // if it returns false, then call updateJwtRegistry, 
+        // // and then try isJwtPublicKeyValid again.
+        // if (
+        //     !jwtRegistry.isJwtPublicKeyValid(
+        //         proof.domainName,
+        //         proof.publicKeyHash
+        //     )
+        // ) {
+        //     jwtRegistry.updateJwtRegistry();
+        //     require(
+        //         jwtRegistry.isJwtPublicKeyValid(
+        //             proof.domainName,
+        //             proof.publicKeyHash
+        //         ),
+        //         "Invalid public key hash"
+        //     );
+        // }
+        // // Check if azp is in whitelist
+        // require(
+        //     jwtRegistry.isAzpWhitelisted(proof.azp),
+        //     "azp is not whitelisted"
+        // );
 
         return groth16Verifier.verifyProof(pA, pB, pC, pubSignals);
     }
