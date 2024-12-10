@@ -25,7 +25,7 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
         bytes32 indexed jwtNullifier,
         bool isCodeExist,
         string indexed domainName,
-        string indexed azp 
+        string indexed azp
     );
 
     constructor() {}
@@ -44,10 +44,7 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
     /// @notice Initializes the address of the JWT registry contract.
     /// @param _jwtRegistryAddr The address of the JWT registry contract.
     function initJwtRegistry(address _jwtRegistryAddr) public onlyOwner {
-        require(
-            _jwtRegistryAddr != address(0),
-            "invalid jwt registry address"
-        );
+        require(_jwtRegistryAddr != address(0), "invalid jwt registry address");
         require(
             address(jwtRegistry) == address(0),
             "jwt registry already initialized"
@@ -71,10 +68,7 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
     /// @notice Updates the address of the JWT registry contract.
     /// @param _jwtRegistryAddr The new address of the JWT registry contract.
     function updateJwtRegistry(address _jwtRegistryAddr) public onlyOwner {
-        require(
-            _jwtRegistryAddr != address(0),
-            "invalid dkim registry address"
-        );
+        require(_jwtRegistryAddr != address(0), "invalid jwt registry address");
         jwtRegistry = JwtRegistry(_jwtRegistryAddr);
         emit JwtRegistryUpdated(_jwtRegistryAddr);
     }
@@ -88,14 +82,13 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
     }
 
     function authJwt(JwtProof memory proof) public onlyOwner {
-
         // require(
         //     accountSalt == proof.accountSalt,
         //     "invalid account salt"
         // );
 
-        // Check JwtRegistry, 
-        // if it returns false, then call updateJwtRegistry, 
+        // Check JwtRegistry,
+        // if it returns false, then call updateJwtRegistry,
         // and then try isJwtPublicKeyValid again.
         if (
             !jwtRegistry.isJwtPublicKeyValid(
@@ -118,10 +111,7 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
             "azp is not whitelisted"
         );
 
-        require(
-            verifier.verifyJwtProof(proof) == true,
-            "invalid jwt proof"
-        );
+        require(verifier.verifyJwtProof(proof) == true, "invalid jwt proof");
 
         usedNullifiers[proof.jwtNullifier] = true;
 
@@ -138,5 +128,4 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
     function _authorizeUpgrade(
         address newImplementation
     ) internal override onlyOwner {}
-
 }
