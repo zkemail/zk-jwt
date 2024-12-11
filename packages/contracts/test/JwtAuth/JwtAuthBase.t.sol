@@ -32,7 +32,7 @@ contract JwtAuthTestBase is Test {
         JwtAuth authImpl = new JwtAuth();
         ERC1967Proxy authProxy = new ERC1967Proxy(
             address(authImpl),
-            abi.encodeCall(authImpl.initialize, (deployer, accountSalt))
+            abi.encodeCall(authImpl.initialize, (deployer))
         );
         jwtAuth = JwtAuth(address(authProxy));
 
@@ -63,7 +63,7 @@ contract JwtAuthTestBase is Test {
             address(verifierImpl),
             abi.encodeCall(
                 verifierImpl.initialize,
-                (deployer, address(groth16Verifier), address(jwtRegistry))
+                (deployer, address(groth16Verifier))
             )
         );
         verifier = JwtVerifier(address(verifierProxy));

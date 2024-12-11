@@ -10,8 +10,6 @@ import {IVerifier, JwtProof} from "./interfaces/IVerifier.sol";
 /// @notice TODO
 /// @dev TODO
 contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
-    /// The CREATE2 salt of this contract defined as a hash of an email address and an account code.
-    bytes32 public accountSalt;
     /// An instance of the JWT registry contract.
     JwtRegistry internal jwtRegistry;
     /// An instance of the Verifier contract.
@@ -32,13 +30,10 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
 
     /// @notice Initialize the contract with an initial owner and an account salt.
     /// @param _initialOwner The address of the initial owner.
-    /// @param _accountSalt The account salt to derive CREATE2 address of this contract.
     function initialize(
-        address _initialOwner,
-        bytes32 _accountSalt
+        address _initialOwner
     ) public initializer {
         __Ownable_init(_initialOwner);
-        accountSalt = _accountSalt;
     }
 
     /// @notice Initializes the address of the JWT registry contract.
@@ -82,10 +77,6 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
     }
 
     function authJwt(JwtProof memory proof) public onlyOwner {
-        // require(
-        //     accountSalt == proof.accountSalt,
-        //     "invalid account salt"
-        // );
 
         // Check JwtRegistry,
         // if it returns false, then call updateJwtRegistry,
