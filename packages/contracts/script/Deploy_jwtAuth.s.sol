@@ -33,10 +33,7 @@ contract DeployScript is Script {
         JwtGroth16Verifier groth16Verifier = new JwtGroth16Verifier();
         ERC1967Proxy jwtVerifierProxy = new ERC1967Proxy{salt: salt}(
             address(jwtVerifierImpl),
-            abi.encodeCall(
-                jwtVerifierImpl.initialize,
-                (initialOwner, address(groth16Verifier))
-            )
+            abi.encodeCall(jwtVerifierImpl.initialize, (initialOwner))
         );
 
         JwtVerifier verifier = JwtVerifier(address(jwtVerifierProxy));
@@ -50,12 +47,14 @@ contract DeployScript is Script {
         JwtAuth jwtAuth = JwtAuth(address(authProxy));
         console.log("JwtAuth proxy deployed to:", address(jwtAuth));
 
-        jwtAuth.initJwtRegistry(address(jwtRegistry));
-        console.log("JwtRegistry address has been set in JwtAuth");
+        verifier.initJwtRegistry(address(jwtRegistry));
+        console.log("JwtRegistry address has been set in JwtVerifier");
+        jwtRegistry.updateJwtVerifier(address(jwtAuth));
+        console.log("JwtVerifier address has been updated in JwtRegistry");
         jwtAuth.initVerifier(address(verifier));
         console.log("JwtVerifier address has been set in JwtAuth");
-        jwtRegistry.updateJwtAuth(address(jwtAuth));
-        console.log("JwtAuth address has been updated in JwtRegistry");
+        jwtAuth.initJwtAuthGroth16Verifier(address(groth16Verifier));
+        console.log("JwtAuthGroth16Verifier address has been set in JwtAuth");
 
         vm.stopBroadcast();
     }

@@ -6,8 +6,8 @@ import "forge-std/console.sol";
 import {JwtRegistry} from "../../src/utils/JwtRegistry.sol";
 import {JwtAuth} from "../../src/JwtAuth.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import {JwtProof, JwtVerifier} from "../../src/utils/JwtVerifier.sol";
-import {JwtGroth16Verifier} from "../../src/utils/JwtGroth16Verifier.sol";
+import {JwtVerifier} from "../../src/utils/JwtVerifier.sol";
+import {JwtAuthGroth16Verifier} from "../../src/utils/JwtAuthGroth16Verifier.sol";
 
 contract JwtAuthTestBase is Test {
     bytes32 publicKeyHash =
@@ -25,6 +25,7 @@ contract JwtAuthTestBase is Test {
     JwtRegistry jwtRegistry;
     JwtAuth jwtAuth;
     JwtVerifier verifier;
+    JwtAuthGroth16Verifier groth16Verifier;
 
     constructor() {}
 
@@ -58,13 +59,10 @@ contract JwtAuthTestBase is Test {
         assertTrue(isRegistered, "JWT Public Key Hash should be registered");
 
         JwtVerifier verifierImpl = new JwtVerifier();
-        JwtGroth16Verifier groth16Verifier = new JwtGroth16Verifier();
+        groth16Verifier = new JwtAuthGroth16Verifier();
         ERC1967Proxy verifierProxy = new ERC1967Proxy(
             address(verifierImpl),
-            abi.encodeCall(
-                verifierImpl.initialize,
-                (deployer, address(groth16Verifier))
-            )
+            abi.encodeCall(verifierImpl.initialize, (deployer))
         );
         verifier = JwtVerifier(address(verifierProxy));
 

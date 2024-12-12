@@ -4,11 +4,12 @@ pragma solidity ^0.8.12;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
-import {JwtAuthTestBase} from "./JwtAuthBase.t.sol";
+import {JwtVerifier} from "../../src/utils/JwtVerifier.sol";
+import {JwtVerifierTestBase} from "./JwtVerifierBase.t.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {JwtAuth} from "../../src/JwtAuth.sol";
+// import {JwtAuth} from "../../src/jwtVerifier.sol";
 
-contract JwtAuthTest_updateJwtRegistry is JwtAuthTestBase {
+contract JwtVerifierTest_updateJwtRegistry is JwtVerifierTestBase {
     constructor() {}
 
     function setUp() public override {
@@ -23,22 +24,22 @@ contract JwtAuthTest_updateJwtRegistry is JwtAuthTestBase {
                 vm.addr(2)
             )
         );
-        jwtAuth.updateJwtRegistry(address(jwtRegistry));
+        verifier.updateJwtRegistry(address(jwtRegistry));
         vm.stopPrank();
     }
 
     function testRevert_updateJwtRegistry_InvalidJwtRegistryAddress() public {
         vm.startPrank(deployer);
         vm.expectRevert("invalid jwt registry address");
-        jwtAuth.updateJwtRegistry(address(0));
+        verifier.updateJwtRegistry(address(0));
         vm.stopPrank();
     }
 
     function test_updateJwtRegistry() public {
         vm.startPrank(deployer);
         vm.expectEmit(true, true, false, false);
-        emit JwtAuth.JwtRegistryUpdated(address(jwtRegistry));
-        jwtAuth.updateJwtRegistry(address(jwtRegistry));
+        emit JwtVerifier.JwtRegistryUpdated(address(jwtRegistry));
+        verifier.updateJwtRegistry(address(jwtRegistry));
         vm.stopPrank();
     }
 }
