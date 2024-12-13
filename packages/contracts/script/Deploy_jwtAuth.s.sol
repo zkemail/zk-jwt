@@ -5,7 +5,7 @@ pragma solidity ^0.8.12;
 import "forge-std/Script.sol";
 import "../src/utils/JwtRegistry.sol";
 import "../src/utils/JwtVerifier.sol";
-import "../src/utils/JwtGroth16Verifier.sol";
+import "../src/utils/JwtAuthGroth16Verifier.sol";
 import "../src/JwtAuth.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
@@ -22,7 +22,6 @@ contract DeployScript is Script {
 
         // Deploy the contract using CREATE2
         JwtRegistry jwtRegistry = new JwtRegistry{salt: salt}(deployer);
-
         console.log("JwtRegistry deployed to:", address(jwtRegistry));
 
         JwtVerifier jwtVerifierImpl = new JwtVerifier();
@@ -30,14 +29,15 @@ contract DeployScript is Script {
             "JWTVerifier implementation deployed at: %s",
             address(jwtVerifierImpl)
         );
-        JwtGroth16Verifier groth16Verifier = new JwtGroth16Verifier();
         ERC1967Proxy jwtVerifierProxy = new ERC1967Proxy{salt: salt}(
             address(jwtVerifierImpl),
             abi.encodeCall(jwtVerifierImpl.initialize, (initialOwner))
         );
-
         JwtVerifier verifier = JwtVerifier(address(jwtVerifierProxy));
         console.log("JWTVerifier proxy deployed to:", address(verifier));
+
+        JwtAuthGroth16Verifier groth16Verifier = new JwtAuthGroth16Verifier();
+        console.log("JwtAuthGroth16Verifier proxy deployed to:", address(groth16Verifier));
 
         JwtAuth authImpl = new JwtAuth();
         ERC1967Proxy authProxy = new ERC1967Proxy(
@@ -47,6 +47,7 @@ contract DeployScript is Script {
         JwtAuth jwtAuth = JwtAuth(address(authProxy));
         console.log("JwtAuth proxy deployed to:", address(jwtAuth));
 
+        // Set up 
         verifier.initJwtRegistry(address(jwtRegistry));
         console.log("JwtRegistry address has been set in JwtVerifier");
         jwtRegistry.updateJwtVerifier(address(jwtAuth));

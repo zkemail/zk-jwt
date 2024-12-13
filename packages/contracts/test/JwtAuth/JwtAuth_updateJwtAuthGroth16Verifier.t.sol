@@ -4,18 +4,20 @@ pragma solidity ^0.8.12;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
-import {JwtVerifier} from "../../src/utils/JwtVerifier.sol";
-import {JwtVerifierTestBase} from "./JwtVerifierBase.t.sol";
+import {JwtAuthTestBase} from "./JwtAuthBase.t.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {JwtAuth} from "../../src/JwtAuth.sol";
 
-contract JwtVerifierTest_updateJwtRegistry is JwtVerifierTestBase {
+contract JwtAuthTest_updateJwtAuthGroth16Verifier is JwtAuthTestBase {
     constructor() {}
 
     function setUp() public override {
         super.setUp();
     }
 
-    function testRevert_updateJwtRegistry_OwnableUnauthorizedAccount() public {
+    function testRevert_updateJwtAuthGroth16Verifier_OwnableUnauthorizedAccount()
+        public
+    {
         vm.startPrank(vm.addr(2));
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -23,22 +25,24 @@ contract JwtVerifierTest_updateJwtRegistry is JwtVerifierTestBase {
                 vm.addr(2)
             )
         );
-        verifier.updateJwtRegistry(address(jwtRegistry));
+        jwtAuth.updateJwtAuthGroth16Verifier(address(groth16Verifier));
         vm.stopPrank();
     }
 
-    function testRevert_updateJwtRegistry_InvalidJwtRegistryAddress() public {
+    function testRevert_updateJwtAuthGroth16Verifier_InvalidJwtRegistryAddress()
+        public
+    {
         vm.startPrank(deployer);
-        vm.expectRevert("invalid jwt registry address");
-        verifier.updateJwtRegistry(address(0));
+        vm.expectRevert("invalid groth16 verifier address");
+        jwtAuth.updateJwtAuthGroth16Verifier(address(0));
         vm.stopPrank();
     }
 
-    function test_updateJwtRegistry() public {
+    function test_updateJwtAuthGroth16Verifier() public {
         vm.startPrank(deployer);
         vm.expectEmit(true, true, false, false);
-        emit JwtVerifier.JwtRegistryUpdated(address(jwtRegistry));
-        verifier.updateJwtRegistry(address(jwtRegistry));
+        emit JwtAuth.JwtAuthGroth16VerifierUpdated(address(groth16Verifier));
+        jwtAuth.updateJwtAuthGroth16Verifier(address(groth16Verifier));
         vm.stopPrank();
     }
 }

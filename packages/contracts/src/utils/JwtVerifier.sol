@@ -16,15 +16,8 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
     using HexUtils for bytes32;
     using StringToArrayUtils for string;
 
-    // uint256 public constant ISS_FIELDS = 2;
-    // uint256 public constant ISS_BYTES = 32;
-    // uint256 public constant COMMAND_FIELDS = 20;
     uint256 public constant COMMAND_BYTES = 605;
-    // uint256 public constant AZP_FIELDS = 3;
-    // uint256 public constant AZP_BYTES = 72;
 
-    // DOMAIN_BYTES 9
-    // DOMAIN_FIELDS 255
     JwtRegistry internal jwtRegistry;
 
     event JwtRegistryUpdated(address indexed jwtRegistry);
@@ -37,11 +30,9 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         address _initialOwner
     )
         public
-        // address _groth16Verifier
         initializer
     {
         __Ownable_init(_initialOwner);
-        // groth16Verifier = IJwtGroth16Verifier(_groth16Verifier);
     }
 
     /// @notice Initializes the address of the JWT registry contract.
@@ -64,7 +55,6 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         emit JwtRegistryUpdated(_jwtRegistryAddr);
     }
 
-    // function verifyJwtProof(JwtProof memory proof) public view returns (bool) {
     function verifyJwtProof(
         uint256[2] memory pA,
         uint256[2][2] memory pB,

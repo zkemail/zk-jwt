@@ -10,24 +10,13 @@ import {IVerifier} from "./interfaces/IVerifier.sol";
 /// @notice TODO
 /// @dev TODO
 contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
-    // /// An instance of the JWT registry contract.
-    // JwtRegistry internal jwtRegistry;
     /// An instance of the Verifier contract.
     IVerifier internal verifier;
-    /// A mapping of the hash of the authorized message associated with its `jwtNullifier`.
-    mapping(bytes32 => bool) public usedNullifiers;
 
     address public jwtAuthGroth16VerifierAddress;
 
-    // event JwtRegistryUpdated(address indexed jwtRegistry);
     event VerifierUpdated(address indexed verifier);
     event JwtAuthGroth16VerifierUpdated(address indexed verifier);
-    // event JwtAuthed(
-    //     bytes32 indexed jwtNullifier,
-    //     bool isCodeExist,
-    //     string indexed domainName,
-    //     string indexed azp
-    // );
 
     constructor() {}
 
@@ -36,18 +25,6 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
     function initialize(address _initialOwner) public initializer {
         __Ownable_init(_initialOwner);
     }
-
-    // /// @notice Initializes the address of the JWT registry contract.
-    // /// @param _jwtRegistryAddr The address of the JWT registry contract.
-    // function initJwtRegistry(address _jwtRegistryAddr) public onlyOwner {
-    //     require(_jwtRegistryAddr != address(0), "invalid jwt registry address");
-    //     require(
-    //         address(jwtRegistry) == address(0),
-    //         "jwt registry already initialized"
-    //     );
-    //     jwtRegistry = JwtRegistry(_jwtRegistryAddr);
-    //     emit JwtRegistryUpdated(_jwtRegistryAddr);
-    // }
 
     /// @notice Initializes the address of the verifier contract.
     /// @param _verifierAddr The address of the verifier contract.
@@ -80,7 +57,7 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
         );
         require(
             address(jwtAuthGroth16VerifierAddress) == address(0),
-            "verifier already initialized"
+            "groth16 verifier already initialized"
         );
         jwtAuthGroth16VerifierAddress = _groth16verifierAddr;
         emit JwtAuthGroth16VerifierUpdated(_groth16verifierAddr);
@@ -99,6 +76,15 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
         emit JwtAuthGroth16VerifierUpdated(_groth16verifierAddr);
     }
 
+    /**
+     * @notice Processes a command using the provided zk-SNARK proof and public signals.
+     * @dev This function can only be called by the contract owner.
+     * @param _pA The proof point A
+     * @param _pB The proof points B array
+     * @param _pC The proof point C
+     * @param _pubSignals The public signals array
+     * @param _extraInput Additional input data required for processing the command
+     */
     function processCommand(
         uint[2] calldata _pA,
         uint[2][2] calldata _pB,
@@ -117,7 +103,7 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
             "invalid jwt proof"
         );
 
-        // process extra input
+        // process for extra input
     }
 
     /// @notice Upgrade the implementation of the proxy.

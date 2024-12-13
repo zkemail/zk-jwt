@@ -18,6 +18,12 @@ contract JwtVerifierTestBase is Test {
     JwtAuthGroth16Verifier groth16Verifier;
     JwtRegistry jwtRegistry;
 
+    uint[2] mockpA;
+    uint[2][2] mockpB;
+    uint[2] mockpC;
+    uint[] mockPubSignals;
+    uint[] mockExtraInput;
+
     address deployer = vm.addr(1);
 
     constructor() {}
@@ -49,6 +55,34 @@ contract JwtVerifierTestBase is Test {
         // verifier.initJwtRegistry(address(jwtRegistry));
 
         jwtRegistry.updateJwtVerifier(address(verifier));
+
+        // Create mock pubSignals
+        mockPubSignals = new uint[](40);
+        mockPubSignals[0] = 1111; // kid
+        mockPubSignals[1] = 1111; // iss part 1
+        mockPubSignals[2] = 1111; // iss part 2
+        mockPubSignals[3] = 1111; // publicKeyHash
+        mockPubSignals[4] = 1111; // jwtNullifier
+        mockPubSignals[5] = 1694989812; // timestamp
+
+        // maskedCommand (indices 6-25)
+        for (uint i = 6; i <= 25; i++) {
+            mockPubSignals[i] = i * 1000;
+        }
+
+        mockPubSignals[
+            26
+        ] = 0x1162ebff40918afe5305e68396f0283eb675901d0387f97d21928d423aaa0b54; // accountSalt
+
+        // azp (indices 27-31)
+        for (uint i = 27; i <= 29; i++) {
+            mockPubSignals[i] = i * 2000;
+        }
+
+        // domainName (indices 32-39)
+        for (uint i = 30; i <= 39; i++) {
+            mockPubSignals[i] = i * 3000;
+        }
 
         vm.stopPrank();
     }
