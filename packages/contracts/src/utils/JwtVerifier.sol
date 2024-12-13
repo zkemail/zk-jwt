@@ -7,8 +7,10 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {strings} from "solidity-stringutils/src/strings.sol";
 import {IVerifier} from "../interfaces/IVerifier.sol";
 import {HexUtils} from "./HexUtils.sol";
+import {JwtAuthGroth16Verifier} from "./JwtAuthGroth16Verifier.sol";
 import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 import {JwtRegistry} from "./JwtRegistry.sol";
+import "forge-std/console.sol";
 
 contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
     using strings for *;
@@ -16,6 +18,8 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
     using HexUtils for bytes32;
     using StringToArrayUtils for string;
 
+    uint256 public constant ISS_BYTES = 32;
+    uint256 public constant AZP_BYTES = 72;
     uint256 public constant COMMAND_BYTES = 605;
 
     JwtRegistry internal jwtRegistry;
@@ -26,12 +30,7 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
 
     /// @notice Initialize the contract with the initial owner and deploy Groth16Verifier
     /// @param _initialOwner The address of the initial owner
-    function initialize(
-        address _initialOwner
-    )
-        public
-        initializer
-    {
+    function initialize(address _initialOwner) public initializer {
         __Ownable_init(_initialOwner);
     }
 
@@ -55,6 +54,14 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         emit JwtRegistryUpdated(_jwtRegistryAddr);
     }
 
+    function logPubSignals(uint256[] memory pubSignals) private view {
+        require(pubSignals.length == 40, "pubSignals length must be 40");
+
+        for (uint256 i = 0; i < pubSignals.length; i++) {
+            console.log("pubSignals[", i, "] = ", pubSignals[i]);
+        }
+    }
+
     function verifyJwtProof(
         uint256[2] memory pA,
         uint256[2][2] memory pB,
@@ -62,44 +69,49 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         uint256[] memory pubSignals,
         address groth16VerifierAddress
     ) public returns (bool) {
+        logPubSignals(pubSignals);
+
         // kid -> pubSignals[0]
         bytes32 kid = bytes32(uint256(pubSignals[0]));
         string memory kidString = kid.bytes32ToHexString();
+        console.log("kidString");
+        console.log(kidString);
 
         // iss -> pubSignals[1] - pubSignals[2]
         string memory issString;
         {
-            bytes32 iss1 = bytes32(uint256(pubSignals[1]));
-            bytes32 iss2 = bytes32(uint256(pubSignals[2]));
-            issString = string(
-                abi.encodePacked(
-                    HexUtils.bytes32ToHexString(iss1),
-                    HexUtils.bytes32ToHexString(iss2)
-                )
-            );
+            uint256[] memory pubSignalsArray = new uint256[](2);
+            pubSignalsArray[0] = pubSignals[1];
+            pubSignalsArray[1] = pubSignals[2];
+            bytes memory iss = _unpackFields2Bytes(pubSignalsArray, ISS_BYTES);
+            issString = string(abi.encodePacked(iss));
         }
+        console.log("issString");
+        console.log(issString);
 
         // publicKeyHash -> pubSignals[3]
         bytes32 publicKeyHash = bytes32(uint256(pubSignals[3]));
+        console.log("publicKeyHash");
+        console.logBytes32(publicKeyHash);
 
         // azp -> pubSignals[27] - pubSignals[29]
         string memory azpString;
         {
-            bytes32 azp1 = bytes32(uint256(pubSignals[27]));
-            bytes32 azp2 = bytes32(uint256(pubSignals[28]));
-            bytes32 azp3 = bytes32(uint256(pubSignals[29]));
-            azpString = string(
-                abi.encodePacked(
-                    HexUtils.bytes32ToHexString(azp1),
-                    HexUtils.bytes32ToHexString(azp2),
-                    HexUtils.bytes32ToHexString(azp3)
-                )
-            );
+            uint256[] memory pubSignalsArray = new uint256[](2);
+            pubSignalsArray[0] = pubSignals[27];
+            pubSignalsArray[1] = pubSignals[28];
+            pubSignalsArray[1] = pubSignals[29];
+            bytes memory azp = _unpackFields2Bytes(pubSignalsArray, AZP_BYTES);
+            azpString = string(abi.encodePacked(azp));
         }
+        console.log("azpString");
+        console.log(azpString);
 
         string memory domainName = string(
             abi.encodePacked(issString, "|", kidString)
         );
+        console.log("domainName");
+        console.log(domainName);
 
         // Check JwtRegistry,
         // if it returns false, then call updateJwtRegistry,
@@ -116,14 +128,53 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
             jwtRegistry.isAzpWhitelisted(azpString),
             "azp is not whitelisted"
         );
+        console.log("before verifyProof");
+        bool result = IJwtGroth16Verifier(groth16VerifierAddress).verifyProof(
+            pA,
+            pB,
+            pC,
+            pubSignals
+        );
+        console.log("after verifyProof");
+        return result;
+    }
 
-        return
-            IJwtGroth16Verifier(groth16VerifierAddress).verifyProof(
-                pA,
-                pB,
-                pC,
-                pubSignals
-            );
+    function _unpackFields2Bytes(
+        uint256[] memory _fields,
+        uint256 _originalSize
+    ) private pure returns (bytes memory) {
+        bytes memory tempResult = new bytes(_originalSize);
+        uint256 idx = 0;
+        for (uint256 i = 0; i < _fields.length; i++) {
+            for (uint256 j = 0; j < 31; j++) {
+                if (idx >= _originalSize) {
+                    break;
+                }
+                uint8 byteVal = uint8((_fields[i] >> (8 * j)) & 0xFF);
+                tempResult[idx] = bytes1(byteVal);
+                idx++;
+            }
+        }
+
+        // Count non-null bytes
+        uint256 nonNullLength = 0;
+        for (uint256 i = 0; i < tempResult.length; i++) {
+            if (tempResult[i] != 0) {
+                nonNullLength++;
+            }
+        }
+
+        // Create a new bytes array without null bytes
+        bytes memory result = new bytes(nonNullLength);
+        uint256 index = 0;
+        for (uint256 i = 0; i < tempResult.length; i++) {
+            if (tempResult[i] != 0) {
+                result[index] = tempResult[i];
+                index++;
+            }
+        }
+
+        return result;
     }
 
     function _packBytes2Fields(

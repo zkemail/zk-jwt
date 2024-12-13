@@ -58,11 +58,11 @@ contract JwtVerifierTestBase is Test {
 
         // Create mock pubSignals
         mockPubSignals = new uint[](40);
-        mockPubSignals[0] = 1111; // kid
-        mockPubSignals[1] = 1111; // iss part 1
-        mockPubSignals[2] = 1111; // iss part 2
-        mockPubSignals[3] = 1111; // publicKeyHash
-        mockPubSignals[4] = 1111; // jwtNullifier
+        mockPubSignals[0] = 517733097421616019644180681203299748191233314469; // kid
+        mockPubSignals[1] = 9533142343765075725437565513791414545047922; // iss part 1
+        mockPubSignals[2] = 0; // iss part 2
+        mockPubSignals[3] = 8731682816920787846178677857605537477066085281958913637355454143887928986842; // publicKeyHash
+        mockPubSignals[4] = 14802577362096783432098477682082025685810039872143385070737088638565336685452; // jwtNullifier
         mockPubSignals[5] = 1694989812; // timestamp
 
         // maskedCommand (indices 6-25)
@@ -74,7 +74,7 @@ contract JwtVerifierTestBase is Test {
             26
         ] = 0x1162ebff40918afe5305e68396f0283eb675901d0387f97d21928d423aaa0b54; // accountSalt
 
-        // azp (indices 27-31)
+        // azp (indices 27-29)
         for (uint i = 27; i <= 29; i++) {
             mockPubSignals[i] = i * 2000;
         }

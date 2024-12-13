@@ -91,7 +91,7 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
         uint[2] calldata _pC,
         uint[] calldata _pubSignals,
         uint[] calldata _extraInput
-    ) public onlyOwner {
+    ) public {
         require(
             verifier.verifyJwtProof(
                 _pA,
