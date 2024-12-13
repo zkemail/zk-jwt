@@ -20,6 +20,8 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
+import "forge-std/console.sol";
+
 contract JwtAuthGroth16Verifier {
     // Scalar field size
     uint256 constant r    = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
@@ -173,7 +175,14 @@ contract JwtAuthGroth16Verifier {
 
     uint16 constant pLastMem = 896;
 
-    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[40] calldata _pubSignals) public view returns (bool) {
+    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[] calldata _receivedPubSignals) public view returns (bool) {
+        console.log("a");
+        // create fixed pubsignals
+        uint[40] memory _pubSignals;
+        for (uint i = 0; i < 40; i++) {
+            _pubSignals[i] = _receivedPubSignals[i];
+        }
+
         assembly {
             function checkField(v) {
                 if iszero(lt(v, r)) {
@@ -433,7 +442,7 @@ contract JwtAuthGroth16Verifier {
 
             // Validate all evaluations
             let isValid := checkPairing(_pA, _pB, _pC, _pubSignals, pMem)
-
+            
             mstore(0, isValid)
              return(0, 0x20)
          }

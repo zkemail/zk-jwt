@@ -97,7 +97,16 @@ async function main() {
     await promisify(fs.writeFile)(path.join(dir, "jwt_auth_proof.json"), JSON.stringify(proof, null, 2));
     await promisify(fs.writeFile)(path.join(dir, "jwt_auth_public.json"), JSON.stringify(publicSignals, null, 2));
     log("✓ Proof for jwt auth circuit generated");
+
+    // Load verification key
+    const vKey = JSON.parse(fs.readFileSync(path.join(dir, "jwt_auth.vkey"), "utf8"));
+    // Verify the proof
+    const isValid = await snarkjs.groth16.verify(vKey, publicSignals, proof);
+    console.log(`result = ${isValid}`);
   };
+
+
+
   process.exit(0);
 }
 

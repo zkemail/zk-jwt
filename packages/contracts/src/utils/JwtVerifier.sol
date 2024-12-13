@@ -129,6 +129,12 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
             "azp is not whitelisted"
         );
         console.log("before verifyProof");
+
+        // uint[40] memory fixedPubSignals;
+        // for (uint i = 0; i < 40; i++) {
+        //     fixedPubSignals[i] = pubSignals[i];
+        // }
+
         bool result = IJwtGroth16Verifier(groth16VerifierAddress).verifyProof(
             pA,
             pB,
