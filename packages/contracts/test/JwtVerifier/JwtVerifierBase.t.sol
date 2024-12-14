@@ -9,13 +9,15 @@ import {JwtAuthGroth16Verifier} from "../../src/utils/JwtAuthGroth16Verifier.sol
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import {HexUtils} from "../../src/utils/HexUtils.sol";
+import {Groth16Verifier} from "../../src/utils/Groth16Verifier.sol";
+import {IGroth16Verifier, Groth16Proof, G1Point, G2Point, Fp2Element} from "../../src/utils/Groth16.sol";
 
 contract JwtVerifierTestBase is Test {
     using Strings for *;
     using HexUtils for bytes32;
 
     JwtVerifier verifier;
-    JwtAuthGroth16Verifier groth16Verifier;
+    IGroth16Verifier groth16Verifier;
     JwtRegistry jwtRegistry;
 
     uint[2] mockpA;
@@ -23,6 +25,9 @@ contract JwtVerifierTestBase is Test {
     uint[2] mockpC;
     uint[] mockPubSignals;
     uint[] mockExtraInput;
+
+    // Groth16Verifier.VerifyingKey mockVk;
+    Groth16Proof mockProof;
 
     address deployer = vm.addr(1);
 
@@ -46,13 +51,23 @@ contract JwtVerifierTestBase is Test {
         );
 
         JwtVerifier verifierImpl = new JwtVerifier();
-        groth16Verifier = new JwtAuthGroth16Verifier();
+        // groth16Verifier = new JwtAuthGroth16Verifier();
         ERC1967Proxy verifierProxy = new ERC1967Proxy(
             address(verifierImpl),
             abi.encodeCall(verifierImpl.initialize, (deployer))
         );
         verifier = JwtVerifier(address(verifierProxy));
         // verifier.initJwtRegistry(address(jwtRegistry));
+
+        // Create a mock VerifyingKey
+        Groth16Verifier.VerifyingKey memory mockVk;
+        mockVk.alpha1 = G1Point(1, 2);
+        mockVk.beta2 = G2Point(Fp2Element(3, 4), Fp2Element(5, 6));
+        mockVk.gamma2 = G2Point(Fp2Element(7, 8), Fp2Element(9, 10));
+        mockVk.delta2 = G2Point(Fp2Element(11, 12), Fp2Element(13, 14));
+        mockVk.ic = new G1Point[](1);
+        mockVk.ic[0] = G1Point(15, 16);
+        groth16Verifier = new Groth16Verifier(mockVk);
 
         jwtRegistry.updateJwtVerifier(address(verifier));
 
@@ -83,6 +98,11 @@ contract JwtVerifierTestBase is Test {
         for (uint i = 30; i <= 39; i++) {
             mockPubSignals[i] = i * 3000;
         }
+
+        // Create a mock Groth16Proof
+        mockProof.a = G1Point(1, 2);
+        mockProof.b = G2Point(Fp2Element(3, 4), Fp2Element(5, 6));
+        mockProof.c = G1Point(7, 8);
 
         vm.stopPrank();
     }

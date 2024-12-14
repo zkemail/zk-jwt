@@ -10,6 +10,8 @@ import {HexUtils} from "./HexUtils.sol";
 import {JwtAuthGroth16Verifier} from "./JwtAuthGroth16Verifier.sol";
 import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 import {JwtRegistry} from "./JwtRegistry.sol";
+import {Groth16Proof, IGroth16Verifier} from "./Groth16.sol";
+
 import "forge-std/console.sol";
 
 contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
@@ -63,9 +65,7 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
     }
 
     function verifyJwtProof(
-        uint256[2] memory pA,
-        uint256[2][2] memory pB,
-        uint256[2] memory pC,
+        Groth16Proof calldata proof,
         uint256[] memory pubSignals,
         address groth16VerifierAddress
     ) public returns (bool) {
@@ -135,10 +135,8 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         //     fixedPubSignals[i] = pubSignals[i];
         // }
 
-        bool result = IJwtGroth16Verifier(groth16VerifierAddress).verifyProof(
-            pA,
-            pB,
-            pC,
+        bool result = IGroth16Verifier(groth16VerifierAddress).verify(
+            proof,
             pubSignals
         );
         console.log("after verifyProof");

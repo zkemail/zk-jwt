@@ -5,6 +5,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {JwtRegistry} from "./utils/JwtRegistry.sol";
 import {IVerifier} from "./interfaces/IVerifier.sol";
+import {IGroth16Verifier, Groth16Proof} from "./utils/Groth16.sol";
 
 /// @title JWT Auth
 /// @notice TODO
@@ -79,24 +80,18 @@ contract JwtAuth is OwnableUpgradeable, UUPSUpgradeable {
     /**
      * @notice Processes a command using the provided zk-SNARK proof and public signals.
      * @dev This function can only be called by the contract owner.
-     * @param _pA The proof point A
-     * @param _pB The proof points B array
-     * @param _pC The proof point C
+     * @param _proof The zk-SNARK proof, consisting of elliptic curve points A, B, and C.
      * @param _pubSignals The public signals array
      * @param _extraInput Additional input data required for processing the command
      */
     function processCommand(
-        uint[2] calldata _pA,
-        uint[2][2] calldata _pB,
-        uint[2] calldata _pC,
+        Groth16Proof calldata _proof,
         uint[] calldata _pubSignals,
         uint[] calldata _extraInput
     ) public {
         require(
             verifier.verifyJwtProof(
-                _pA,
-                _pB,
-                _pC,
+                _proof, 
                 _pubSignals,
                 jwtAuthGroth16VerifierAddress
             ) == true,
