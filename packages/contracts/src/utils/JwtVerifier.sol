@@ -10,7 +10,6 @@ import {HexUtils} from "./HexUtils.sol";
 import {JwtAuthGroth16Verifier} from "./JwtAuthGroth16Verifier.sol";
 import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 import {JwtRegistry} from "./JwtRegistry.sol";
-import "forge-std/console.sol";
 
 contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
     using strings for *;
@@ -54,14 +53,6 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         emit JwtRegistryUpdated(_jwtRegistryAddr);
     }
 
-    function logPubSignals(uint256[] memory pubSignals) private view {
-        require(pubSignals.length == 40, "pubSignals length must be 40");
-
-        for (uint256 i = 0; i < pubSignals.length; i++) {
-            console.log("pubSignals[", i, "] = ", pubSignals[i]);
-        }
-    }
-
     function verifyJwtProof(
         uint256[2] memory pA,
         uint256[2][2] memory pB,
@@ -69,13 +60,9 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
         uint256[] memory pubSignals,
         address groth16VerifierAddress
     ) public returns (bool) {
-        logPubSignals(pubSignals);
-
         // kid -> pubSignals[0]
         bytes32 kid = bytes32(uint256(pubSignals[0]));
         string memory kidString = kid.bytes32ToHexString();
-        console.log("kidString");
-        console.log(kidString);
 
         // iss -> pubSignals[1] - pubSignals[2]
         string memory issString;
@@ -86,14 +73,8 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
             bytes memory iss = _unpackFields2Bytes(pubSignalsArray, ISS_BYTES);
             issString = string(abi.encodePacked(iss));
         }
-        console.log("issString");
-        console.log(issString);
-
         // publicKeyHash -> pubSignals[3]
         bytes32 publicKeyHash = bytes32(uint256(pubSignals[3]));
-        console.log("publicKeyHash");
-        console.logBytes32(publicKeyHash);
-
         // azp -> pubSignals[27] - pubSignals[29]
         string memory azpString;
         {
@@ -104,14 +85,9 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
             bytes memory azp = _unpackFields2Bytes(pubSignalsArray, AZP_BYTES);
             azpString = string(abi.encodePacked(azp));
         }
-        console.log("azpString");
-        console.log(azpString);
-
         string memory domainName = string(
             abi.encodePacked(issString, "|", kidString)
         );
-        console.log("domainName");
-        console.log(domainName);
 
         // Check JwtRegistry,
         // if it returns false, then call updateJwtRegistry,
@@ -128,20 +104,18 @@ contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
             jwtRegistry.isAzpWhitelisted(azpString),
             "azp is not whitelisted"
         );
-        console.log("before verifyProof");
 
-        // uint[40] memory fixedPubSignals;
-        // for (uint i = 0; i < 40; i++) {
-        //     fixedPubSignals[i] = pubSignals[i];
-        // }
+        uint[40] memory fixedPubSignals;
+        for (uint i = 0; i < 40; i++) {
+            fixedPubSignals[i] = pubSignals[i];
+        }
 
         bool result = IJwtGroth16Verifier(groth16VerifierAddress).verifyProof(
             pA,
             pB,
             pC,
-            pubSignals
+            fixedPubSignals
         );
-        console.log("after verifyProof");
         return result;
     }
 

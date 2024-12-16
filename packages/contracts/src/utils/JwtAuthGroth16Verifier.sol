@@ -20,8 +20,6 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
-import "forge-std/console.sol";
-
 contract JwtAuthGroth16Verifier {
     // Scalar field size
     uint256 constant r    = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
@@ -39,10 +37,10 @@ contract JwtAuthGroth16Verifier {
     uint256 constant gammax2 = 10857046999023057135944570762232829481370756359578518086990519993285655852781;
     uint256 constant gammay1 = 4082367875863433681332203403145435568316851327593401208105741076214120093531;
     uint256 constant gammay2 = 8495653923123431417604973247489272438418190587263600148770280649306958101930;
-    uint256 constant deltax1 = 20339949882325088124254203258119954178031904040667916879727575054364717477206;
-    uint256 constant deltax2 = 13412950151809245307830438043214245025934527933644785937270029753540517372782;
-    uint256 constant deltay1 = 2526813238220015177675140851984938759296378371409788079491143456919604215058;
-    uint256 constant deltay2 = 2949808002113600242121094468136870027770963899429097764727844584193997740102;
+    uint256 constant deltax1 = 7595353424788112029067278932625771362126693865902550489910910218222699564911;
+    uint256 constant deltax2 = 890475657865582368322804596180079430489676264358342950570851260096251350377;
+    uint256 constant deltay1 = 14811944463580758580395795024269694592684140130915162976654643692354265762524;
+    uint256 constant deltay2 = 10757336422590430929888499568599915271273967040288218760300394466876517547301;
 
     
     uint256 constant IC0x = 9376496373014311571210246487288461138151429271987024375631124481964272262769;
@@ -175,14 +173,7 @@ contract JwtAuthGroth16Verifier {
 
     uint16 constant pLastMem = 896;
 
-    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[] calldata _receivedPubSignals) public view returns (bool) {
-        console.log("a");
-        // create fixed pubsignals
-        uint[40] memory _pubSignals;
-        for (uint i = 0; i < 40; i++) {
-            _pubSignals[i] = _receivedPubSignals[i];
-        }
-
+    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[40] calldata _pubSignals) public view returns (bool) {
         assembly {
             function checkField(v) {
                 if iszero(lt(v, r)) {
@@ -442,7 +433,7 @@ contract JwtAuthGroth16Verifier {
 
             // Validate all evaluations
             let isValid := checkPairing(_pA, _pB, _pC, _pubSignals, pMem)
-            
+
             mstore(0, isValid)
              return(0, 0x20)
          }

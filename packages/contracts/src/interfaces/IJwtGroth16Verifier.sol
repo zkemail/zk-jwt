@@ -6,6 +6,6 @@ interface IJwtGroth16Verifier {
         uint[2] calldata _pA,
         uint[2][2] calldata _pB,
         uint[2] calldata _pC,
-        uint[] calldata _pubSignals
+        uint[40] calldata _pubSignals
     ) external view returns (bool);
 }
