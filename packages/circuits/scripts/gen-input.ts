@@ -1,7 +1,7 @@
 // @ts-ignore
 import { program } from 'commander';
 import { generateJWT } from '../../helpers/src/jwt'; // Specify the path to the function that generates JWT
-import { generateJWTVerifierInputs } from '../../helpers/src/input-generators'; // Specify the path to the function that generates inputs
+import { generateJWTAuthenticatorInputs, generateJWTVerifierInputs } from '../../helpers/src/input-generators'; // Specify the path to the function that generates inputs
 import { splitJWT } from "../../helpers/src/utils";
 import fs from "fs";
 const snarkjs = require("snarkjs");
@@ -53,19 +53,18 @@ async function main() {
   };
   const payload = defaultPayload;
   const accountCode = BigInt(options.accountCode);
-  const maxMessageLength = parseInt(options.maxMessageLength, 1024);
-
 
   const { rawJWT, publicKey } = generateJWT(header, {
     ...payload,
-    nonce: "Send 0.12 ETH to 0x1234",
-  });
-
-  const jwtVerifierInputs = await generateJWTVerifierInputs(
+    nonce: "Send 0.1 ETH to alice@gmail.com",
+});
+  const jwtVerifierInputs = await generateJWTAuthenticatorInputs(
     rawJWT,
     publicKey,
     accountCode,
-    { maxMessageLength }
+    {
+        maxMessageLength: 1024,
+    }
   );
 
   console.log('JWT Verifier Inputs:', jwtVerifierInputs);
@@ -86,13 +85,6 @@ async function main() {
     throw new Error("--input file path arg must end with .json");
   }
 
-  // log("Generating Inputs for:", options);
-
-  // const circuitInputs = await genEmailCircuitInput(args.emailFile, args.accountCode, {
-  //     maxHeaderLength: 1024,
-  //     ignoreBodyHashCheck: true
-  // });
-  // log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
   const processedInputs = convertBigIntFieldsToString(jwtVerifierInputs);
 
   await promisify(fs.writeFile)(options.inputFile, JSON.stringify(processedInputs, null, 2));
@@ -100,65 +92,20 @@ async function main() {
   log("Inputs written to", options.inputFile);
 
   if (options.prove) {
-    console.log("generate pub signal");
-    const fileContent = fs.readFileSync(options.inputFile as string, 'utf-8');
-    const jsonData = JSON.parse(fileContent);
-    const payload = JSON.stringify({ input: jsonData });
-    const urlObject = new URL("https://zkemail--jwt-prover-v0-1-4-flask-app.modal.run/prove/jwt");
-    const reqOptions = {
-      hostname: urlObject.hostname,
-      path: urlObject.pathname,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(payload)
-      }
-    };
-    await new Promise<void>((resolve, reject) => {
-      const req = https.request(reqOptions, (res) => {
-        let data = '';
+    const dir = path.dirname(options.inputFile);
+    const { proof, publicSignals } = await snarkjs.groth16.fullProve(jwtVerifierInputs, path.join(dir, "jwt_auth.wasm"), path.join(dir, "jwt_auth.zkey"), console);
+    await promisify(fs.writeFile)(path.join(dir, "jwt_auth_proof.json"), JSON.stringify(proof, null, 2));
+    await promisify(fs.writeFile)(path.join(dir, "jwt_auth_public.json"), JSON.stringify(publicSignals, null, 2));
+    log("✓ Proof for jwt auth circuit generated");
 
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-
-        res.on('end', async () => {
-          try {
-            const dir = path.dirname(options.inputFile);
-            const responseJson = JSON.parse(data);
-            const proof = responseJson.proof;
-            // console.log(proof);
-            const publicSignals = responseJson.pub_signals;
-
-            await fs.promises.writeFile(
-              path.join(dir, "proof.json"),
-              JSON.stringify(proof, null, 2)
-            );
-
-            await fs.promises.writeFile(
-              path.join(dir, "public.json"),
-              JSON.stringify(publicSignals, null, 2)
-            );
-            console.log('Files written successfully');
-            resolve();
-          } catch (error) {
-            console.error('Error processing response:', error);
-            reject(error);
-          }
-        });
-      });
-
-      req.on('error', (error) => {
-        console.error('Error posting JSON data:', error);
-        reject(error);
-      });
-
-      req.write(payload);
-      req.end();
-    });
-
+    // Load verification key
+    const vKey = JSON.parse(fs.readFileSync(path.join(dir, "jwt_auth.vkey"), "utf8"));
+    // Verify the proof
+    const isValid = await snarkjs.groth16.verify(vKey, publicSignals, proof);
+    console.log(`result = ${isValid}`);
   };
-  // Create the request
+
+
 
   process.exit(0);
 }

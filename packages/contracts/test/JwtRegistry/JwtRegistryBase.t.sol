@@ -11,7 +11,7 @@ contract JwtRegistryTestBase is Test {
         0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788;
     string issKidString = "https://example.com|12345";
     string azpString = "client-id-12345";
-    
+
     JwtRegistry jwtRegistry;
 
     address deployer = vm.addr(1);

@@ -19,11 +19,22 @@ contract JwtRegistry is Ownable {
 
     DKIMRegistry public dkimRegistry;
 
+    address public jwtVerifier;
+
     // Check if azp is registered
     mapping(string => bool) public whitelistedClients;
 
+    modifier onlyJwtVerifier() {
+        require(msg.sender == jwtVerifier, "only jwtVerifier");
+        _;
+    }
+
     constructor(address _owner) Ownable(_owner) {
         dkimRegistry = new DKIMRegistry(address(this));
+    }
+
+    function updateJwtVerifier(address _jwtVerifier) public onlyOwner {
+        jwtVerifier = _jwtVerifier;
     }
 
     /// @notice Checks if a public key hash is valid and not revoked for a given kis and iss.
@@ -79,7 +90,7 @@ contract JwtRegistry is Ownable {
         dkimRegistry.setDKIMPublicKeyHash(issAndKid, publicKeyHash);
     }
 
-    function updateJwtRegistry() public onlyOwner {
+    function updateJwtRegistry() public onlyJwtVerifier {
         // TODO Call ChainLink Function
         // TODO Receive iss, kid, publicKeyHash
 

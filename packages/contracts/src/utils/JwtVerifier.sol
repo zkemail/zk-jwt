@@ -5,117 +5,156 @@ import "../interfaces/IJwtGroth16Verifier.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {strings} from "solidity-stringutils/src/strings.sol";
-import {IVerifier, JwtProof} from "../interfaces/IVerifier.sol";
+import {IVerifier} from "../interfaces/IVerifier.sol";
 import {HexUtils} from "./HexUtils.sol";
+import {JwtAuthGroth16Verifier} from "./JwtAuthGroth16Verifier.sol";
 import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 import {JwtRegistry} from "./JwtRegistry.sol";
 
 contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
     using strings for *;
     using HexUtils for string;
+    using HexUtils for bytes32;
     using StringToArrayUtils for string;
 
-    IJwtGroth16Verifier groth16Verifier;
-    JwtRegistry jwtRegistry;
-
-    uint256 public constant ISS_FIELDS = 2;
     uint256 public constant ISS_BYTES = 32;
-    uint256 public constant COMMAND_FIELDS = 20;
-    uint256 public constant COMMAND_BYTES = 605;
-    uint256 public constant AZP_FIELDS = 3;
     uint256 public constant AZP_BYTES = 72;
+    uint256 public constant COMMAND_BYTES = 605;
+
+    JwtRegistry internal jwtRegistry;
+
+    event JwtRegistryUpdated(address indexed jwtRegistry);
 
     constructor() {}
 
     /// @notice Initialize the contract with the initial owner and deploy Groth16Verifier
     /// @param _initialOwner The address of the initial owner
-    function initialize(
-        address _initialOwner,
-        address _groth16Verifier,
-        address _jwtRegistry
-    ) public initializer {
+    function initialize(address _initialOwner) public initializer {
         __Ownable_init(_initialOwner);
-        groth16Verifier = IJwtGroth16Verifier(_groth16Verifier);
-        jwtRegistry = JwtRegistry(_jwtRegistry);
     }
 
-    function verifyJwtProof(JwtProof memory proof) public returns (bool) {
-        (
-            uint256[2] memory pA,
-            uint256[2][2] memory pB,
-            uint256[2] memory pC
-        ) = abi.decode(proof.proof, (uint256[2], uint256[2][2], uint256[2]));
-
-        uint256[ISS_FIELDS + COMMAND_FIELDS + AZP_FIELDS + 6] memory pubSignals;
-
-        // Split a string consisting of iss|kid concatenated in domainName by stringToArray with | as delimiter
-        // string[] = [iss, kid]
-        string[] memory parts = proof.domainName.stringToArray();
-
-        // kid
-        pubSignals[0] = uint256(parts[1].hexStringToBytes32());
-        // iss
-        uint256[] memory stringFields;
-        stringFields = _packBytes2Fields(bytes(parts[0]), ISS_BYTES);
-        for (uint256 i = 0; i < ISS_FIELDS; i++) {
-            pubSignals[1 + i] = stringFields[i];
-        }
-        // publicKeyHash;
-        pubSignals[1 + ISS_FIELDS] = uint256(proof.publicKeyHash);
-        // jwtNullifier;
-        pubSignals[1 + ISS_FIELDS + 1] = uint256(proof.jwtNullifier);
-        // timestamp;
-        pubSignals[1 + ISS_FIELDS + 2] = uint256(proof.timestamp);
-
-        // maskedCommand
-        stringFields = _packBytes2Fields(
-            bytes(proof.maskedCommand),
-            COMMAND_BYTES
+    /// @notice Initializes the address of the JWT registry contract.
+    /// @param _jwtRegistryAddr The address of the JWT registry contract.
+    function initJwtRegistry(address _jwtRegistryAddr) public onlyOwner {
+        require(_jwtRegistryAddr != address(0), "invalid jwt registry address");
+        require(
+            address(jwtRegistry) == address(0),
+            "jwt registry already initialized"
         );
-        for (uint256 i = 0; i < COMMAND_FIELDS; i++) {
-            pubSignals[1 + ISS_FIELDS + 3 + i] = stringFields[i];
-        }
-        // accountSalt;
-        pubSignals[1 + ISS_FIELDS + 3 + COMMAND_FIELDS] = uint256(
-            proof.accountSalt
-        );
-        // azp
-        stringFields = _packBytes2Fields(bytes(proof.azp), AZP_BYTES);
-        for (uint256 i = 0; i < AZP_FIELDS; i++) {
-            pubSignals[
-                1 + ISS_FIELDS + 3 + COMMAND_FIELDS + 1 + i
-            ] = stringFields[i];
-        }
-        pubSignals[1 + ISS_FIELDS + 3 + COMMAND_FIELDS + 1 + AZP_FIELDS] = proof
-            .isCodeExist
-            ? 1
-            : 0;
+        jwtRegistry = JwtRegistry(_jwtRegistryAddr);
+        emit JwtRegistryUpdated(_jwtRegistryAddr);
+    }
 
-        // Check JwtRegistry, 
-        // if it returns false, then call updateJwtRegistry, 
+    /// @notice Updates the address of the JWT registry contract.
+    /// @param _jwtRegistryAddr The new address of the JWT registry contract.
+    function updateJwtRegistry(address _jwtRegistryAddr) public onlyOwner {
+        require(_jwtRegistryAddr != address(0), "invalid jwt registry address");
+        jwtRegistry = JwtRegistry(_jwtRegistryAddr);
+        emit JwtRegistryUpdated(_jwtRegistryAddr);
+    }
+
+    function verifyJwtProof(
+        uint256[2] memory pA,
+        uint256[2][2] memory pB,
+        uint256[2] memory pC,
+        uint256[] memory pubSignals,
+        address groth16VerifierAddress
+    ) public returns (bool) {
+        // kid -> pubSignals[0]
+        bytes32 kid = bytes32(uint256(pubSignals[0]));
+        string memory kidString = kid.bytes32ToHexString();
+
+        // iss -> pubSignals[1] - pubSignals[2]
+        string memory issString;
+        {
+            uint256[] memory pubSignalsArray = new uint256[](2);
+            pubSignalsArray[0] = pubSignals[1];
+            pubSignalsArray[1] = pubSignals[2];
+            bytes memory iss = _unpackFields2Bytes(pubSignalsArray, ISS_BYTES);
+            issString = string(abi.encodePacked(iss));
+        }
+        // publicKeyHash -> pubSignals[3]
+        bytes32 publicKeyHash = bytes32(uint256(pubSignals[3]));
+        // azp -> pubSignals[27] - pubSignals[29]
+        string memory azpString;
+        {
+            uint256[] memory pubSignalsArray = new uint256[](2);
+            pubSignalsArray[0] = pubSignals[27];
+            pubSignalsArray[1] = pubSignals[28];
+            pubSignalsArray[1] = pubSignals[29];
+            bytes memory azp = _unpackFields2Bytes(pubSignalsArray, AZP_BYTES);
+            azpString = string(abi.encodePacked(azp));
+        }
+        string memory domainName = string(
+            abi.encodePacked(issString, "|", kidString)
+        );
+
+        // Check JwtRegistry,
+        // if it returns false, then call updateJwtRegistry,
         // and then try isJwtPublicKeyValid again.
-        if (
-            !jwtRegistry.isJwtPublicKeyValid(
-                proof.domainName,
-                proof.publicKeyHash
-            )
-        ) {
+        if (!jwtRegistry.isJwtPublicKeyValid(domainName, publicKeyHash)) {
             jwtRegistry.updateJwtRegistry();
             require(
-                jwtRegistry.isJwtPublicKeyValid(
-                    proof.domainName,
-                    proof.publicKeyHash
-                ),
+                jwtRegistry.isJwtPublicKeyValid(domainName, publicKeyHash),
                 "Invalid public key hash"
             );
         }
         // Check if azp is in whitelist
         require(
-            jwtRegistry.isAzpWhitelisted(proof.azp),
+            jwtRegistry.isAzpWhitelisted(azpString),
             "azp is not whitelisted"
         );
 
-        return groth16Verifier.verifyProof(pA, pB, pC, pubSignals);
+        uint[40] memory fixedPubSignals;
+        for (uint i = 0; i < 40; i++) {
+            fixedPubSignals[i] = pubSignals[i];
+        }
+
+        bool result = IJwtGroth16Verifier(groth16VerifierAddress).verifyProof(
+            pA,
+            pB,
+            pC,
+            fixedPubSignals
+        );
+        return result;
+    }
+
+    function _unpackFields2Bytes(
+        uint256[] memory _fields,
+        uint256 _originalSize
+    ) private pure returns (bytes memory) {
+        bytes memory tempResult = new bytes(_originalSize);
+        uint256 idx = 0;
+        for (uint256 i = 0; i < _fields.length; i++) {
+            for (uint256 j = 0; j < 31; j++) {
+                if (idx >= _originalSize) {
+                    break;
+                }
+                uint8 byteVal = uint8((_fields[i] >> (8 * j)) & 0xFF);
+                tempResult[idx] = bytes1(byteVal);
+                idx++;
+            }
+        }
+
+        // Count non-null bytes
+        uint256 nonNullLength = 0;
+        for (uint256 i = 0; i < tempResult.length; i++) {
+            if (tempResult[i] != 0) {
+                nonNullLength++;
+            }
+        }
+
+        // Create a new bytes array without null bytes
+        bytes memory result = new bytes(nonNullLength);
+        uint256 index = 0;
+        for (uint256 i = 0; i < tempResult.length; i++) {
+            if (tempResult[i] != 0) {
+                result[index] = tempResult[i];
+                index++;
+            }
+        }
+
+        return result;
     }
 
     function _packBytes2Fields(
