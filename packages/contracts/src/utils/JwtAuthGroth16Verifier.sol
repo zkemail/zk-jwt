@@ -176,7 +176,7 @@ contract JwtAuthGroth16Verifier {
     uint16 constant pLastMem = 896;
 
     function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[] calldata _receivedPubSignals) public view returns (bool) {
-        console.log("h");
+        console.log("a");
         // create fixed pubsignals
         uint[40] memory _pubSignals;
         for (uint i = 0; i < 40; i++) {

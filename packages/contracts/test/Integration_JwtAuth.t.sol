@@ -62,13 +62,13 @@ contract IntegrationTest is Test {
     function test_processCommand() public {
         bytes32 accountCode = 0x1162ebff40918afe5305e68396f0283eb675901d0387f97d21928d423aaa0b54;
 
-        // string[] memory inputGenerationInput = new string[](2);
-        // inputGenerationInput[0] = string.concat(
-        //     vm.projectRoot(),
-        //     "/test/bin/generate.sh"
-        // );
-        // inputGenerationInput[1] = uint256(accountCode).toHexString(32);
-        // vm.ffi(inputGenerationInput);
+        string[] memory inputGenerationInput = new string[](2);
+        inputGenerationInput[0] = string.concat(
+            vm.projectRoot(),
+            "/test/bin/generate.sh"
+        );
+        inputGenerationInput[1] = uint256(accountCode).toHexString(32);
+        vm.ffi(inputGenerationInput);
 
         string memory publicInputFile = vm.readFile(
             string.concat(
