@@ -1,7 +1,7 @@
 pragma circom 2.1.6;
 
 include "@zk-email/circuits/helpers/reveal-substring.circom";
-include "@zk-email/ether-email-auth-circom/src/utils/bytes2ints.circom";
+include "@zk-email/email-tx-builder-circom/src/utils/bytes2ints.circom";
 
 include "./jwt-verifier.circom";
 include "./utils/constants.circom";

@@ -3,10 +3,10 @@ pragma circom 2.1.6;
 include "circomlib/circuits/poseidon.circom";
 include "@zk-email/circuits/utils/hash.circom";
 include "@zk-email/zk-regex-circom/circuits/common/email_addr_regex.circom";
-include "@zk-email/ether-email-auth-circom/src/regexes/invitation_code_with_prefix_regex.circom";
-include "@zk-email/ether-email-auth-circom/src/utils/bytes2ints.circom";
-include "@zk-email/ether-email-auth-circom/src/utils/hash_sign.circom";
-include "@zk-email/ether-email-auth-circom/src/utils/account_salt.circom";
+include "@zk-email/email-tx-builder-circom/src/regexes/invitation_code_with_prefix_regex.circom";
+include "@zk-email/email-tx-builder-circom/src/utils/bytes2ints.circom";
+include "@zk-email/email-tx-builder-circom/src/utils/hash_sign.circom";
+include "@zk-email/email-tx-builder-circom/src/utils/account_salt.circom";
 
 include "../utils/merkle-tree.circom";
 
