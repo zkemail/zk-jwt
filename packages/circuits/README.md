@@ -1,6 +1,6 @@
 # @zk-email/jwt-tx-builder-circuits
 
-The `circuits` package exports the circom circuits needed for building on ZK-JWT.
+The `circuits` package exports the circom circuits needed for building on jwt-tx-builder.
 
 All circuits in this package are libraries that can be imported to your circom project (i.e this package does not contain a `main` circuit).
 
