@@ -844,7 +844,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-modules-commonjs@npm:^7.22.15, @babel/plugin-transform-modules-commonjs@npm:^7.25.9":
+"@babel/plugin-transform-modules-commonjs@npm:^7.25.9":
   version: 7.25.9
   resolution: "@babel/plugin-transform-modules-commonjs@npm:7.25.9"
   dependencies:
@@ -1020,55 +1020,6 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: 436046ab07d54a9b44a384eeffec701d4e959a37a7547dda72e069e751ca7ff753d1782a8339e354b97c78a868b49ea97bf41bf5a44c6d7a3c0a05ad40eeb49c
-  languageName: node
-  linkType: hard
-
-"@babel/plugin-transform-react-display-name@npm:^7.25.9":
-  version: 7.25.9
-  resolution: "@babel/plugin-transform-react-display-name@npm:7.25.9"
-  dependencies:
-    "@babel/helper-plugin-utils": ^7.25.9
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: cd7020494e6f31c287834e8929e6a718d5b0ace21232fa30feb48622c2312045504c34b347dcff9e88145c349882b296a7d6b6cc3d3447d8c85502f16471747c
-  languageName: node
-  linkType: hard
-
-"@babel/plugin-transform-react-jsx-development@npm:^7.25.9":
-  version: 7.25.9
-  resolution: "@babel/plugin-transform-react-jsx-development@npm:7.25.9"
-  dependencies:
-    "@babel/plugin-transform-react-jsx": ^7.25.9
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: 537d38369537f1eb56041c4b770bc0733fde1801a7f5ffef40a1217ea448f33ee2fa8e6098a58a82fd00e432c1b9426a66849496da419020c9eca3b1b1a23779
-  languageName: node
-  linkType: hard
-
-"@babel/plugin-transform-react-jsx@npm:^7.25.9":
-  version: 7.25.9
-  resolution: "@babel/plugin-transform-react-jsx@npm:7.25.9"
-  dependencies:
-    "@babel/helper-annotate-as-pure": ^7.25.9
-    "@babel/helper-module-imports": ^7.25.9
-    "@babel/helper-plugin-utils": ^7.25.9
-    "@babel/plugin-syntax-jsx": ^7.25.9
-    "@babel/types": ^7.25.9
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: 5c6523c3963e3c6cf4c3cc2768a3766318af05b8f6c17aff52a4010e2c170e87b2fcdc94e9c9223ae12158664df4852ce81b9c8d042c15ea8fd83d6375f9f30f
-  languageName: node
-  linkType: hard
-
-"@babel/plugin-transform-react-pure-annotations@npm:^7.25.9":
-  version: 7.25.9
-  resolution: "@babel/plugin-transform-react-pure-annotations@npm:7.25.9"
-  dependencies:
-    "@babel/helper-annotate-as-pure": ^7.25.9
-    "@babel/helper-plugin-utils": ^7.25.9
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: 9995c0fc7c25d3aaaa0ce84233de02eab2564ea111d0813ec5baa538eb21520402879cc787ad1ad4c2061b99cebc3beb09910e64c9592e8ccb42ae62d9e4fd9a
   languageName: node
   linkType: hard
 
@@ -1314,22 +1265,6 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0 || ^8.0.0-0 <8.0.0
   checksum: 4855e799bc50f2449fb5210f78ea9e8fd46cf4f242243f1e2ed838e2bd702e25e73e822e7f8447722a5f4baa5e67a8f7a0e403f3e7ce04540ff743a9c411c375
-  languageName: node
-  linkType: hard
-
-"@babel/preset-react@npm:^7.22.0":
-  version: 7.25.9
-  resolution: "@babel/preset-react@npm:7.25.9"
-  dependencies:
-    "@babel/helper-plugin-utils": ^7.25.9
-    "@babel/helper-validator-option": ^7.25.9
-    "@babel/plugin-transform-react-display-name": ^7.25.9
-    "@babel/plugin-transform-react-jsx": ^7.25.9
-    "@babel/plugin-transform-react-jsx-development": ^7.25.9
-    "@babel/plugin-transform-react-pure-annotations": ^7.25.9
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: b5650c07a744ab4024c04fae002c9043235b4ad8687de8bf759135b9c6186553f4f53fde0a4583ce4c019560b79c176f39c745cdf77645af07071d26d8ba84ce
   languageName: node
   linkType: hard
 
@@ -2391,13 +2326,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solidity-parser/parser@npm:^0.18.0":
-  version: 0.18.0
-  resolution: "@solidity-parser/parser@npm:0.18.0"
-  checksum: 970d991529d632862fa88e107531339d84df35bf0374e31e8215ce301b19a01ede33fccf4d374402649814263f8bc278a8e6d62a0129bb877539fbdd16a604cc
-  languageName: node
-  linkType: hard
-
 "@types/addressparser@npm:^1.0.3":
   version: 1.0.3
   resolution: "@types/addressparser@npm:1.0.3"
@@ -2748,23 +2676,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zk-email/circuits@npm:6.1.5-nightly.2024-09-16":
-  version: 6.1.5-nightly.2024-09-16
-  resolution: "@zk-email/circuits@npm:6.1.5-nightly.2024-09-16"
+"@zk-email/circuits@npm:6.2.0":
+  version: 6.2.0
+  resolution: "@zk-email/circuits@npm:6.2.0"
   dependencies:
     "@zk-email/zk-regex-circom": ^2.1.0
     circomlib: ^2.0.5
-  checksum: 742a891b278d8faf6975d4fd077b54f1eeb69ce8a2831dbb9c0e67de0a4f5ee5778fe1acd6fc5cafc6e5fdd9745737ad45ee15bce959493cacc4cd6f97907d93
+  checksum: 37e65fdacea64c49c0dfb7dfeae5f6716ec3fd59e5d198e580e39daddc98f9a6421d80697dd81ab397e34205a221098c10546f858932464ee058ed2a3a6a6801
   languageName: node
   linkType: hard
 
-"@zk-email/circuits@npm:=6.1.5":
-  version: 6.1.5
-  resolution: "@zk-email/circuits@npm:6.1.5"
+"@zk-email/circuits@npm:=6.3.2":
+  version: 6.3.2
+  resolution: "@zk-email/circuits@npm:6.3.2"
   dependencies:
-    "@zk-email/zk-regex-circom": ^2.1.0
+    "@zk-email/zk-regex-circom": ^2.3.1
     circomlib: ^2.0.5
-  checksum: d0e09bc48aca8195265b405b1800a0251ae0dc3596bcd12ce8b9ed9770589abf326f8a8882c8a454e3af97e7bea619e5020a6d2cdf910535ac660c568471714e
+  checksum: e247f0b189059246ad396c7bd08ee1c7a005293abc0b3530777c13cf1ed8dcdca6dd7e273fae4e828a66860fd5579faa1fbb7b7cf00f081c0e3d2accfcf821f5
   languageName: node
   linkType: hard
 
@@ -2779,16 +2707,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zk-email/ether-email-auth-circom@npm:^0.0.2-preview":
-  version: 0.0.2-preview
-  resolution: "@zk-email/ether-email-auth-circom@npm:0.0.2-preview"
+"@zk-email/email-tx-builder-circom@npm:1.0.0":
+  version: 1.0.0
+  resolution: "@zk-email/email-tx-builder-circom@npm:1.0.0"
   dependencies:
-    "@zk-email/circuits": =6.1.5
+    "@zk-email/circuits": =6.3.2
     "@zk-email/relayer-utils": =0.3.7
-    "@zk-email/zk-regex-circom": =2.1.1
-    commander: ^11.0.0
-    snarkjs: ^0.7.4
-  checksum: c3bbd6a2a91805db139bdcce48ff1175d2b1541d8b093ee9f8a138532f33cdad4280274d8c2f2e68a19dd9991a6fc099b8aa50a7f00448f088f1a5dcbc2aaeab
+    "@zk-email/zk-regex-circom": =2.3.1
+    commander: ^12.1.0
+    snarkjs: =0.7.5
+  checksum: a3599272c8e69af5c0807fe4dcd553bd56034d03a04dc9410482f5d59a2c29be31df23fead42416c72c602072305bc5ba61f2cba81139755efca3da732381319
   languageName: node
   linkType: hard
 
@@ -2817,8 +2745,9 @@ __metadata:
     "@babel/preset-env": ^7.22.20
     "@babel/preset-typescript": ^7.23.0
     "@types/jest": ^29.5.4
-    "@zk-email/circuits": 6.1.5-nightly.2024-09-16
-    "@zk-email/ether-email-auth-circom": ^0.0.2-preview
+    "@zk-email/circuits": 6.2.0
+    "@zk-email/email-tx-builder-circom": 1.0.0
+    "@zk-email/relayer-utils": =0.3.7
     "@zk-email/zk-regex-circom": ^2.1.1
     chai: ^4.3.7
     circom_tester: ^0.0.19
@@ -2913,17 +2842,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zk-email/zk-regex-circom@npm:=2.1.1":
-  version: 2.1.1
-  resolution: "@zk-email/zk-regex-circom@npm:2.1.1"
-  dependencies:
-    commander: ^11.0.0
-    snarkjs: ^0.7.0
-  checksum: 0306d4acea44d53d43b02917d42faf334307301c9aa6938552ecf81935a3458bbe951b76f8e99b6845de980ef4b7912e2d444a3558cb2bbf6ce17e5c3bc04019
-  languageName: node
-  linkType: hard
-
-"@zk-email/zk-regex-circom@npm:^2.1.0, @zk-email/zk-regex-circom@npm:^2.1.1":
+"@zk-email/zk-regex-circom@npm:=2.3.1, @zk-email/zk-regex-circom@npm:^2.1.0, @zk-email/zk-regex-circom@npm:^2.1.1, @zk-email/zk-regex-circom@npm:^2.3.1":
   version: 2.3.1
   resolution: "@zk-email/zk-regex-circom@npm:2.3.1"
   dependencies:
@@ -2932,26 +2851,6 @@ __metadata:
   checksum: 81cf723b93c8ad052f52a62609068ae1452335304b53d978b8dc1d9ad7191bb8aa4727f5ab81fa8b21f62c80d23e21bed94fed9a4145c8b95122feadae76d8e0
   languageName: node
   linkType: hard
-
-"@zk-jwt/zk-jwt@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@zk-jwt/zk-jwt@workspace:."
-  dependencies:
-    "@babel/core": ^7.22.5
-    "@babel/plugin-transform-modules-commonjs": ^7.22.15
-    "@babel/preset-env": ^7.22.2
-    "@babel/preset-react": ^7.22.0
-    "@babel/preset-typescript": ^7.21.5
-    "@types/jest": ^29.5.4
-    babel-jest: ^29.5.0
-    babel-preset-jest: ^29.5.0
-    jest: ^29.5.0
-    prettier: ^3.0.0
-    prettier-plugin-solidity: ^1.1.3
-    ts-jest: ^29.1.1
-    typescript: ^4.5.4
-  languageName: unknown
-  linkType: soft
 
 "@zxing/text-encoding@npm:0.9.0":
   version: 0.9.0
@@ -3841,14 +3740,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"circom_runtime@npm:0.1.25":
-  version: 0.1.25
-  resolution: "circom_runtime@npm:0.1.25"
+"circom_runtime@npm:0.1.21":
+  version: 0.1.21
+  resolution: "circom_runtime@npm:0.1.21"
   dependencies:
-    ffjavascript: 0.3.0
+    ffjavascript: 0.2.56
   bin:
     calcwit: calcwit.js
-  checksum: db2c786ba5bfe749c2824e8f36567d202a3a4c838a1940711b009fd63ca9fb178bd96888817becbd59e240dbdeb6dff83e673b93a91c4fa49d67b2dfdd53b1eb
+  checksum: 3071f1e0fba9a5fb41c940454edb911ce09edfd5d0bd12156ec79045a0bf3ff2cc5b35f46e84e42902ef8bb0a4166f428b75d0ceb363c0d485f1a111b27daba1
+  languageName: node
+  linkType: hard
+
+"circom_runtime@npm:0.1.28":
+  version: 0.1.28
+  resolution: "circom_runtime@npm:0.1.28"
+  dependencies:
+    ffjavascript: 0.3.1
+  bin:
+    calcwit: calcwit.js
+  checksum: 1e0118c90e2257f1f7a7100413040decb92d0e3e1fe461e92263ee258ed33ba0c85ee19d7456e37df20c4ae0d8a4d8c00466aba6e9558f3bf8fa3397abc5c509
   languageName: node
   linkType: hard
 
@@ -4012,6 +3922,13 @@ __metadata:
   version: 11.1.0
   resolution: "commander@npm:11.1.0"
   checksum: fd1a8557c6b5b622c89ecdfde703242ab7db3b628ea5d1755784c79b8e7cb0d74d65b4a262289b533359cd58e1bfc0bf50245dfbcd2954682a6f367c828b79ef
+  languageName: node
+  linkType: hard
+
+"commander@npm:^12.1.0":
+  version: 12.1.0
+  resolution: "commander@npm:12.1.0"
+  checksum: 68e9818b00fc1ed9cdab9eb16905551c2b768a317ae69a5e3c43924c2b20ac9bb65b27e1cab36aeda7b6496376d4da908996ba2c0b5d79463e0fb1e77935d514
   languageName: node
   linkType: hard
 
@@ -5097,6 +5014,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ffjavascript@npm:0.3.1, ffjavascript@npm:^0.3.0":
+  version: 0.3.1
+  resolution: "ffjavascript@npm:0.3.1"
+  dependencies:
+    wasmbuilder: 0.0.16
+    wasmcurves: 0.2.2
+    web-worker: 1.2.0
+  checksum: fa43e35083873a7752d3049066d3e967604d6d35c5a3c9101ef4b68bebdc0837a0e0ffe006a3104a7caea0b2ff5d1d885f7f025006e017cb390631361589f427
+  languageName: node
+  linkType: hard
+
 "ffjavascript@npm:^0.2.45, ffjavascript@npm:^0.2.48, ffjavascript@npm:^0.2.56, ffjavascript@npm:^0.2.59":
   version: 0.2.63
   resolution: "ffjavascript@npm:0.2.63"
@@ -5105,17 +5033,6 @@ __metadata:
     wasmcurves: 0.2.2
     web-worker: 1.2.0
   checksum: d4c549228b31692bb8a44f7eb46720b0504a9ff5bc00e8a9c44ad104622cb83613542b4c321f83cb3027c9dcd1b0834da2b1ea679c3277642f754e9e5ea1c06f
-  languageName: node
-  linkType: hard
-
-"ffjavascript@npm:^0.3.0":
-  version: 0.3.1
-  resolution: "ffjavascript@npm:0.3.1"
-  dependencies:
-    wasmbuilder: 0.0.16
-    wasmcurves: 0.2.2
-    web-worker: 1.2.0
-  checksum: fa43e35083873a7752d3049066d3e967604d6d35c5a3c9101ef4b68bebdc0837a0e0ffe006a3104a7caea0b2ff5d1d885f7f025006e017cb390631361589f427
   languageName: node
   linkType: hard
 
@@ -7983,33 +7900,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-solidity@npm:^1.1.3":
-  version: 1.4.1
-  resolution: "prettier-plugin-solidity@npm:1.4.1"
-  dependencies:
-    "@solidity-parser/parser": ^0.18.0
-    semver: ^7.5.4
-  peerDependencies:
-    prettier: ">=2.3.0"
-  checksum: ac9f3cc525553a45e70f60898da5d4a7b733128cdd9893686364790ff688c56dd6eb0234620759dc6fabad4dc354a27097927b29ea7761c5814c64613c07222f
-  languageName: node
-  linkType: hard
-
 "prettier@npm:^2.8.3":
   version: 2.8.8
   resolution: "prettier@npm:2.8.8"
   bin:
     prettier: bin-prettier.js
   checksum: b49e409431bf129dd89238d64299ba80717b57ff5a6d1c1a8b1a28b590d998a34e083fa13573bc732bb8d2305becb4c9a4407f8486c81fa7d55100eb08263cf8
-  languageName: node
-  linkType: hard
-
-"prettier@npm:^3.0.0":
-  version: 3.3.3
-  resolution: "prettier@npm:3.3.3"
-  bin:
-    prettier: bin/prettier.cjs
-  checksum: bc8604354805acfdde6106852d14b045bb20827ad76a5ffc2455b71a8257f94de93f17f14e463fe844808d2ccc87248364a5691488a3304f1031326e62d9276e
   languageName: node
   linkType: hard
 
@@ -8107,6 +8003,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"r1csfile@npm:0.0.41, r1csfile@npm:^0.0.41":
+  version: 0.0.41
+  resolution: "r1csfile@npm:0.0.41"
+  dependencies:
+    "@iden3/bigarray": 0.0.2
+    "@iden3/binfileutils": 0.0.11
+    fastfile: 0.0.20
+    ffjavascript: 0.2.56
+  checksum: eec689416f66f09db2d6ca66fac1ef6841b088ab29abcde487145ebd2110916c92583e11ac86f0cdcc4e8a3a7c7df9ff5352ad959e8ae385d37c3b51cec5cf4d
+  languageName: node
+  linkType: hard
+
 "r1csfile@npm:0.0.48":
   version: 0.0.48
   resolution: "r1csfile@npm:0.0.48"
@@ -8116,18 +8024,6 @@ __metadata:
     fastfile: 0.0.20
     ffjavascript: 0.3.0
   checksum: 8929285ece5d0e8e560572e3a202e84165c5de3855cd04f221fec474b289c8bf9f3d0f734fc7303482fdc75f650e09ca0633bf5769c3367f642df93e83dbb90e
-  languageName: node
-  linkType: hard
-
-"r1csfile@npm:^0.0.41":
-  version: 0.0.41
-  resolution: "r1csfile@npm:0.0.41"
-  dependencies:
-    "@iden3/bigarray": 0.0.2
-    "@iden3/binfileutils": 0.0.11
-    fastfile: 0.0.20
-    ffjavascript: 0.2.56
-  checksum: eec689416f66f09db2d6ca66fac1ef6841b088ab29abcde487145ebd2110916c92583e11ac86f0cdcc4e8a3a7c7df9ff5352ad959e8ae385d37c3b51cec5cf4d
   languageName: node
   linkType: hard
 
@@ -8347,6 +8243,12 @@ __metadata:
   checksum: 87f4164e396f0171b0a3386cc1877a817f572148ee13a7e113b238e48e8a9f2f31d009a92ec38a591ff1567d9662c6b67fd8818a2dbbaed74bc26a87a2a4a9a0
   languageName: node
   linkType: hard
+
+"root-workspace-0b6124@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "root-workspace-0b6124@workspace:."
+  languageName: unknown
+  linkType: soft
 
 "run-async@npm:^2.4.0":
   version: 2.4.1
@@ -8583,23 +8485,64 @@ __metadata:
   languageName: node
   linkType: hard
 
-"snarkjs@npm:0.7.4":
-  version: 0.7.4
-  resolution: "snarkjs@npm:0.7.4"
+"snarkjs@git+https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e":
+  version: 0.5.0
+  resolution: "snarkjs@https://github.com/sampritipanda/snarkjs.git#commit=fef81fc51d17a734637555c6edbd585ecda02d9e"
+  dependencies:
+    "@iden3/binfileutils": 0.0.11
+    bfj: ^7.0.2
+    blake2b-wasm: ^2.4.0
+    circom_runtime: 0.1.21
+    ejs: ^3.1.6
+    fastfile: 0.0.20
+    ffjavascript: 0.2.56
+    js-sha3: ^0.8.0
+    localforage: ^1.10.0
+    logplease: ^1.2.15
+    r1csfile: 0.0.41
+  bin:
+    snarkjs: build/cli.cjs
+  checksum: f2050f0135d50d459ea0edddf3e394e833a2d28c6648e5889b2f896814865e5c60606e978a8a106bd5bfe7e27501c315f249db5b71895d5e7e6e9a87bfcd55ab
+  languageName: node
+  linkType: hard
+
+"snarkjs@npm:0.5.0":
+  version: 0.5.0
+  resolution: "snarkjs@npm:0.5.0"
+  dependencies:
+    "@iden3/binfileutils": 0.0.11
+    bfj: ^7.0.2
+    blake2b-wasm: ^2.4.0
+    circom_runtime: 0.1.21
+    ejs: ^3.1.6
+    fastfile: 0.0.20
+    ffjavascript: 0.2.56
+    js-sha3: ^0.8.0
+    logplease: ^1.2.15
+    r1csfile: 0.0.41
+  bin:
+    snarkjs: build/cli.cjs
+  checksum: f0233103548bcd0f75b2ff8998ba02437e5131486d126c4a6a31355cd3558c7ce4311e21d5f24ea9ca198d0556e91e63e2ec6aef8da44014c16b29b6a7086ca2
+  languageName: node
+  linkType: hard
+
+"snarkjs@npm:=0.7.5, snarkjs@npm:^0.7.4, snarkjs@npm:^0.7.5":
+  version: 0.7.5
+  resolution: "snarkjs@npm:0.7.5"
   dependencies:
     "@iden3/binfileutils": 0.0.12
     bfj: ^7.0.2
     blake2b-wasm: ^2.4.0
-    circom_runtime: 0.1.25
+    circom_runtime: 0.1.28
     ejs: ^3.1.6
     fastfile: 0.0.20
-    ffjavascript: 0.3.0
+    ffjavascript: 0.3.1
     js-sha3: ^0.8.0
     logplease: ^1.2.15
     r1csfile: 0.0.48
   bin:
     snarkjs: build/cli.cjs
-  checksum: 239b12de4f837deb32ba7ca3b02ddea71d25152242016f8d789e98fc984ecf7588a2f396174e603894d3cdfa76cf0ce7f89afdb15a27115a2a7932285a7e77bd
+  checksum: afc1bebc40d34637133b726ec229674984205c5b2779d834c541d6a02a77d4f682510f0580d87a6b00097e6dc60d5783d1bb7eded2d4c34e4fe6f3e8fb929fdb
   languageName: node
   linkType: hard
 
@@ -9193,7 +9136,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.5.4, typescript@npm:^4.8.3":
+"typescript@npm:^4.8.3":
   version: 4.9.5
   resolution: "typescript@npm:4.9.5"
   bin:
@@ -9213,7 +9156,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.5.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.8.3#~builtin<compat/typescript>":
+"typescript@patch:typescript@^4.8.3#~builtin<compat/typescript>":
   version: 4.9.5
   resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=a1c5e5"
   bin:

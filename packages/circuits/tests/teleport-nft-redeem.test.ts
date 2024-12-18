@@ -65,11 +65,6 @@ describe("Teleport NFT Redeem Circuit", () => {
             ...filteredCircuitInputs
         } = verifierInputs;
 
-        console.log(
-            "filteredCircuitInputs",
-            JSON.stringify(filteredCircuitInputs)
-        );
-
         const witness = await circuit.calculateWitness(filteredCircuitInputs);
         await circuit.checkConstraints(witness);
     });

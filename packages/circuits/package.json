@@ -12,6 +12,7 @@
     "dependencies": {
         "@zk-email/circuits": "6.2.0",
         "@zk-email/email-tx-builder-circom": "1.0.0",
+        "@zk-email/relayer-utils": "=0.3.7",
         "@zk-email/zk-regex-circom": "^2.1.1",
         "circomlib": "^2.0.5",
         "snarkjs": "^0.7.4"
