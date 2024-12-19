@@ -112,5 +112,3 @@ template JWTVerifier(
     header <== Base64Decode(maxHeaderLength)(b64Header);
     payload <== Base64Decode(maxPayloadLength)(b64Payload);
 }
-
-component main = JWTVerifier(121, 17, 1024, 128, 896);

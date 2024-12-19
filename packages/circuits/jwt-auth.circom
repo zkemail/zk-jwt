@@ -180,5 +180,3 @@ template JWTAuth(
     signal embeddedAccountCode <== Hex2FieldModular(invitationCodeLen)(invitationCodeHex);
     isCodeExist * (embeddedAccountCode - accountCode) === 0;
 }
-
-component main = JWTAuth(121, 17, 1024, 128, 896, 72, 605);
