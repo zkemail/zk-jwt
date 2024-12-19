@@ -1,6 +1,6 @@
 # JWT Contracts
 
-This directory contains verifier contracts for handling JSON Web Tokens(JWTs) proofs. 
+This directory contains verifier contracts for handling JSON Web Tokens(JWTs) proofs.
 
 ## Contracts Overview
 
@@ -53,10 +53,10 @@ forge script script/Deploy_jwtRegistry.s.sol:DeployScript --rpc-url $RPC_URL --b
 1. **Installation**: First, install the package using yarn. Run the following command in your project directory:
 
    ```
-   yarn add @zk-email/jwt-tx-builder-contracts 
+   yarn add @zk-email/jwt-tx-builder-contracts
    ```
 
-2. **Integration**: 
+2. **Integration**:
 
    - **Foundry**: Add the following line to remappings.txt:
 

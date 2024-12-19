@@ -16,17 +16,17 @@ The [input-generators.ts](./src/input-generators.ts) file provides functions for
 
 ```typescript
 export interface RSAPublicKey {
-    n: string; // Base64-encoded modulus
-    e: number; // Public exponent
+  n: string; // Base64-encoded modulus
+  e: number; // Public exponent
 }
 
 export interface JWTInputGenerationArgs {
-    maxMessageLength?: number;
-    verifyAnonymousDomains?: boolean;
-    anonymousDomainsTreeHeight?: number;
-    anonymousDomainsTreeRoot?: bigint;
-    emailDomainPath?: bigint[];
-    emailDomainPathHelper?: number[];
+  maxMessageLength?: number;
+  verifyAnonymousDomains?: boolean;
+  anonymousDomainsTreeHeight?: number;
+  anonymousDomainsTreeRoot?: bigint;
+  emailDomainPath?: bigint[];
+  emailDomainPathHelper?: number[];
 }
 ```
 
@@ -34,10 +34,10 @@ export interface JWTInputGenerationArgs {
 
 ```typescript
 async function generateJWTVerifierInputs(
-    rawJWT: string,
-    publicKey: RSAPublicKey,
-    accountCode: bigint,
-    params: JWTInputGenerationArgs = {}
+  rawJWT: string,
+  publicKey: RSAPublicKey,
+  accountCode: bigint,
+  params: JWTInputGenerationArgs = {},
 );
 ```
 

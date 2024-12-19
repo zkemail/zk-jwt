@@ -2,25 +2,22 @@
 import { program } from 'commander';
 import { generateJWT } from '../../helpers/src/jwt'; // Specify the path to the function that generates JWT
 import { generateJWTVerifierInputs } from '../../helpers/src/input-generators'; // Specify the path to the function that generates inputs
-import { splitJWT } from "../../helpers/src/utils";
-import fs from "fs";
-const snarkjs = require("snarkjs");
-import { promisify } from "util";
-import path from "path";
-const relayerUtils = require("@zk-email/relayer-utils");
+import { splitJWT } from '../../helpers/src/utils';
+import fs from 'fs';
+const snarkjs = require('snarkjs');
+import { promisify } from 'util';
+import path from 'path';
+const relayerUtils = require('@zk-email/relayer-utils');
 import https from 'https';
 
 program
-  .requiredOption(
-    "--input-file <string>",
-    "Path of a json file to write the generated input"
-  )
+  .requiredOption('--input-file <string>', 'Path of a json file to write the generated input')
   .requiredOption('-a, --account-code <string>', 'Account code as bigint string')
   .option('-h, --header <string>', 'JWT header as JSON string')
   .option('-p, --payload <string>', 'JWT payload as JSON string')
   .option('-m, --maxMessageLength <number>', 'Maximum message length', '1024')
-  .option("--silent", "No console logs")
-  .option("--prove", "Also generate proof");
+  .option('--silent', 'No console logs')
+  .option('--prove', 'Also generate proof');
 
 program.parse(process.argv);
 
@@ -33,15 +30,15 @@ function log(...message: any) {
 }
 
 async function main() {
-  const kid = BigInt("0x5aaff47c21d06e266cce395b2145c7c6d4730ea5");
-  const issuer = "random.website.com";
+  const kid = BigInt('0x5aaff47c21d06e266cce395b2145c7c6d4730ea5');
+  const issuer = 'random.website.com';
   const timestamp = 1694989812;
-  const azp = "demo-client-id";
-  const email = "dummy@gmail.com";
+  const azp = 'demo-client-id';
+  const email = 'dummy@gmail.com';
 
   const defaultHeader = {
-    alg: "RS256",
-    typ: "JWT",
+    alg: 'RS256',
+    typ: 'JWT',
     kid: kid.toString(16),
   };
   const header = defaultHeader;
@@ -55,35 +52,25 @@ async function main() {
   const accountCode = BigInt(options.accountCode);
   const maxMessageLength = parseInt(options.maxMessageLength, 1024);
 
-
   const { rawJWT, publicKey } = generateJWT(header, {
     ...payload,
-    nonce: "Send 0.12 ETH to 0x1234",
+    nonce: 'Send 0.12 ETH to 0x1234',
   });
 
-  const jwtVerifierInputs = await generateJWTVerifierInputs(
-    rawJWT,
-    publicKey,
-    accountCode,
-    { maxMessageLength }
-  );
+  const jwtVerifierInputs = await generateJWTVerifierInputs(rawJWT, publicKey, accountCode, { maxMessageLength });
 
   console.log('JWT Verifier Inputs:', jwtVerifierInputs);
 
-  const publicKeyHash = relayerUtils.publicKeyHash(
-    "0x" + Buffer.from(publicKey.n, "base64").toString("hex")
-  );
-  console.log("publicKeyHash");
+  const publicKeyHash = relayerUtils.publicKeyHash('0x' + Buffer.from(publicKey.n, 'base64').toString('hex'));
+  console.log('publicKeyHash');
   console.log(publicKeyHash);
   const [, , signature] = splitJWT(rawJWT);
-  const expectedJwtNullifier = relayerUtils.emailNullifier(
-    "0x" + Buffer.from(signature, "base64").toString("hex")
-  );
-  console.log("expectedJwtNullifier");
+  const expectedJwtNullifier = relayerUtils.emailNullifier('0x' + Buffer.from(signature, 'base64').toString('hex'));
+  console.log('expectedJwtNullifier');
   console.log(expectedJwtNullifier);
 
-  if (!options.inputFile.endsWith(".json")) {
-    throw new Error("--input file path arg must end with .json");
+  if (!options.inputFile.endsWith('.json')) {
+    throw new Error('--input file path arg must end with .json');
   }
 
   // log("Generating Inputs for:", options);
@@ -97,22 +84,22 @@ async function main() {
 
   await promisify(fs.writeFile)(options.inputFile, JSON.stringify(processedInputs, null, 2));
 
-  log("Inputs written to", options.inputFile);
+  log('Inputs written to', options.inputFile);
 
   if (options.prove) {
-    console.log("generate pub signal");
+    console.log('generate pub signal');
     const fileContent = fs.readFileSync(options.inputFile as string, 'utf-8');
     const jsonData = JSON.parse(fileContent);
     const payload = JSON.stringify({ input: jsonData });
-    const urlObject = new URL("https://zkemail--jwt-prover-v0-1-4-flask-app.modal.run/prove/jwt");
+    const urlObject = new URL('https://zkemail--jwt-prover-v0-1-4-flask-app.modal.run/prove/jwt');
     const reqOptions = {
       hostname: urlObject.hostname,
       path: urlObject.pathname,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(payload)
-      }
+        'Content-Length': Buffer.byteLength(payload),
+      },
     };
     await new Promise<void>((resolve, reject) => {
       const req = https.request(reqOptions, (res) => {
@@ -130,15 +117,9 @@ async function main() {
             // console.log(proof);
             const publicSignals = responseJson.pub_signals;
 
-            await fs.promises.writeFile(
-              path.join(dir, "proof.json"),
-              JSON.stringify(proof, null, 2)
-            );
+            await fs.promises.writeFile(path.join(dir, 'proof.json'), JSON.stringify(proof, null, 2));
 
-            await fs.promises.writeFile(
-              path.join(dir, "public.json"),
-              JSON.stringify(publicSignals, null, 2)
-            );
+            await fs.promises.writeFile(path.join(dir, 'public.json'), JSON.stringify(publicSignals, null, 2));
             console.log('Files written successfully');
             resolve();
           } catch (error) {
@@ -156,8 +137,7 @@ async function main() {
       req.write(payload);
       req.end();
     });
-
-  };
+  }
   // Create the request
 
   process.exit(0);
@@ -166,16 +146,13 @@ async function main() {
 function convertBigIntFieldsToString(obj: any): any {
   if (typeof obj === 'object' && obj !== null) {
     return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [
-        key,
-        typeof value === 'bigint' ? value.toString() : value
-      ])
+      Object.entries(obj).map(([key, value]) => [key, typeof value === 'bigint' ? value.toString() : value]),
     );
   }
   return obj;
 }
 
 main().catch((err) => {
-  console.error("Error generating inputs", err);
+  console.error('Error generating inputs', err);
   process.exit(1);
 });

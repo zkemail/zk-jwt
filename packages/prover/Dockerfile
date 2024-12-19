@@ -37,36 +37,36 @@ RUN n 22
 RUN npm install -g yarn snarkjs
 
 
-RUN git clone https://github.com/zkemail/jwt-tx-auth.git
-WORKDIR /jwt-tx-auth/packages/prover
+RUN git clone https://github.com/zkemail/jwt-tx-builder.git
+WORKDIR /jwt-tx-builder/packages/prover
 RUN pip install -r requirements.txt
 RUN cp ./circom_proofgen.sh /root
 WORKDIR /root
 RUN ls /root
 RUN mkdir params
 WORKDIR /root/params
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier.zkey --output ./jwt-verifier.zkey
-RUN mkdir ./jwt-verifier_cpp
-WORKDIR /root/params/jwt-verifier_cpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/jwt-verifier --output ./jwt-verifier
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/Makefile --output ./Makefile
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/calcwit.cpp --output ./calcwit.cpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/calcwit.hpp --output ./calcwit.hpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/calcwit.o --output ./calcwit.o
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/circom.hpp --output ./circom.hpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/jwt-verifier.cpp --output ./jwt-verifier.cpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/jwt-verifier.dat --output ./jwt-verifier.dat
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/fr.asm --output ./fr.asm
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/fr.cpp --output ./fr.cpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/fr.hpp --output ./fr.hpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/fr.o --output ./fr.o
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/fr_asm.o --output ./fr_asm.o
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/main.cpp --output ./main.cpp
-RUN curl https://storage.googleapis.com/zk-jwt-params/build/jwt-verifier_cpp/main.o --output ./main.o
-RUN chmod +x ./jwt-verifier
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth.zkey --output ./jwt-auth.zkey
+RUN mkdir ./jwt-auth_cpp
+WORKDIR /root/params/jwt-auth_cpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/jwt-auth --output ./jwt-auth
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/Makefile --output ./Makefile
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/calcwit.cpp --output ./calcwit.cpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/calcwit.hpp --output ./calcwit.hpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/calcwit.o --output ./calcwit.o
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/circom.hpp --output ./circom.hpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/jwt-auth.cpp --output ./jwt-auth.cpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/jwt-auth.dat --output ./jwt-auth.dat
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/fr.asm --output ./fr.asm
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/fr.cpp --output ./fr.cpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/fr.hpp --output ./fr.hpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/fr.o --output ./fr.o
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/fr_asm.o --output ./fr_asm.o
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/main.cpp --output ./main.cpp
+RUN curl https://storage.googleapis.com/zk-jwt-params/demo-18-12-2024/jwt-auth_cpp/main.o --output ./main.o
+RUN chmod +x ./jwt-auth
 WORKDIR /root
 RUN ls params
-RUN ls params/jwt-verifier_cpp
+RUN ls params/jwt-auth_cpp
 RUN chmod +x circom_proofgen.sh
 RUN mkdir build
 
