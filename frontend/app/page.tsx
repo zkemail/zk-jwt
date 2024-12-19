@@ -265,7 +265,7 @@ export default function Home() {
               </Text>
               <StyledOrderedList>
                 <StyledListItem>
-                  Type your <InstructionStep>command</InstructionStep> below (e.g. "Send 0.12 ETH to 0x1234...")
+                  Type your <InstructionStep>command</InstructionStep> below (e.g. &quot;Send 0.12 ETH to 0x1234...&quot;)
                 </StyledListItem>
                 <StyledListItem>
                   <InstructionStep>Google Sign-In</InstructionStep> activates after entering a command

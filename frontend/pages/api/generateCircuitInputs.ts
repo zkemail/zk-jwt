@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { generateJWTAuthenticatorInputs } from '@zk-email/jwt-tx-builder-helpers/dist/input-generators';
-const relayerUtils = require('@zk-email/relayer-utils');
+import relayerUtils from '@zk-email/relayer-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
