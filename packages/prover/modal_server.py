@@ -5,7 +5,7 @@ from google.cloud.logging.handlers import CloudLoggingHandler
 from google.cloud.logging_v2.handlers import setup_logging
 from google.oauth2 import service_account
 
-app = modal.App("jwt-prover-v0.1.4")
+app = modal.App("jwt-auth-prover-v0.1.0")
 
 image = modal.Image.from_dockerfile("Dockerfile")
 

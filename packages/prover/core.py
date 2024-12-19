@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 def gen_jwt_proof(nonce: str, is_local: bool, input: dict) -> dict:
-    circuit_name = "jwt-verifier"
+    circuit_name = "jwt-auth"
     print("Store input")
     store_input(circuit_name, nonce, input)
     print("Generate proof")

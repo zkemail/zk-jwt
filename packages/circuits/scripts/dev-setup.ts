@@ -9,19 +9,18 @@
  */
 
 // @ts-ignore
-import { zKey } from "snarkjs";
-import https from "https";
-import fs from "fs";
-import path from "path";
-import { program } from "commander";
+import { zKey } from 'snarkjs';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import { program } from 'commander';
 
 program
-  .requiredOption(
-    "--output <string>",
-    "Path to the directory storing output files"
-  )
-  .option("--silent", "No console logs")
-  .option("--body", "Enable body parsing");
+  .requiredOption('--output <string>', 'Path to the directory storing output files')
+  .option('--silent', 'No console logs')
+  .option('--body', 'Enable body parsing')
+  .requiredOption('--circuit <string>', 'Path to the circuit file')
+  .option('--name <string>', 'Custom name for the circuit', 'circuit');
 
 program.parse();
 const args = program.opts();
@@ -32,34 +31,27 @@ function log(...message: any) {
   }
 }
 
-
 let { ZKEY_ENTROPY, ZKEY_BEACON } = process.env;
 if (ZKEY_ENTROPY == null) {
-  ZKEY_ENTROPY = "dev";
+  ZKEY_ENTROPY = 'dev';
 }
 if (ZKEY_BEACON == null) {
-  ZKEY_BEACON = "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
+  ZKEY_BEACON = '0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f';
 }
 
-let phase1Url =
-  "https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_22.ptau";
+let phase1Url = 'https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau';
 if (args.body) {
-  phase1Url =
-    "https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_23.ptau";
+  phase1Url = 'https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_23.ptau';
 }
 // const buildDir = path.join(__dirname, "../build");
 // const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_21.ptau");
 // const r1cPath = path.join(buildDir, "wallet.r1cs");
-const solidityTemplate = path.join(
-  require.resolve("snarkjs"),
-  "../../templates/verifier_groth16.sol.ejs"
-);
+const solidityTemplate = path.join(require.resolve('snarkjs'), '../../templates/verifier_groth16.sol.ejs');
 
 // Output paths
 // const zKeyPath = path.join(buildDir, "wallet.zkey");
 // const vKeyPath = path.join(buildDir, "vkey.json");
 // const solidityVerifierPath = path.join(buildDir, "verifier.sol");
-
 
 // async function askBeacon() {
 //   if (!ZKEY_BEACON) {
@@ -90,13 +82,13 @@ async function downloadPhase1(phase1Path: string) {
       https
         .get(phase1Url, (response) => {
           response.pipe(phase1File);
-          phase1File.on("finish", () => {
+          phase1File.on('finish', () => {
             phase1File.close();
             resolve(true);
           });
         })
-        .on("error", (err) => {
-          fs.unlink(phase1Path, () => { });
+        .on('error', (err) => {
+          fs.unlink(phase1Path, () => {});
           reject(err);
         });
     });
@@ -108,18 +100,18 @@ async function generateKeys(
   r1cPath: string,
   zKeyPath: string,
   vKeyPath: string,
-  solidityVerifierPath: string
+  solidityVerifierPath: string,
 ) {
   log(`✓ Generating ZKey for ${r1cPath}`);
-  await zKey.newZKey(r1cPath, phase1Path, zKeyPath + ".step1", console);
-  log("✓ Partial ZKey generated");
+  await zKey.newZKey(r1cPath, phase1Path, zKeyPath + '.step1', console);
+  log('✓ Partial ZKey generated');
 
-  await zKey.contribute(zKeyPath + ".step1", zKeyPath + ".step2", "Contributer 1", ZKEY_ENTROPY, console);
-  log("✓ First contribution completed");
+  await zKey.contribute(zKeyPath + '.step1', zKeyPath + '.step2', 'Contributer 1', ZKEY_ENTROPY, console);
+  log('✓ First contribution completed');
 
   // await askBeacon();
-  await zKey.beacon(zKeyPath + ".step2", zKeyPath, "Final Beacon", ZKEY_BEACON, 10, console);
-  log("✓ Beacon applied");
+  await zKey.beacon(zKeyPath + '.step2', zKeyPath, 'Final Beacon', ZKEY_BEACON, 10, console);
+  log('✓ Beacon applied');
 
   await zKey.verifyFromR1cs(r1cPath, phase1Path, zKeyPath, console);
   log(`✓ Final ZKey verified - ${zKeyPath}`);
@@ -129,53 +121,45 @@ async function generateKeys(
   log(`✓ Verification key exported - ${vKeyPath}`);
 
   const templates = {
-    groth16: fs.readFileSync(solidityTemplate, "utf8"),
+    groth16: fs.readFileSync(solidityTemplate, 'utf8'),
   };
   const code = await zKey.exportSolidityVerifier(zKeyPath, templates, console);
   fs.writeFileSync(solidityVerifierPath, code);
   log(`✓ Solidity verifier exported - ${solidityVerifierPath}`);
-  fs.rmSync(zKeyPath + ".step1");
-  fs.rmSync(zKeyPath + ".step2");
+  fs.rmSync(zKeyPath + '.step1');
+  fs.rmSync(zKeyPath + '.step2');
 }
 
 async function exec() {
   const buildDir = args.output;
+  const circuitPath = args.circuit;
+  const circuitName = args.name;
 
-
-  if (!args.body) {
-    const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_22.ptau");
-
-    await downloadPhase1(phase1Path);
-    log("✓ Phase 1:", phase1Path);
-
-    const emailAuthR1csPath = path.join(buildDir, "jwt-verifier.r1cs");
-    if (!fs.existsSync(emailAuthR1csPath)) {
-      throw new Error(`${emailAuthR1csPath} does not exist.`);
-    }
-    await generateKeys(phase1Path, emailAuthR1csPath, path.join(buildDir, "jwt-verifier.zkey"), path.join(buildDir, "jwt-verifier.vkey"), path.join(buildDir, "JwtGroth16Verifier.sol"));
-    log("✓ Keys for email auth circuit generated");
-  } else {
-    const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_23.ptau");
-
-    await downloadPhase1(phase1Path);
-    log("✓ Phase 1:", phase1Path);
-
-    const emailAuthR1csPath = path.join(buildDir, "email_auth_with_body_parsing_with_qp_encoding.r1cs");
-    if (!fs.existsSync(emailAuthR1csPath)) {
-      throw new Error(`${emailAuthR1csPath} does not exist.`);
-    }
-    await generateKeys(phase1Path, emailAuthR1csPath, path.join(buildDir, "email_auth_with_body_parsing_with_qp_encoding.zkey"), path.join(buildDir, "email_auth_with_body_parsing_with_qp_encoding.vkey"), path.join(buildDir, "Groth16BodyParsingVerifier.sol"));
-    log("✓ Keys for email auth with body parsing circuit generated");
+  if (!fs.existsSync(circuitPath)) {
+    throw new Error(`Circuit file does not exist at path: ${circuitPath}`);
   }
 
-}
+  const phase1Path = path.join(
+    buildDir,
+    args.body ? 'powersOfTau28_hez_final_23.ptau' : 'powersOfTau28_hez_final_21.ptau',
+  );
 
+  await downloadPhase1(phase1Path);
+  log('✓ Phase 1:', phase1Path);
+
+  const zKeyPath = path.join(buildDir, `${circuitName}.zkey`);
+  const vKeyPath = path.join(buildDir, `${circuitName}_vkey.json`);
+  const solidityVerifierPath = path.join(buildDir, `${circuitName}_verifier.sol`);
+
+  await generateKeys(phase1Path, circuitPath, zKeyPath, vKeyPath, solidityVerifierPath);
+  log('✓ Keys for circuit generated');
+}
 
 exec()
   .then(() => {
     process.exit(0);
   })
   .catch((err) => {
-    console.log("Error: ", err);
+    console.log('Error: ', err);
     process.exit(1);
   });
