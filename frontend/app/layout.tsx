@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { ChakraProvider } from '@chakra-ui/react';
 import localFont from 'next/font/local';
 import './globals.css';
+import { CSPostHogProvider } from './providers';
+import PostHogPageView from "./PostHogPageView"
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -27,7 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <ChakraProvider>{children}</ChakraProvider>
+        <CSPostHogProvider>
+          <PostHogPageView />
+          <ChakraProvider>{children}</ChakraProvider>
+        </CSPostHogProvider>
         <script src="https://accounts.google.com/gsi/client" async defer></script>
       </body>
     </html>
