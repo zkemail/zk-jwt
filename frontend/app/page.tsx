@@ -26,6 +26,7 @@ import {
 import { CheckCircleIcon, TimeIcon, WarningIcon } from '@chakra-ui/icons';
 import styled from '@emotion/styled';
 import axios from 'axios';
+import posthog from 'posthog-js';
 
 declare global {
   interface Window {
@@ -99,6 +100,8 @@ export default function Home() {
       const decodedPayload = JSON.parse(Buffer.from(response.credential.split('.')[1], 'base64').toString('utf-8'));
       console.log('Decoded Header:', decodedHeader);
       console.log('Decoded Payload:', decodedPayload);
+
+      posthog.capture('googleSigninSuccess', { email: decodedPayload.email });
       setDecodedJwt({
         rawJwt: jwt,
         header: decodedHeader,
@@ -116,13 +119,16 @@ export default function Home() {
       });
       if (result) {
         const { proof, pub_signals } = result;
+        posthog.capture('proofGenerationSuccessful', { proof, pub_signals, decodedHeader, decodedPayload });
         await submitProofToContract(proof, pub_signals, decodedHeader, decodedPayload);
       } else {
+        posthog.capture('proofGenerationFailed', { result });
         throw new Error('Failed to generate proof');
       }
     } catch (error) {
       console.error('Error decoding JWT:', error);
       setError('Failed to process the sign-in response. Please try again.');
+      posthog.capture('googleSigninFailed');
       setStepStatuses(() => ['failed', 'idle', 'idle']);
     }
   };
@@ -198,9 +204,11 @@ export default function Home() {
       });
       console.log('Proof submitted to contract:', response.data);
       setTxHash(response.data.transactionHash);
+      posthog.capture('submitProofToContractSuccess', { transactionHash: response.data.transactionHash });
       setStepStatuses(() => ['success', 'success', 'success', 'success']);
     } catch (error) {
       console.error('Error submitting proof to contract:', error);
+      posthog.capture('submitProofToContractFailed', { error, proof, pub_signals, header, payload });
       if (axios.isAxiosError(error) && error.response) {
         setError(`Failed to submit proof: ${error.response.data.message || error.message}`);
       } else {
@@ -287,6 +295,7 @@ export default function Home() {
               <Input
                 placeholder="Enter your command here"
                 value={command}
+                onBlur={(e) => posthog.capture('command', { command: e.target.value })}
                 onChange={(e) => setCommand(e.target.value)}
                 size="lg"
                 borderColor="blue.300"
