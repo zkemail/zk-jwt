@@ -2780,7 +2780,6 @@ __metadata:
     "@zk-email/contracts": ^6.1.5
     ds-test: "git+https://github.com/dapphub/ds-test.git"
     forge-std: "git+https://github.com/foundry-rs/forge-std.git"
-    solady: ^0.0.123
     solhint: ^3.6.2
   languageName: unknown
   linkType: soft
@@ -8581,13 +8580,6 @@ __metadata:
     ip-address: ^9.0.5
     smart-buffer: ^4.2.0
   checksum: 7a6b7f6eedf7482b9e4597d9a20e09505824208006ea8f2c49b71657427f3c137ca2ae662089baa73e1971c62322d535d9d0cf1c9235cf6f55e315c18203eadd
-  languageName: node
-  linkType: hard
-
-"solady@npm:^0.0.123":
-  version: 0.0.123
-  resolution: "solady@npm:0.0.123"
-  checksum: c058d1c235b2d54b608ca9129e24664bdc699a6693c3f972495cbdeeb2f7b0ca513bef2a685da59ac051d7adc61e35d8f9c44ed276516ace000b17a8c2295207
   languageName: node
   linkType: hard
 

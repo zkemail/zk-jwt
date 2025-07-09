@@ -11,8 +11,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^5.2.0",
     "@openzeppelin/contracts-upgradeable": "^5.0.0",
-    "@zk-email/contracts": "^6.1.5",
-    "solady": "^0.0.123"
+    "@zk-email/contracts": "^6.1.5"
   },
   "devDependencies": {
     "ds-test": "git+https://github.com/dapphub/ds-test.git",
