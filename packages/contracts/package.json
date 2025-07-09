@@ -9,11 +9,10 @@
     "lint": "solhint 'src/**/*.sol'"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.0",
+    "@openzeppelin/contracts": "^5.2.0",
     "@openzeppelin/contracts-upgradeable": "^5.0.0",
     "@zk-email/contracts": "^6.1.5",
-    "solady": "^0.0.123",
-    "solidity-stringutils": "git+https://github.com/LayerZero-Labs/solidity-stringutils.git"
+    "solady": "^0.0.123"
   },
   "devDependencies": {
     "ds-test": "git+https://github.com/dapphub/ds-test.git",

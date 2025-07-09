@@ -4,13 +4,11 @@ pragma solidity ^0.8.9;
 import "../interfaces/IJwtGroth16Verifier.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {strings} from "solidity-stringutils/src/strings.sol";
 import {IVerifier, EmailProof} from "../interfaces/IVerifier.sol";
 import {HexUtils} from "./HexUtils.sol";
 import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 
 contract JwtVerifier is IVerifier, OwnableUpgradeable, UUPSUpgradeable {
-    using strings for *;
     using HexUtils for string;
     using StringToArrayUtils for string;
 
