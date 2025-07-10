@@ -12,27 +12,27 @@ contract JwtRegistryTest_isJwtPublicKeyValid is JwtRegistryTestBase {
         super.setUp();
     }
 
-    function testFail_isJwtPublicKeyValid_invalidKid() public {
+    function test_isJwtPublicKeyValid_invalidKid() public view {
         string memory domainName = "54321|https://example.com|client-id-12345";
         bool res = jwtRegistry.isJwtPublicKeyValid(domainName, publicKeyHash);
-        assertEq(res, true);
+        assertFalse(res);
     }
 
-    function testFail_isJwtPublicKeyValid_invalidIss() public {
+    function test_isJwtPublicKeyValid_invalidIss() public view {
         string memory domainName = "12345|https://example.xyz|client-id-12345";
         bool res = jwtRegistry.isJwtPublicKeyValid(domainName, publicKeyHash);
-        assertEq(res, true);
+        assertFalse(res);
     }
 
-    function testFail_isJwtPublicKeyValid_invalidAzp() public {
+    function test_isJwtPublicKeyValid_invalidAzp() public view {
         string memory domainName = "12345|https://example.com|client-id-54321";
         bool res = jwtRegistry.isJwtPublicKeyValid(domainName, publicKeyHash);
-        assertEq(res, true);
+        assertFalse(res);
     }
 
-    function test_isJwtPublicKeyValid() public {
+    function test_isJwtPublicKeyValid() public view {
         string memory domainName = "12345|https://example.com|client-id-12345";
         bool res = jwtRegistry.isJwtPublicKeyValid(domainName, publicKeyHash);
-        assertEq(res, true);
+        assertTrue(res);
     }
 }
