@@ -12,39 +12,39 @@ contract JwtRegistryTest_isDKIMPublicKeyHashValid is JwtRegistryTestBase {
         super.setUp();
     }
 
-    function testFail_isDKIMPublicKeyHashValid_invalidKid() public {
+    function test_isDKIMPublicKeyHashValid_invalidKid() public view {
         string memory domainName = "54321|https://example.com|client-id-12345";
         bool res = jwtRegistry.isDKIMPublicKeyHashValid(
             domainName,
             publicKeyHash
         );
-        assertEq(res, true);
+        assertFalse(res);
     }
 
-    function testFail_isDKIMPublicKeyHashValid_invalidIss() public {
+    function test_isDKIMPublicKeyHashValid_invalidIss() public view {
         string memory domainName = "12345|https://example.xyz|client-id-12345";
         bool res = jwtRegistry.isDKIMPublicKeyHashValid(
             domainName,
             publicKeyHash
         );
-        assertEq(res, true);
+        assertFalse(res);
     }
 
-    function testFail_isDKIMPublicKeyHashValid_invalidAzp() public {
+    function test_isDKIMPublicKeyHashValid_invalidAzp() public view {
         string memory domainName = "12345|https://example.com|client-id-54321";
         bool res = jwtRegistry.isDKIMPublicKeyHashValid(
             domainName,
             publicKeyHash
         );
-        assertEq(res, true);
+        assertFalse(res);
     }
 
-    function test_isDKIMPublicKeyHashValid() public {
+    function test_isDKIMPublicKeyHashValid() public view {
         string memory domainName = "12345|https://example.com|client-id-12345";
         bool res = jwtRegistry.isDKIMPublicKeyHashValid(
             domainName,
             publicKeyHash
         );
-        assertEq(res, true);
+        assertTrue(res);
     }
 }
