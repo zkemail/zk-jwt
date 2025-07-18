@@ -1,26 +1,26 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.24;
 
-import {strings} from "solidity-stringutils/src/strings.sol";
+import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 
 library StringToArrayUtils {
-    using strings for *;
-
     /// @notice Converts a string containing three parts separated by '|' into an array of strings
     /// @param _strings The input string to be split
     /// @return An array of three strings, representing kid, iss, and azp
     /// @dev This function is used to parse the domainName parameter in other functions
     /// @dev Requires the input string to contain exactly two '|' characters
-    function stringToArray(
-        string memory _strings
-    ) internal pure returns (string[] memory) {
-        strings.slice memory slicee = _strings.toSlice();
-        strings.slice memory delim = "|".toSlice();
-        string[] memory parts = new string[](slicee.count(delim) + 1);
-        for (uint i = 0; i < parts.length; i++) {
-            parts[i] = slicee.split(delim).toString();
+    function stringToArray(string memory _strings) internal pure returns (string[] memory) {
+        bytes memory data = bytes(_strings);
+        string[] memory parts = new string[](3);
+        
+        uint256 start = 0;
+        for (uint256 i = 0; start < data.length; i++) {
+            uint256 end = i == 2 ? data.length : Bytes.indexOf(data, bytes1("|"), start);
+            require(i == 2 || end != type(uint256).max, "Invalid kid|iss|azp strings");
+            parts[i] = string(Bytes.slice(data, start, end));
+            start = end + 1;
         }
-        require(parts.length == 3, "Invalid kid|iss|azp strings");
+        
         return parts;
     }
 }

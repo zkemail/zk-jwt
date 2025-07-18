@@ -7,14 +7,12 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {strings} from "solidity-stringutils/src/strings.sol";
 import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 
 /// @title JWT Registry
 /// @notice TODO
 /// @dev TODO
 contract JwtRegistry is IDKIMRegistry, Ownable {
-    using strings for *;
     using StringToArrayUtils for string;
 
     DKIMRegistry public dkimRegistry;
