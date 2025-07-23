@@ -15,7 +15,7 @@ import {StringToArrayUtils} from "./StringToArrayUtils.sol";
 contract JwtRegistry is IDKIMRegistry, Ownable {
     using StringToArrayUtils for string;
 
-    DKIMRegistry public dkimRegistry;
+    DKIMRegistry public immutable dkimRegistry;
 
     // Check if azp is registered
     mapping(string => bool) public whitelistedClients;
@@ -48,7 +48,7 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
         string memory domainName,
         bytes32 publicKeyHash
     ) public view returns (bool) {
-        return this.isDKIMPublicKeyHashValid(domainName, publicKeyHash);
+        return isDKIMPublicKeyHashValid(domainName, publicKeyHash);
     }
 
     /// @notice Sets a public key hash for a `kis|iss` string  after validating the provided signature.
@@ -64,17 +64,17 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
         string[] memory parts = domainName.stringToArray();
         string memory kidAndIss = string(abi.encode(parts[0], "|", parts[1]));
         require(
-            isDKIMPublicKeyHashValid(domainName, publicKeyHash) == false,
+            !isDKIMPublicKeyHashValid(domainName, publicKeyHash),
             "publicKeyHash is already set"
         );
         require(
-            dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash) == false,
+            !dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash),
             "publicKeyHash is revoked"
         );
 
-        dkimRegistry.setDKIMPublicKeyHash(kidAndIss, publicKeyHash);
         // Register azp
         whitelistedClients[parts[2]] = true;
+        dkimRegistry.setDKIMPublicKeyHash(kidAndIss, publicKeyHash);
     }
 
     /// @notice Revokes a public key hash for `kis|iss` string after validating the provided signature.
@@ -88,11 +88,11 @@ contract JwtRegistry is IDKIMRegistry, Ownable {
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
         require(
-            isDKIMPublicKeyHashValid(domainName, publicKeyHash) == true,
+            isDKIMPublicKeyHashValid(domainName, publicKeyHash),
             "publicKeyHash is not set"
         );
         require(
-            dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash) == false,
+            !dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash),
             "publicKeyHash is already revoked"
         );
 
