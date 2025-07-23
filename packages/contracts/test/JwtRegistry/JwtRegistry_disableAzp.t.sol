@@ -17,7 +17,7 @@ contract JwtRegistryTest_disableAzp is JwtRegistryTestBase {
     function testRevert_disableAzp_invalidDomainNameFormat() public {
         vm.startPrank(deployer);
         string memory invalidDomainName = "12345|https://example.com";
-        vm.expectRevert(bytes("Invalid kid|iss|azp strings"));
+        vm.expectRevert("Invalid kid|iss|azp strings");
         jwtRegistry.disableAzp(invalidDomainName);
         vm.stopPrank();
     }
@@ -26,7 +26,7 @@ contract JwtRegistryTest_disableAzp is JwtRegistryTestBase {
         vm.startPrank(deployer);
         string
             memory invalidDomainName = "12345|https://example.com|client-id-12345|extra";
-        vm.expectRevert(bytes("Invalid kid|iss|azp strings"));
+        vm.expectRevert("Invalid kid|iss|azp strings");
         jwtRegistry.disableAzp(invalidDomainName);
         vm.stopPrank();
     }
@@ -34,7 +34,7 @@ contract JwtRegistryTest_disableAzp is JwtRegistryTestBase {
     function testRevert_disableAzp_emptyString() public {
         vm.startPrank(deployer);
         string memory invalidDomainName = "";
-        vm.expectRevert(bytes("Invalid kid|iss|azp strings"));
+        vm.expectRevert("Invalid kid|iss|azp strings");
         jwtRegistry.disableAzp(invalidDomainName);
         vm.stopPrank();
     }
