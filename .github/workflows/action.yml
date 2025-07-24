@@ -1,5 +1,13 @@
 name: ZK JWT Tests
-on: [push]
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+  workflow_dispatch:
+
 jobs:
   run_circuit_tests:
     runs-on: ubuntu-latest
@@ -48,20 +56,20 @@ jobs:
     environment: development
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set Node.js 18.x
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      
+
       - name: Install Yarn dependencies
         working-directory: ./packages/helpers
         run: yarn install --immutable
-      
+
       - name: Run build
         working-directory: ./packages/helpers
         run: yarn build
-     
+
       - name: Run Tests
         working-directory: ./packages/helpers
         run: yarn test
@@ -71,7 +79,7 @@ jobs:
     environment: development
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set Node.js 18.x
         uses: actions/setup-node@v3
         with:
@@ -79,7 +87,7 @@ jobs:
 
       - name: Install yarn
         run: npm install -g yarn
-        
+
       - name: Install Yarn dependencies
         working-directory: ./packages/contracts
         run: yarn install --immutable
@@ -92,11 +100,11 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1.2.0
         with:
           version: nightly-0079a1146b79a4aeda58b0258215bedb1f92700b
-        
+
       - name: Run build
         working-directory: ./packages/contracts
         run: yarn build
-      
+
       - name: Run Unit Tests
         working-directory: ./packages/contracts
-        run: yarn test:unit        
+        run: yarn test:unit
