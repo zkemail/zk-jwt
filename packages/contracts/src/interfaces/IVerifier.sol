@@ -21,7 +21,7 @@ interface IVerifier {
      */    
     function verifyEmailProof(
         EmailProof memory proof
-    ) external returns (bool);
+    ) external view returns (bool);
 
     /**
      * @notice Returns a constant value representing command bytes.
