@@ -39,9 +39,9 @@ if (ZKEY_BEACON == null) {
   ZKEY_BEACON = '0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f';
 }
 
-let phase1Url = 'https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau';
+let phase1Url = 'https://pse-trusted-setup-ppot.s3.eu-central-1.amazonaws.com/pot28_0080/ppot_0080_21.ptau';
 if (args.body) {
-  phase1Url = 'https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_23.ptau';
+  phase1Url = 'https://pse-trusted-setup-ppot.s3.eu-central-1.amazonaws.com/pot28_0080/ppot_0080_23.ptau';
 }
 // const buildDir = path.join(__dirname, "../build");
 // const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_21.ptau");
@@ -139,10 +139,7 @@ async function exec() {
     throw new Error(`Circuit file does not exist at path: ${circuitPath}`);
   }
 
-  const phase1Path = path.join(
-    buildDir,
-    args.body ? 'powersOfTau28_hez_final_23.ptau' : 'powersOfTau28_hez_final_21.ptau',
-  );
+  const phase1Path = path.join(buildDir, args.body ? 'ppot_0080_23.ptau' : 'ppot_0080_21.ptau');
 
   await downloadPhase1(phase1Path);
   log('✓ Phase 1:', phase1Path);
