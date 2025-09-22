@@ -1,6 +1,7 @@
 pragma circom 2.1.6;
 
 include "@zk-email/circuits/helpers/reveal-substring.circom";
+include "@zk-email/circuits/utils/array.circom";
 include "@zk-email/email-tx-builder-circom/src/utils/bytes2ints.circom";
 include "@zk-email/email-tx-builder-circom/src/utils/digit2int.circom";
 
@@ -31,6 +32,12 @@ template ExtractKid(maxHeaderLength) {
     var kidLength = JWT_KID_LENGTH();
     signal kidBytes[kidLength] <== RevealSubstring(maxHeaderLength, kidLength, 0)(header, kidStartIndex, kidLength);
     kid <== Hex2FieldModular(kidLength)(kidBytes);
+
+    // Verify the value is followed by a double quote
+    component boundaryCheck = ItemAtIndex(maxHeaderLength);
+    boundaryCheck.in <== header;
+    boundaryCheck.index <== kidStartIndex + kidLength;
+    boundaryCheck.out === 34; // ASCII for `"`
 }
 
 /// @title ExtractIssuer
@@ -59,6 +66,12 @@ template ExtractIssuer(maxPayloadLength) {
     signal issStartIndex <== issKeyStartIndex + issKeyLength + 1;
     signal issMatch[ISSUER_MAX_BYTES()] <== RevealSubstring(maxPayloadLength, ISSUER_MAX_BYTES(), 0)(payload, issStartIndex, issLength);
     iss <== Bytes2Ints(ISSUER_MAX_BYTES())(issMatch);
+
+    // Verify the value is followed by a double quote
+    component boundaryCheck = ItemAtIndex(maxPayloadLength);
+    boundaryCheck.in <== payload;
+    boundaryCheck.index <== issStartIndex + issLength;
+    boundaryCheck.out === 34; // ASCII for `"`
 }
 
 /// @title ExtractTimestamp
@@ -86,6 +99,12 @@ template ExtractTimestamp(maxPayloadLength) {
     signal iatStartIndex <== iatKeyStartIndex + iatKeyLength;
     signal iatMatch[iatLength] <== RevealSubstring(maxPayloadLength, iatLength, 0)(payload, iatStartIndex, iatLength);
     timestamp <== Digit2Int(iatLength)(iatMatch);
+
+    // Verify the value is followed by a comma or closing brace
+    component boundaryCheck = ItemAtIndex(maxPayloadLength);
+    boundaryCheck.in <== payload;
+    boundaryCheck.index <== iatStartIndex + iatLength;
+    (boundaryCheck.out - 44) * (boundaryCheck.out - 125) === 0; // ASCII for `,` and `}`
 }
 
 /// @title ExtractAzp
@@ -115,6 +134,12 @@ template ExtractAzp(maxPayloadLength, maxAzpLength) {
     signal azpStartIndex <== azpKeyStartIndex + azpKeyLength + 1;
     signal azpMatch[maxAzpLength] <== RevealSubstring(maxPayloadLength, maxAzpLength, 0)(payload, azpStartIndex, azpLength);
     azp <== Bytes2Ints(maxAzpLength)(azpMatch);
+
+    // Verify the value is followed by a double quote
+    component boundaryCheck = ItemAtIndex(maxPayloadLength);
+    boundaryCheck.in <== payload;
+    boundaryCheck.index <== azpStartIndex + azpLength;
+    boundaryCheck.out === 34; // ASCII for `"`
 }
 
 /// @title ExtractEmail
@@ -143,6 +168,12 @@ template ExtractEmail(maxPayloadLength, maxEmailLength) {
     // Extract email
     signal emailStartIndex <== emailKeyStartIndex + emailKeyLength + 1;
     email <== RevealSubstring(maxPayloadLength, maxEmailLength, 0)(payload, emailStartIndex, emailLength);
+
+    // Verify the value is followed by a double quote
+    component boundaryCheck = ItemAtIndex(maxPayloadLength);
+    boundaryCheck.in <== payload;
+    boundaryCheck.index <== emailStartIndex + emailLength;
+    boundaryCheck.out === 34; // ASCII for `"`
 }
 
 /// @title ExtractDomainFromEmail
@@ -197,6 +228,12 @@ template ExtractCommand(maxPayloadLength, maxCommandLength) {
     // Extract command
     signal commandStartIndex <== nonceKeyStartIndex + nonceKeyLength + 1;
     command <== RevealSubstring(maxPayloadLength, maxCommandLength, 0)(payload, commandStartIndex, commandLength);
+
+    // Verify the value is followed by a double quote
+    component boundaryCheck = ItemAtIndex(maxPayloadLength);
+    boundaryCheck.in <== payload;
+    boundaryCheck.index <== commandStartIndex + commandLength;
+    boundaryCheck.out === 34; // ASCII for `"`
 }
 
 /// @title ExtractSub
@@ -221,8 +258,14 @@ template ExtractSub(maxPayloadLength) {
     }
 
     // Reveal the sub
-    signal subStartIndex <== subKeyStartIndex + SUB_KEY_LENGTH() + 1;
-    signal subMatch[SUB_VALUE_LENGTH()] <== RevealSubstring(maxPayloadLength, SUB_VALUE_LENGTH(), 0)(payload, subStartIndex, SUB_VALUE_LENGTH());
-    sub <== Digit2Int(SUB_VALUE_LENGTH())(subMatch);
-}
+    var subLength = SUB_VALUE_LENGTH();
+    signal subStartIndex <== subKeyStartIndex + subKeyLength + 1;
+    signal subMatch[subLength] <== RevealSubstring(maxPayloadLength, subLength, 0)(payload, subStartIndex, subLength);
+    sub <== Digit2Int(subLength)(subMatch);
 
+    // Verify the value is followed by a double quote
+    component boundaryCheck = ItemAtIndex(maxPayloadLength);
+    boundaryCheck.in <== payload;
+    boundaryCheck.index <== subStartIndex + subLength;
+    boundaryCheck.out === 34; // ASCII for `"`
+}
